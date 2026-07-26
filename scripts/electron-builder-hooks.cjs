@@ -107,6 +107,7 @@ function verifyPreinstalledPlugins(runtimeRoot, buildHint) {
 
   for (const plugin of plugins) {
     if (!plugin.id) continue;
+    if (plugin.optional) continue; // optional plugins may not be available on all networks
     const pluginDir = path.join(extensionsDir, plugin.id);
     if (!existsSync(pluginDir)) {
       missing.push(plugin.id);
