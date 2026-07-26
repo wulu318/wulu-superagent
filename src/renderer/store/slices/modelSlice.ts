@@ -23,7 +23,7 @@ export interface Model {
 }
 
 function isServerModelIdentity(model: Pick<Model, 'providerKey' | 'isServerModel'>): boolean {
-  return model.isServerModel === true || model.providerKey === ProviderName.LobsteraiServer;
+  return model.isServerModel === true || model.providerKey === ProviderName.WULUServer;
 }
 
 export function getModelIdentityKey(model: Pick<Model, 'id' | 'providerKey' | 'isServerModel'>): string {

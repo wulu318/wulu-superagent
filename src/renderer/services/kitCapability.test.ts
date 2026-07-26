@@ -66,8 +66,8 @@ describe('kit capability helpers', () => {
         kind: KitReferenceKind.Kit,
         id: 'design',
         name: 'Design',
-        uri: 'kit://design@lobsterai-kits',
-        source: KitReferenceSource.LobsterAiKits,
+        uri: 'kit://design@WULU-kits',
+        source: KitReferenceSource.WULUKits,
       },
     ]);
   });

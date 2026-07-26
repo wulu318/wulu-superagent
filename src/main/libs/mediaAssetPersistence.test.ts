@@ -51,7 +51,7 @@ describe('mediaAssetPersistence', () => {
   });
 
   test('persists downloaded images into cwd and avoids overwriting existing files', async () => {
-    const cwd = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'lobster-media-assets-'));
+    const cwd = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'Wulu-media-assets-'));
     await fs.promises.writeFile(path.join(cwd, 'generated-image.png'), 'existing');
 
     const result = await persistGeneratedImageAssets({
@@ -76,7 +76,7 @@ describe('mediaAssetPersistence', () => {
   });
 
   test('persists downloaded images using byte-detected extension over declared filename', async () => {
-    const cwd = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'lobster-media-assets-'));
+    const cwd = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'Wulu-media-assets-'));
 
     const result = await persistGeneratedImageAssets({
       cwd,
@@ -101,7 +101,7 @@ describe('mediaAssetPersistence', () => {
   });
 
   test('persists image data urls without fetching and prefers byte-detected extension', async () => {
-    const cwd = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'lobster-media-assets-'));
+    const cwd = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'Wulu-media-assets-'));
     const dataUrl = `data:image/jpeg;base64,${pngBuffer.toString('base64')}`;
 
     const result = await persistGeneratedImageAssets({
@@ -127,7 +127,7 @@ describe('mediaAssetPersistence', () => {
   });
 
   test('persists image data urls using byte-detected extension over declared filename', async () => {
-    const cwd = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'lobster-media-assets-'));
+    const cwd = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'Wulu-media-assets-'));
     const dataUrl = `data:image/jpeg;base64,${pngBuffer.toString('base64')}`;
 
     const result = await persistGeneratedImageAssets({
@@ -155,7 +155,7 @@ describe('mediaAssetPersistence', () => {
   });
 
   test('persists image data urls using declared mime when bytes are unknown', async () => {
-    const cwd = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'lobster-media-assets-'));
+    const cwd = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'Wulu-media-assets-'));
     const rawBuffer = Buffer.from('image-bytes-without-known-signature');
 
     const result = await persistGeneratedImageAssets({
@@ -180,7 +180,7 @@ describe('mediaAssetPersistence', () => {
   });
 
   test('reports failed downloads without writing files', async () => {
-    const cwd = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'lobster-media-assets-'));
+    const cwd = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'Wulu-media-assets-'));
 
     const result = await persistGeneratedImageAssets({
       cwd,
@@ -199,7 +199,7 @@ describe('mediaAssetPersistence', () => {
   });
 
   test('persists downloaded videos into cwd', async () => {
-    const cwd = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'lobster-media-assets-'));
+    const cwd = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'Wulu-media-assets-'));
 
     const result = await persistGeneratedVideoAssets({
       cwd,

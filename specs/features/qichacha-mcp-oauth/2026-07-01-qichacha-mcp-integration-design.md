@@ -2,7 +2,7 @@
 
 ## 1. 概述
 
-企查查提供多个按业务领域拆分的 MCP server。LobsterAI 需要让用户通过一次账号授权完成配置，同时在管理界面将这些 server 作为一个产品管理，而不是展示为多个互不相关的 MCP。
+企查查提供多个按业务领域拆分的 MCP server。wulu 需要让用户通过一次账号授权完成配置，同时在管理界面将这些 server 作为一个产品管理，而不是展示为多个互不相关的 MCP。
 
 本方案采用登录辅助获取 API Key 的方式，不维护 OAuth access token、refresh token 或登录会话。底层仍保留独立 MCP server 记录，以兼容现有存储和 OpenClaw 配置格式。
 

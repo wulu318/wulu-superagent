@@ -9,7 +9,7 @@ const models: Model[] = [
   { id: 'deepseek-v3.2', name: 'DeepSeek', providerKey: 'anthropic' },
   { id: 'deepseek-v3.2', name: 'DeepSeek Server', providerKey: 'openai', isServerModel: true },
   { id: 'kimi-k2.6', name: 'Kimi K2.6', providerKey: 'moonshot' },
-  { id: 'kimi-k2.6', name: 'Kimi K2.6 Server', providerKey: 'lobsterai-server', isServerModel: true },
+  { id: 'kimi-k2.6', name: 'Kimi K2.6 Server', providerKey: 'WULU-server', isServerModel: true },
 ];
 
 const visionModel: Model = { id: 'qwen3.5-plus', name: 'Qwen3.5 Plus', providerKey: 'qwen', supportsImage: true };
@@ -45,14 +45,14 @@ describe('resolveAgentModelSelection', () => {
 
   test('resolves same-id server session model to the server model', () => {
     const result = resolveAgentModelSelection({
-      sessionModel: 'lobsterai-server/kimi-k2.6',
+      sessionModel: 'WULU-server/kimi-k2.6',
       agentModel: 'moonshot/kimi-k2.6',
       availableModels: models,
       fallbackModel: models[0],
       engine: 'openclaw',
     });
 
-    expect(result.selectedModel?.providerKey).toBe('lobsterai-server');
+    expect(result.selectedModel?.providerKey).toBe('WULU-server');
     expect(result.selectedModel?.isServerModel).toBe(true);
     expect(result.usesFallback).toBe(false);
     expect(result.hasInvalidExplicitModel).toBe(false);
@@ -60,13 +60,13 @@ describe('resolveAgentModelSelection', () => {
 
   test('resolves same-id server agent model to the server model', () => {
     const result = resolveAgentModelSelection({
-      agentModel: 'lobsterai-server/kimi-k2.6',
+      agentModel: 'WULU-server/kimi-k2.6',
       availableModels: models,
       fallbackModel: models[0],
       engine: 'openclaw',
     });
 
-    expect(result.selectedModel?.providerKey).toBe('lobsterai-server');
+    expect(result.selectedModel?.providerKey).toBe('WULU-server');
     expect(result.selectedModel?.isServerModel).toBe(true);
     expect(result.usesFallback).toBe(false);
     expect(result.hasInvalidExplicitModel).toBe(false);

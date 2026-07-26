@@ -24,7 +24,7 @@ import {
 // ---- helpers ----------------------------------------------------------------
 
 function makeTmpDir() {
-  return fs.mkdtempSync(path.join(os.tmpdir(), 'lobsterai-memoryfile-test-'));
+  return fs.mkdtempSync(path.join(os.tmpdir(), 'WULU-memoryfile-test-'));
 }
 
 function cleanupDir(dir: string) {

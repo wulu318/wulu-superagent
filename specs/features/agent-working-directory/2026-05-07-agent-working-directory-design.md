@@ -4,11 +4,11 @@
 
 ### 1.1 问题/背景
 
-当前 LobsterAI 中用户在 Cowork 首页选择的工作目录来自全局 `cowork_config.workingDirectory`。当用户切换到任一 Agent 并修改工作目录时，实际修改的是同一份全局配置，因此所有 Agent 首页展示的工作目录都会同时变化。
+当前 wulu 中用户在 Cowork 首页选择的工作目录来自全局 `cowork_config.workingDirectory`。当用户切换到任一 Agent 并修改工作目录时，实际修改的是同一份全局配置，因此所有 Agent 首页展示的工作目录都会同时变化。
 
 这与 Agent 的产品语义不一致。用户创建多个 Agent 通常是为了让它们承担不同角色或面向不同项目，例如：
 
-- `main` Agent 面向 LobsterAI 主工程。
+- `main` Agent 面向 wulu 主工程。
 - `docs` Agent 面向文档仓库。
 - `ops` Agent 面向部署脚本目录。
 
@@ -91,7 +91,7 @@
 ### 场景 6: IM 绑定 Agent 使用自己的工作目录
 
 **Given** IM 平台绑定到 Agent B，Agent B 默认工作目录为 `/repo/b`  
-**When** OpenClaw channel session 被同步到 LobsterAI 本地 session  
+**When** OpenClaw channel session 被同步到 wulu 本地 session  
 **Then** 该 session 的 `cwd` 应为 `/repo/b`
 
 **And** 不应使用其他 Agent 的目录或全局 fallback 目录。
@@ -168,7 +168,7 @@ Agent 创建弹窗和设置面板应增加默认工作目录控件。
 
 OpenClaw workspace 与 cwd 需要保持清晰分工：
 
-- `workspace` 仍指向 LobsterAI 管理的 OpenClaw Agent workspace，例如 `{STATE_DIR}/workspace-main` 或 `{STATE_DIR}/workspace-{agentId}`。
+- `workspace` 仍指向 wulu 管理的 OpenClaw Agent workspace，例如 `{STATE_DIR}/workspace-main` 或 `{STATE_DIR}/workspace-{agentId}`。
 - `cwd` 表示该 Agent 默认用户项目目录。
 
 `openclawConfigSync.ts` 在构建 `agents.list` 时应为每个 Agent 写入自己的 `cwd`：

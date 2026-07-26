@@ -31,17 +31,17 @@ describe('OpenClaw extension manifests', () => {
     expect(readContractTools('ask-user-question')).toEqual(['AskUserQuestion']);
   });
 
-  test('declares LobsterAI media generation and skin agent tool contracts', () => {
-    expect(readContractTools('lobster-media-generation')).toEqual([
-      'lobsterai_image_generate',
-      'lobsterai_video_generate',
-      'lobsterai_skin_manage',
+  test('declares WULU media generation and skin agent tool contracts', () => {
+    expect(readContractTools('Wulu-media-generation')).toEqual([
+      'WULU_image_generate',
+      'WULU_video_generate',
+      'WULU_skin_manage',
     ]);
   });
 
   test('declares TypeScript entries for local extensions that are precompiled for packaging', () => {
     expect(readPackageOpenClawExtensions('mcp-bridge')).toEqual(['./index.ts']);
     expect(readPackageOpenClawExtensions('ask-user-question')).toEqual(['./index.ts']);
-    expect(readPackageOpenClawExtensions('lobster-media-generation')).toEqual(['./index.ts']);
+    expect(readPackageOpenClawExtensions('Wulu-media-generation')).toEqual(['./index.ts']);
   });
 });

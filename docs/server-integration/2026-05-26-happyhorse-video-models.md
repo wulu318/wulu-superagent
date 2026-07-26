@@ -2,7 +2,7 @@
 
 ## Change Summary
 
-lobsterai-server adds Aliyun Bailian HappyHorse video-generation support through the existing media endpoints. New model IDs are:
+wulu-server adds Aliyun Bailian HappyHorse video-generation support through the existing media endpoints. New model IDs are:
 
 - `happyhorse-1.0-t2v`
 - `happyhorse-1.0-i2v`

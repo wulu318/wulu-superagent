@@ -10,7 +10,7 @@ export const KitReferenceScheme = {
 } as const;
 
 export const KitReferenceSource = {
-  LobsterAiKits: 'lobsterai-kits',
+  WULUKits: 'WULU-kits',
 } as const;
 
 export type KitReferenceSource =
@@ -62,5 +62,5 @@ export const KitStoreKey = {
 export type KitStoreKey = typeof KitStoreKey[keyof typeof KitStoreKey];
 
 export const buildKitReferenceUri = (id: string): string =>
-  `${KitReferenceScheme.Kit}://${encodeURIComponent(id)}@${KitReferenceSource.LobsterAiKits}`;
+  `${KitReferenceScheme.Kit}://${encodeURIComponent(id)}@${KitReferenceSource.WULUKits}`;
 import type { SkinWorkflowKind } from '../skin/constants';

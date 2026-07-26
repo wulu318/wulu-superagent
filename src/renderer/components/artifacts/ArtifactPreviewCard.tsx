@@ -244,11 +244,11 @@ const OpenDropdown: React.FC<OpenDropdownProps> = ({
 
   const handleBrowserOpen = useCallback(() => {
     reportArtifactPreviewAction({
-      actionType: 'open_lobster_browser',
+      actionType: 'open_WULU_browser',
       source: 'conversation_artifact_card',
       artifact,
       params: {
-        openTarget: 'lobster_browser',
+        openTarget: 'WULU_browser',
       },
     });
     browserOpenAction?.onOpen();
@@ -366,7 +366,7 @@ const ArtifactPreviewCard: React.FC<ArtifactPreviewCardProps> = ({
       artifact,
       params: {
         openTarget: artifact.type === ArtifactTypeValue.LocalService || artifact.type === ArtifactTypeValue.Html
-          ? 'lobster_browser'
+          ? 'WULU_browser'
           : 'preview_panel',
       },
     });
@@ -418,7 +418,7 @@ const ArtifactPreviewCard: React.FC<ArtifactPreviewCardProps> = ({
     (artifact.type === ArtifactTypeValue.Html && artifact.filePath) ||
     (artifact.type === ArtifactTypeValue.LocalService && localServiceUrl)
   )
-    ? { label: t('artifactPreviewCardLobsterBrowser'), onOpen: handleClick }
+    ? { label: t('artifactPreviewCardWULUBrowser'), onOpen: handleClick }
     : undefined;
   const subtitle = (
     <>

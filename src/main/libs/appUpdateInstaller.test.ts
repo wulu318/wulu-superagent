@@ -59,7 +59,7 @@ import {
   WINDOWS_UAC_DECLINED_EXIT_CODE,
 } from './appUpdateInstaller';
 
-const INSTALLER_PATH = 'C:\\Users\\test\\AppData\\Roaming\\LobsterAI\\updates\\lobsterai-update-manual-1.exe';
+const INSTALLER_PATH = 'C:\\Users\\test\\AppData\\Roaming\\WULU\\updates\\WULU-update-manual-1.exe';
 
 describe('Windows update install', () => {
   const originalPlatform = process.platform;
@@ -207,7 +207,7 @@ describe('hdiutil plist parsing', () => {
     const json = JSON.stringify({
       'system-entities': [
         { 'content-hint': 'GUID_partition_scheme', 'dev-entry': '/dev/disk4' },
-        { 'dev-entry': '/dev/disk5s1', 'mount-point': '/Volumes/LobsterAI', 'volume-kind': 'apfs' },
+        { 'dev-entry': '/dev/disk5s1', 'mount-point': '/Volumes/WULU', 'volume-kind': 'apfs' },
         { 'content-hint': 'EF57347C-0000-11AA-AA11-00306543ECAC', 'dev-entry': '/dev/disk5' },
         { 'content-hint': 'Apple_APFS', 'dev-entry': '/dev/disk4s1' },
       ],
@@ -215,7 +215,7 @@ describe('hdiutil plist parsing', () => {
 
     const result = parseHdiutilAttachOutput(json);
 
-    expect(result.mountPoint).toBe('/Volumes/LobsterAI');
+    expect(result.mountPoint).toBe('/Volumes/WULU');
     expect(result.devEntries).toEqual(['/dev/disk4', '/dev/disk5s1', '/dev/disk5', '/dev/disk4s1']);
   });
 
@@ -223,13 +223,13 @@ describe('hdiutil plist parsing', () => {
     const json = JSON.stringify({
       'system-entities': [
         { 'content-hint': 'GUID_partition_scheme', 'dev-entry': '/dev/disk4' },
-        { 'content-hint': 'Apple_HFS', 'dev-entry': '/dev/disk4s1', 'mount-point': '/Volumes/LobsterAI 1' },
+        { 'content-hint': 'Apple_HFS', 'dev-entry': '/dev/disk4s1', 'mount-point': '/Volumes/WULU 1' },
       ],
     });
 
     const result = parseHdiutilAttachOutput(json);
 
-    expect(result.mountPoint).toBe('/Volumes/LobsterAI 1');
+    expect(result.mountPoint).toBe('/Volumes/WULU 1');
   });
 
   test('reports no mount point when the volume failed to mount', () => {
@@ -283,23 +283,23 @@ describe('hdiutil plist parsing', () => {
 
 describe('mac swap builders', () => {
   test('places staging and backup next to the target app, hidden and not .app-suffixed', () => {
-    const swapPaths = buildMacSwapPaths('/Applications/Lobster AI.app', 1234);
+    const swapPaths = buildMacSwapPaths('/Applications/Wulu AI.app', 1234);
 
     expect(path.dirname(swapPaths.staging)).toBe('/Applications');
     expect(path.dirname(swapPaths.backup)).toBe('/Applications');
-    expect(path.basename(swapPaths.staging)).toBe(`.Lobster AI.app${MAC_SWAP_STAGING_INFIX}1234`);
-    expect(path.basename(swapPaths.backup)).toBe(`.Lobster AI.app${MAC_SWAP_BACKUP_INFIX}1234`);
+    expect(path.basename(swapPaths.staging)).toBe(`.Wulu AI.app${MAC_SWAP_STAGING_INFIX}1234`);
+    expect(path.basename(swapPaths.backup)).toBe(`.Wulu AI.app${MAC_SWAP_BACKUP_INFIX}1234`);
     expect(swapPaths.staging.endsWith('.app')).toBe(false);
     expect(swapPaths.backup.endsWith('.app')).toBe(false);
   });
 
   test('builds a staged-copy, guarded-backup, rollback and cleanup sequence', () => {
-    const target = '/Applications/LobsterAI.app';
+    const target = '/Applications/WULU.app';
     const swapPaths = buildMacSwapPaths(target, 7);
 
-    const cmd = buildMacSwapInstallCommand('/Volumes/LobsterAI/LobsterAI.app', target, swapPaths);
+    const cmd = buildMacSwapInstallCommand('/Volumes/WULU/WULU.app', target, swapPaths);
 
-    const cpIndex = cmd.indexOf(`cp -R '/Volumes/LobsterAI/LobsterAI.app' '${swapPaths.staging}'`);
+    const cpIndex = cmd.indexOf(`cp -R '/Volumes/WULU/WULU.app' '${swapPaths.staging}'`);
     const backupIndex = cmd.indexOf(`mv '${target}' '${swapPaths.backup}'`);
     const swapIndex = cmd.indexOf(`mv '${swapPaths.staging}' '${target}'`);
     const rollbackIndex = cmd.indexOf(`mv '${swapPaths.backup}' '${target}'`);
@@ -313,21 +313,21 @@ describe('mac swap builders', () => {
   });
 
   test('single-quotes paths containing spaces and quotes', () => {
-    const target = `/Applications/It's "Lobster".app`;
+    const target = `/Applications/It's "Wulu".app`;
     const swapPaths = buildMacSwapPaths(target, 7);
 
     const cmd = buildMacSwapInstallCommand('/Volumes/src.app', target, swapPaths);
 
-    expect(cmd).toContain(`'/Applications/It'\\''s "Lobster".app'`);
+    expect(cmd).toContain(`'/Applications/It'\\''s "Wulu".app'`);
   });
 });
 
 describe('macOS DMG install', () => {
   const originalPlatform = process.platform;
   const originalResourcesPath = (process as { resourcesPath?: string }).resourcesPath;
-  const USER_DATA = '/Users/test/Library/Application Support/LobsterAI';
-  const DMG_PATH = `${USER_DATA}/updates/lobsterai-update-auto-1.dmg`;
-  const TARGET_APP = '/Applications/LobsterAI.app';
+  const USER_DATA = '/Users/test/Library/Application Support/WULU';
+  const DMG_PATH = `${USER_DATA}/updates/WULU-update-auto-1.dmg`;
+  const TARGET_APP = '/Applications/WULU.app';
 
   const attachNoMountJson = JSON.stringify({
     'system-entities': [
@@ -356,7 +356,7 @@ describe('macOS DMG install', () => {
   let applicationsEntries: string[];
 
   const respondNoMount = () => attachNoMountJson;
-  const respondMountedAtVolumes = () => attachMountedJson('/Volumes/LobsterAI');
+  const respondMountedAtVolumes = () => attachMountedJson('/Volumes/WULU');
   const respondMountedAtRequestedPoint = (cmd: string) => {
     const match = cmd.match(/-mountpoint '([^']+)'/);
     return attachMountedJson(match ? match[1] : '/Volumes/unexpected');
@@ -424,7 +424,7 @@ describe('macOS DMG install', () => {
     detachCommands = [];
     execCommands = [];
     execOverride = null;
-    applicationsEntries = ['LobsterAI.app'];
+    applicationsEntries = ['WULU.app'];
 
     cpMocks.exec.mockImplementation(
       (
@@ -473,12 +473,12 @@ describe('macOS DMG install', () => {
     vi.spyOn(fs.promises, 'readdir').mockImplementation(((dir: fs.PathLike) => {
       const dirPath = String(dir);
       if (dirPath.endsWith(path.join('Contents', 'MacOS'))) {
-        return Promise.resolve(['LobsterAI']);
+        return Promise.resolve(['WULU']);
       }
       if (dirPath === path.dirname(TARGET_APP)) {
         return Promise.resolve(applicationsEntries);
       }
-      return Promise.resolve(['LobsterAI.app']);
+      return Promise.resolve(['WULU.app']);
     }) as never);
   });
 
@@ -520,7 +520,7 @@ describe('macOS DMG install', () => {
     );
 
     expect(detachCommands).toHaveLength(1);
-    expect(detachCommands[0]).toContain('/Volumes/LobsterAI');
+    expect(detachCommands[0]).toContain('/Volumes/WULU');
     expect(fs.promises.unlink).toHaveBeenCalledWith(DMG_PATH);
     expect(cpMocks.execFile).not.toHaveBeenCalled();
     expect(mocks.relaunch).toHaveBeenCalledOnce();
@@ -659,20 +659,20 @@ describe('macOS DMG install', () => {
   test('cleans up leftover staging and backup directories before installing', async () => {
     attachResponders = [respondMountedAtVolumes];
     applicationsEntries = [
-      `.LobsterAI.app${MAC_SWAP_STAGING_INFIX}1`,
-      `.LobsterAI.app${MAC_SWAP_BACKUP_INFIX}2`,
-      'LobsterAI.app',
+      `.WULU.app${MAC_SWAP_STAGING_INFIX}1`,
+      `.WULU.app${MAC_SWAP_BACKUP_INFIX}2`,
+      'WULU.app',
       'Other.app',
     ];
 
     await installUpdate(DMG_PATH);
 
     expect(fs.promises.rm).toHaveBeenCalledWith(
-      `/Applications/.LobsterAI.app${MAC_SWAP_STAGING_INFIX}1`,
+      `/Applications/.WULU.app${MAC_SWAP_STAGING_INFIX}1`,
       { recursive: true, force: true },
     );
     expect(fs.promises.rm).toHaveBeenCalledWith(
-      `/Applications/.LobsterAI.app${MAC_SWAP_BACKUP_INFIX}2`,
+      `/Applications/.WULU.app${MAC_SWAP_BACKUP_INFIX}2`,
       { recursive: true, force: true },
     );
     expect(fs.promises.rm).not.toHaveBeenCalledWith('/Applications/Other.app', expect.anything());

@@ -5,7 +5,7 @@
 
 ## 目的
 
-本文档描述 LobsterAI 中 SQLite 自动备份与恢复功能的最终实现。目标是让后续维护者在不阅读早期设计稿和实施计划的前提下，也能快速理解当前代码的运行方式、数据布局、恢复流程、运行边界和测试覆盖。
+本文档描述 wulu 中 SQLite 自动备份与恢复功能的最终实现。目标是让后续维护者在不阅读早期设计稿和实施计划的前提下，也能快速理解当前代码的运行方式、数据布局、恢复流程、运行边界和测试覆盖。
 
 ## 范围
 
@@ -79,21 +79,21 @@
 backups/sqlite/
   manifest.json
   snapshots/
-    lobsterai-latest.sqlite
-    lobsterai-latest.sqlite.previous
+    wulu-latest.sqlite
+    wulu-latest.sqlite.previous
   quarantine/
     2026-04-20T13-14-15-016/
-      lobsterai.sqlite
-      lobsterai.sqlite-wal
-      lobsterai.sqlite-shm
+      wulu.sqlite
+      wulu.sqlite-wal
+      wulu.sqlite-shm
       restore-context.json
 ```
 
 ### 文件说明
 
 - `manifest.json`：保留快照的元数据
-- `snapshots/lobsterai-latest.sqlite`：当前发布中的快照文件
-- `snapshots/lobsterai-latest.sqlite.previous`：发布中断时用于回退的旧快照
+- `snapshots/wulu-latest.sqlite`：当前发布中的快照文件
+- `snapshots/wulu-latest.sqlite.previous`：发布中断时用于回退的旧快照
 - `quarantine/<timestamp>/`：恢复前被移走的损坏线上数据库文件
 - `restore-context.json`：记录本次恢复使用了哪个快照、恢复发生在何时
 
@@ -111,7 +111,7 @@ backups/sqlite/
 2. 调用 `db.backup(tempFilePath, { progress })`。
 3. 以只读方式打开临时快照文件。
 4. 执行 `PRAGMA quick_check`。
-5. 如果临时快照健康，则将其发布为 `lobsterai-latest.sqlite`。
+5. 如果临时快照健康，则将其发布为 `wulu-latest.sqlite`。
 6. 计算文件大小和 SHA-256。
 7. 写入 `manifest.json`。
 
@@ -161,15 +161,15 @@ backups/sqlite/
 
 恢复前会尽量移动以下文件：
 
-- `lobsterai.sqlite`
-- `lobsterai.sqlite-wal`
-- `lobsterai.sqlite-shm`
+- `wulu.sqlite`
+- `wulu.sqlite-wal`
+- `wulu.sqlite-shm`
 
 这样既能保留故障现场，也能避免恢复时直接覆盖原始损坏文件。
 
 ### `.previous` 回退
 
-如果 `snapshots/lobsterai-latest.sqlite` 不存在，但 `snapshots/lobsterai-latest.sqlite.previous` 还在，则恢复逻辑会使用 `.previous`。这用于处理“备份发布中途被打断”的场景。
+如果 `snapshots/wulu-latest.sqlite` 不存在，但 `snapshots/wulu-latest.sqlite.previous` 还在，则恢复逻辑会使用 `.previous`。这用于处理“备份发布中途被打断”的场景。
 
 ## 周期性备份循环
 
@@ -206,7 +206,7 @@ backups/sqlite/
 
 支持的覆盖环境变量：
 
-- `LOBSTERAI_SQLITE_BACKUP_ALWAYS_ON_STARTUP=1`
+- `wulu_SQLITE_BACKUP_ALWAYS_ON_STARTUP=1`
 - 启动时无论快照年龄如何，都强制立即执行一次备份
 
 ## 设置项接入

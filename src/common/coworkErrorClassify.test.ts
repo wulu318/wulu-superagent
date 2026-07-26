@@ -1,6 +1,6 @@
 import { expect,test } from 'vitest';
 
-import { classifyErrorKey, isLobsterAIQuotaExhaustedError } from './coworkErrorClassify';
+import { classifyErrorKey, iswuluQuotaExhaustedError } from './coworkErrorClassify';
 
 const classifyError = (error: string) => classifyErrorKey(error) ?? error;
 
@@ -68,29 +68,29 @@ test('billing: OpenAI insufficient_quota', () => {
   expect(classifyError('You exceeded your current quota, please check your plan and billing details. insufficient_quota')).toBe('coworkErrorInsufficientBalance');
 });
 
-test('billing: LobsterAI free quota exhausted', () => {
+test('billing: wulu free quota exhausted', () => {
   expect(classifyError('免费额度已用完，请升级套餐')).toBe('coworkErrorQuotaExhausted');
 });
 
-test('billing: LobsterAI daily free quota code exhausted', () => {
+test('billing: wulu daily free quota code exhausted', () => {
   expect(classifyError('{"error":{"message":"今日免费额度已用完","code":40200}}')).toBe('coworkErrorQuotaExhausted');
 });
 
-test('billing: LobsterAI free quota code exhausted', () => {
+test('billing: wulu free quota code exhausted', () => {
   expect(classifyError('{"error":{"message":"免费额度已用完，请升级套餐","code":40201}}')).toBe('coworkErrorQuotaExhausted');
 });
 
-test('billing: LobsterAI monthly credits exhausted', () => {
+test('billing: wulu monthly credits exhausted', () => {
   expect(classifyError('本月积分已用完')).toBe('coworkErrorQuotaExhausted');
 });
 
-test('billing: LobsterAI monthly quota JSON payload', () => {
+test('billing: wulu monthly quota JSON payload', () => {
   expect(classifyError('{"type":"error","error":{"type":"proxy_error","message":"本月积分已用完","code":40202}}')).toBe('coworkErrorQuotaExhausted');
 });
 
-test('billing: detects LobsterAI quota exhausted for proxy helpers', () => {
-  expect(isLobsterAIQuotaExhaustedError('monthly credits exhausted')).toBe(true);
-  expect(isLobsterAIQuotaExhaustedError('Request failed with status 402')).toBe(false);
+test('billing: detects wulu quota exhausted for proxy helpers', () => {
+  expect(iswuluQuotaExhaustedError('monthly credits exhausted')).toBe(true);
+  expect(iswuluQuotaExhaustedError('Request failed with status 402')).toBe(false);
 });
 
 test('billing: OpenRouter insufficient credits', () => {

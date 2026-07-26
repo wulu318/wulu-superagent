@@ -281,7 +281,7 @@ sha256("service-deployment:v3:<normalized-project-directory>")
 服务端代码目录：
 
 ```text
-/Users/admin/Documents/lobsterai/lobsterai-server
+/Users/admin/Documents/wulu/wulu-server
 ```
 
 ### 6.1 Controller
@@ -289,7 +289,7 @@ sha256("service-deployment:v3:<normalized-project-directory>")
 入口：
 
 ```text
-src/main/java/com/youdao/lobsterai/web/controller/ShareDeploymentController.java
+src/main/java/com/youdao/wulu/web/controller/ShareDeploymentController.java
 ```
 
 接口：
@@ -306,7 +306,7 @@ Controller 负责解析 multipart、从 JWT 解析用户 ID，然后转交 `Shar
 实现：
 
 ```text
-src/main/java/com/youdao/lobsterai/service/sharedeployment/ShareDeploymentService.java
+src/main/java/com/youdao/wulu/service/sharedeployment/ShareDeploymentService.java
 ```
 
 `createNodeDeployment()` 的职责：
@@ -374,7 +374,7 @@ share_deployment_events
 实现：
 
 ```text
-src/main/java/com/youdao/lobsterai/service/sharedeployment/ShareDeploymentWorkerService.java
+src/main/java/com/youdao/wulu/service/sharedeployment/ShareDeploymentWorkerService.java
 ```
 
 流程：
@@ -410,7 +410,7 @@ ShareDeploymentProvider.stop(deployment): void
 当前实现：
 
 ```text
-src/main/java/com/youdao/lobsterai/service/sharedeployment/VolcengineVefaasDeploymentProvider.java
+src/main/java/com/youdao/wulu/service/sharedeployment/VolcengineVefaasDeploymentProvider.java
 ```
 
 部署步骤：
@@ -473,7 +473,7 @@ NodeServiceDeploymentProxyService
 3. 读取 `HtmlShare`，确认 `source_type=node_service_deployment` 且分享未关闭。
 4. 如分享码模式且无有效 cookie：
    - `/` GET 返回分享码页面；
-   - `/_lobster_share/verify` 校验分享码并写 cookie；
+   - `/_WULU_share/verify` 校验分享码并写 cookie；
    - 其他路径返回 403。
 5. 读取 active deployment。
 6. deployment 为 `live` 且存在 `providerRuntimeUrl` 时，反向代理到云运行时。
@@ -490,7 +490,7 @@ GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS
 - 保留请求 path 和 query。
 - 透传请求 body。
 - 跳过 hop-by-hop headers 和 `Authorization`。
-- 添加 `X-Forwarded-For`、`X-Forwarded-Host`、`X-Forwarded-Proto`、`X-Lobster-Share-Id`。
+- 添加 `X-Forwarded-For`、`X-Forwarded-Host`、`X-Forwarded-Proto`、`X-Wulu-Share-Id`。
 - 响应侧过滤 hop-by-hop headers。
 - `Set-Cookie` 去掉 Domain，确保 Path 默认 `/`。
 - `Location` 按运行时 URL 做 share host 语义重写。
@@ -526,7 +526,7 @@ share-deployment.max-active-deployments-per-user = 3
 | 直接暴露本机服务 | 不做端口穿透，只上传部署包 |
 | 分享码绕过 | service host 请求先走 HtmlShare 鉴权 |
 | Cookie 串域 | 独立 share host；代理重写 `Set-Cookie`，去掉 Domain |
-| API 路径冲突 | 动态服务使用独立 host，不占用 `/s/{shareId}` 或 LobsterAI `/api/*` |
+| API 路径冲突 | 动态服务使用独立 host，不占用 `/s/{shareId}` 或 wulu `/api/*` |
 | 云资源泄露 | 替换、超额、失败时调用 provider stop/cleanup |
 | Header 注入 | 代理校验 header name，过滤控制字符和 hop-by-hop header |
 
@@ -609,7 +609,7 @@ html-share.moderation.node-service.max-redirects=3
 
 抓取策略：
 
-- HTTP `GET`，请求头包含 `User-Agent: LobsterAI-Share-Moderation/1.0` 和文本优先的 `Accept`。
+- HTTP `GET`，请求头包含 `User-Agent: wulu-Share-Moderation/1.0` 和文本优先的 `Accept`。
 - 超时默认 8 秒。
 - 响应体最多读取 1 MB，超过后记为审核错误。
 - 最多跟随 3 次重定向。

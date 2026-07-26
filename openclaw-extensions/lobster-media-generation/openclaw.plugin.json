@@ -1,12 +1,12 @@
 {
-  "id": "lobster-media-generation",
-  "name": "LobsterMediaGeneration",
-  "description": "Image/video generation and AI skin management tools powered by LobsterAI.",
+  "id": "Wulu-media-generation",
+  "name": "WULUMediaGeneration",
+  "description": "Image/video generation and AI skin management tools powered by wulu.",
   "contracts": {
     "tools": [
-      "lobsterai_image_generate",
-      "lobsterai_video_generate",
-      "lobsterai_skin_manage"
+      "wulu_image_generate",
+      "wulu_video_generate",
+      "wulu_skin_manage"
     ]
   },
   "configSchema": {
@@ -15,7 +15,7 @@
     "properties": {
       "callbackUrl": {
         "type": "string",
-        "description": "LobsterAI HTTP callback URL for media generation requests"
+        "description": "wulu HTTP callback URL for media generation requests"
       },
       "secret": {
         "type": "string",

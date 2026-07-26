@@ -204,7 +204,7 @@ export function buildOpenClawGatewayExecArgv(existingNodeOptions: string | undef
 export function buildOpenClawCompileCacheEnv(compileCacheDir: string): NodeJS.ProcessEnv {
   return {
     NODE_COMPILE_CACHE: compileCacheDir,
-    // The cache is already configured by LobsterAI. Prevent the packaged
+    // The cache is already configured by WULU. Prevent the packaged
     // launcher from respawning through Electron Helper as if it were Node.
     OPENCLAW_PACKAGED_COMPILE_CACHE_RESPAWNED: '1',
   };
@@ -555,7 +555,7 @@ export class OpenClawEngineManager extends EventEmitter {
     const env: NodeJS.ProcessEnv = {
       ...process.env,
       SKILLS_ROOT: skillsRoot,
-      LOBSTERAI_SKILLS_ROOT: skillsRoot,
+      WULU_SKILLS_ROOT: skillsRoot,
       OPENCLAW_HOME: this.baseDir,
       OPENCLAW_STATE_DIR: this.stateDir,
       OPENCLAW_CONFIG_PATH: this.configPath,
@@ -571,7 +571,7 @@ export class OpenClawEngineManager extends EventEmitter {
       // bundled-channel-entry contract.  Third-party plugins (in extensions/)
       // are discovered separately via plugins.load.paths in openclaw.json.
       OPENCLAW_BUNDLED_PLUGINS_DIR: path.join(runtime.root, 'dist', 'extensions'),
-      // Disable Bonjour/mDNS LAN discovery advertising.  LobsterAI is a
+      // Disable Bonjour/mDNS LAN discovery advertising.  WULU is a
       // desktop app with a loopback-only gateway — LAN service broadcast is
       // unnecessary and its watchdog can flood stderr with re-advertise
       // warnings on Windows.  See openclaw/openclaw#33609, #63153.
@@ -581,8 +581,8 @@ export class OpenClawEngineManager extends EventEmitter {
       // Enable V8 compile cache for both CJS and ESM modules.
       // This env var works for import() (ESM), unlike enableCompileCache() which is CJS-only.
       ...buildOpenClawCompileCacheEnv(compileCacheDir),
-      LOBSTERAI_ELECTRON_PATH: electronNodeRuntimePath.replace(/\\/g, '/'),
-      LOBSTERAI_OPENCLAW_ENTRY: openclawEntry.replace(/\\/g, '/'),
+      WULU_ELECTRON_PATH: electronNodeRuntimePath.replace(/\\/g, '/'),
+      WULU_OPENCLAW_ENTRY: openclawEntry.replace(/\\/g, '/'),
       // Inject secret values for ${VAR} placeholders in openclaw.json.
       // This keeps plaintext credentials out of the config file on disk.
       ...this.secretEnvVars,
@@ -607,7 +607,7 @@ export class OpenClawEngineManager extends EventEmitter {
     }
 
     // Prepend bundled/user Python runtime paths so gateway exec commands
-    // find the LobsterAI-managed Python instead of the Windows Store stub.
+    // find the WULU-managed Python instead of the Windows Store stub.
     appendPythonRuntimeToEnv(env as Record<string, string | undefined>);
 
     // Inject node/npm/npx shims so gateway exec commands can use them.
@@ -619,7 +619,7 @@ export class OpenClawEngineManager extends EventEmitter {
     if (nodeShimDir) {
       const curPath = env.PATH || env.Path || '';
       env.PATH = [nodeShimDir, curPath].filter(Boolean).join(path.delimiter);
-      env.LOBSTERAI_NPM_BIN_DIR = npmBinDir || '';
+      env.WULU_NPM_BIN_DIR = npmBinDir || '';
     }
 
     if (isSystemProxyEnabled()) {
@@ -984,7 +984,7 @@ export class OpenClawEngineManager extends EventEmitter {
       }
       if (result.protectedExisting.length > 0) {
         console.warn(
-          `[OpenClaw] Skipped ${result.protectedExisting.length} worker shim(s) because existing files are not LobsterAI shims.`,
+          `[OpenClaw] Skipped ${result.protectedExisting.length} worker shim(s) because existing files are not WULU shims.`,
         );
       }
     } catch (error) {
@@ -996,32 +996,32 @@ export class OpenClawEngineManager extends EventEmitter {
     const shimDir = path.join(this.stateDir, 'bin');
     const shellWrapper = [
       '#!/usr/bin/env bash',
-      'if [ -z "${LOBSTERAI_OPENCLAW_ENTRY:-}" ]; then',
-      '  echo "LOBSTERAI_OPENCLAW_ENTRY is not set" >&2',
+      'if [ -z "${WULU_OPENCLAW_ENTRY:-}" ]; then',
+      '  echo "WULU_OPENCLAW_ENTRY is not set" >&2',
       '  exit 127',
       'fi',
-      'if [ -n "${LOBSTERAI_ELECTRON_PATH:-}" ]; then',
-      '  exec env ELECTRON_RUN_AS_NODE=1 "${LOBSTERAI_ELECTRON_PATH}" "${LOBSTERAI_OPENCLAW_ENTRY}" "$@"',
+      'if [ -n "${WULU_ELECTRON_PATH:-}" ]; then',
+      '  exec env ELECTRON_RUN_AS_NODE=1 "${WULU_ELECTRON_PATH}" "${WULU_OPENCLAW_ENTRY}" "$@"',
       'fi',
       'if command -v node >/dev/null 2>&1; then',
-      '  exec node "${LOBSTERAI_OPENCLAW_ENTRY}" "$@"',
+      '  exec node "${WULU_OPENCLAW_ENTRY}" "$@"',
       'fi',
-      'echo "Neither LOBSTERAI_ELECTRON_PATH nor node is available for OpenClaw CLI." >&2',
+      'echo "Neither WULU_ELECTRON_PATH nor node is available for OpenClaw CLI." >&2',
       'exit 127',
       '',
     ].join('\n');
     const windowsWrapper = [
       '@echo off',
-      'if "%LOBSTERAI_OPENCLAW_ENTRY%"=="" (',
-      '  echo LOBSTERAI_OPENCLAW_ENTRY is not set 1>&2',
+      'if "%WULU_OPENCLAW_ENTRY%"=="" (',
+      '  echo WULU_OPENCLAW_ENTRY is not set 1>&2',
       '  exit /b 127',
       ')',
-      'if not "%LOBSTERAI_ELECTRON_PATH%"=="" (',
+      'if not "%WULU_ELECTRON_PATH%"=="" (',
       '  set ELECTRON_RUN_AS_NODE=1',
-      '  "%LOBSTERAI_ELECTRON_PATH%" "%LOBSTERAI_OPENCLAW_ENTRY%" %*',
+      '  "%WULU_ELECTRON_PATH%" "%WULU_OPENCLAW_ENTRY%" %*',
       '  exit /b %ERRORLEVEL%',
       ')',
-      'node "%LOBSTERAI_OPENCLAW_ENTRY%" %*',
+      'node "%WULU_OPENCLAW_ENTRY%" %*',
       '',
     ].join('\r\n');
 

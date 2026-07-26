@@ -2,7 +2,7 @@
 
 ## Change Summary
 
-lobsterai-server adds one logical admin-configured video model, `HappyHorse-1.1`, backed by three Aliyun HappyHorse 1.1 upstream submodels. The server chooses the concrete upstream model dynamically from image input count:
+wulu-server adds one logical admin-configured video model, `HappyHorse-1.1`, backed by three Aliyun HappyHorse 1.1 upstream submodels. The server chooses the concrete upstream model dynamically from image input count:
 
 - no input images -> `happyhorse-1.1-t2v`
 - one input image -> `happyhorse-1.1-i2v`

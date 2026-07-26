@@ -39,7 +39,7 @@ const { MigrationKey } = require('../dist-electron/scheduled-task/constants.js')
 // ---- fake helpers -----------------------------------------------------------
 
 function makeTmpDir() {
-  return fs.mkdtempSync(path.join(os.tmpdir(), 'lobsterai-migrate-test-'));
+  return fs.mkdtempSync(path.join(os.tmpdir(), 'WULU-migrate-test-'));
 }
 function cleanupDir(dir) {
   fs.rmSync(dir, { recursive: true, force: true });

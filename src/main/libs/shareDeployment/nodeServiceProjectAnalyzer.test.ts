@@ -18,10 +18,10 @@ import {
 
 const tempDirectories: string[] = [];
 const BROTATO_PROJECT_DIR = process.env.SHARE_DEPLOYMENT_BROTATO_PROJECT_DIR ||
-  '/Users/admin/lobsterai/project/brotato-clone';
+  '/Users/admin/WULU/project/brotato-clone';
 
 async function makeTempProjectWithPackageJson(packageJson: Record<string, unknown>): Promise<string> {
-  const projectDirectory = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'lobster-node-analyzer-test-'));
+  const projectDirectory = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'Wulu-node-analyzer-test-'));
   tempDirectories.push(projectDirectory);
   await fs.promises.writeFile(
     path.join(projectDirectory, 'package.json'),
@@ -70,7 +70,7 @@ async function makeTempProjectWithDependencies(
 }
 
 async function makeTempStaticSiteProject(): Promise<string> {
-  const projectDirectory = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'lobster-static-analyzer-test-'));
+  const projectDirectory = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'Wulu-static-analyzer-test-'));
   tempDirectories.push(projectDirectory);
   await writeFile(projectDirectory, 'index.html', '<!doctype html><script src="./app.js"></script>');
   await writeFile(projectDirectory, 'app.js', 'console.log("static");');
@@ -435,7 +435,7 @@ describe('detectNodeServiceProjectCandidates', () => {
 
   test('does not guess a child project when the working directory itself is not deployable', async () => {
     const workingDirectory = await fs.promises.mkdtemp(
-      path.join(os.tmpdir(), 'lobster-workspace-analyzer-test-'),
+      path.join(os.tmpdir(), 'Wulu-workspace-analyzer-test-'),
     );
     tempDirectories.push(workingDirectory);
     const childProjectDirectory = path.join(workingDirectory, 'child-project');

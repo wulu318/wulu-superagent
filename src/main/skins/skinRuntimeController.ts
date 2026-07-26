@@ -51,11 +51,11 @@ export class SkinRuntimeController {
     return this.mediaBridge.handleToolRequest(request);
   }
 
-  preflightLobsterImageGeneration(
+  preflightWULUImageGeneration(
     sessionId: string | null,
     selection: MediaSelectionState | undefined,
   ): Promise<SkinToolResult | null> {
-    return this.mediaBridge.preflightLobsterImageGeneration(sessionId, selection);
+    return this.mediaBridge.preflightWULUImageGeneration(sessionId, selection);
   }
 
   handleRuntimeComplete(sessionId: string): void {

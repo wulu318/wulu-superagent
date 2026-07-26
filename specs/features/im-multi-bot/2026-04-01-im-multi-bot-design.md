@@ -2,7 +2,7 @@
 
 ## 1. 概述
 
-LobsterAI 原有的 IM 接入架构中，钉钉、飞书、QQ 三个平台均为**单机器人**模式 — 每个平台仅支持配置一组凭证（如一个 `clientId` + `clientSecret`）。本次变更将这三个平台升级为**多实例（Multi-Instance）**模式，允许用户为同一平台配置多个独立的机器人实例，每个实例拥有独立的凭证、策略和状态。
+wulu 原有的 IM 接入架构中，钉钉、飞书、QQ 三个平台均为**单机器人**模式 — 每个平台仅支持配置一组凭证（如一个 `clientId` + `clientSecret`）。本次变更将这三个平台升级为**多实例（Multi-Instance）**模式，允许用户为同一平台配置多个独立的机器人实例，每个实例拥有独立的凭证、策略和状态。
 
 ### 设计目标
 
@@ -247,8 +247,8 @@ if (enabledDingTalkInstances.length > 0) {
   for (let idx = 0; idx < enabledDingTalkInstances.length; idx++) {
     const inst = enabledDingTalkInstances[idx];
     const secretVar = idx === 0
-      ? 'LOBSTER_DINGTALK_CLIENT_SECRET'
-      : `LOBSTER_DINGTALK_CLIENT_SECRET_${idx}`;
+      ? 'WULU_DINGTALK_CLIENT_SECRET'
+      : `WULU_DINGTALK_CLIENT_SECRET_${idx}`;
     accounts[inst.instanceId.slice(0, 8)] = buildDingTalkAccountConfig(inst, secretVar);
   }
   managedConfig.channels.dingtalk = { accounts };
@@ -263,9 +263,9 @@ Secrets 通过环境变量注入，每个实例使用独立的变量名：
 
 | 实例序号 | 钉钉 | 飞书 | QQ |
 |----------|------|------|-----|
-| 第 1 个 | `LOBSTER_DINGTALK_CLIENT_SECRET` | `LOBSTER_FEISHU_APP_SECRET` | `LOBSTER_QQ_CLIENT_SECRET` |
-| 第 2 个 | `LOBSTER_DINGTALK_CLIENT_SECRET_1` | `LOBSTER_FEISHU_APP_SECRET_1` | `LOBSTER_QQ_CLIENT_SECRET_1` |
-| 第 N 个 | `LOBSTER_DINGTALK_CLIENT_SECRET_N` | `LOBSTER_FEISHU_APP_SECRET_N` | `LOBSTER_QQ_CLIENT_SECRET_N` |
+| 第 1 个 | `WULU_DINGTALK_CLIENT_SECRET` | `WULU_FEISHU_APP_SECRET` | `WULU_QQ_CLIENT_SECRET` |
+| 第 2 个 | `WULU_DINGTALK_CLIENT_SECRET_1` | `WULU_FEISHU_APP_SECRET_1` | `WULU_QQ_CLIENT_SECRET_1` |
+| 第 N 个 | `WULU_DINGTALK_CLIENT_SECRET_N` | `WULU_FEISHU_APP_SECRET_N` | `WULU_QQ_CLIENT_SECRET_N` |
 
 注意：序号基于 **启用实例** 的过滤结果，而非全部实例。`sync()` 和 `buildEnv()` 必须使用相同的过滤和排序逻辑。
 

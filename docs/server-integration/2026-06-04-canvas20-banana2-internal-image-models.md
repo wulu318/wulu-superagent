@@ -2,7 +2,7 @@
 
 ## Change Summary
 
-lobsterai-server 新增两个内部员工可见的图片模型：
+wulu-server 新增两个内部员工可见的图片模型：
 
 - `gpt-image-2`：公开/客户端可见 ID，支持文生图和图片编辑；服务端请求 MiniMax 时仍使用上游 `canvas-20`。
 - `banana-2`：MiniMax Gemini 3.1 Flash Image，支持文生图和参考图生图。

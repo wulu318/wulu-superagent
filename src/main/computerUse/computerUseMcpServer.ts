@@ -21,17 +21,17 @@ export type ComputerUseMcpServerName =
   typeof ComputerUseMcpServerName[keyof typeof ComputerUseMcpServerName];
 
 export const ComputerUseMcpEnv = {
-  AskUserUrl: 'LOBSTER_COMPUTER_USE_ASKUSER_URL',
-  BridgeSecret: 'LOBSTER_MCP_BRIDGE_SECRET',
-  ClientModulePath: 'LOBSTER_COMPUTER_USE_CLIENT_MODULE',
-  ExePath: 'LOBSTER_COMPUTER_USE_EXE',
-  HelperStateHome: 'LOBSTER_COMPUTER_USE_HOME',
-  LogDir: 'LOBSTER_COMPUTER_USE_LOG_DIR',
-  LogLevel: 'LOBSTER_COMPUTER_USE_LOG_LEVEL',
-  LogRetentionDays: 'LOBSTER_COMPUTER_USE_LOG_RETENTION_DAYS',
-  RuntimePackageRoot: 'LOBSTER_COMPUTER_USE_RUNTIME_PACKAGE_ROOT',
-  SdkRoot: 'LOBSTER_COMPUTER_USE_MCP_SDK_ROOT',
-  ZodRoot: 'LOBSTER_COMPUTER_USE_ZOD_ROOT',
+  AskUserUrl: 'WULU_COMPUTER_USE_ASKUSER_URL',
+  BridgeSecret: 'WULU_MCP_BRIDGE_SECRET',
+  ClientModulePath: 'WULU_COMPUTER_USE_CLIENT_MODULE',
+  ExePath: 'WULU_COMPUTER_USE_EXE',
+  HelperStateHome: 'WULU_COMPUTER_USE_HOME',
+  LogDir: 'WULU_COMPUTER_USE_LOG_DIR',
+  LogLevel: 'WULU_COMPUTER_USE_LOG_LEVEL',
+  LogRetentionDays: 'WULU_COMPUTER_USE_LOG_RETENTION_DAYS',
+  RuntimePackageRoot: 'WULU_COMPUTER_USE_RUNTIME_PACKAGE_ROOT',
+  SdkRoot: 'WULU_COMPUTER_USE_MCP_SDK_ROOT',
+  ZodRoot: 'WULU_COMPUTER_USE_ZOD_ROOT',
 } as const;
 export type ComputerUseMcpEnv =
   typeof ComputerUseMcpEnv[keyof typeof ComputerUseMcpEnv];
@@ -175,20 +175,20 @@ function moduleUrl(...parts) {
   return pathToFileURL(path.join(...parts)).href;
 }
 
-const sdkRoot = requireEnv('LOBSTER_COMPUTER_USE_MCP_SDK_ROOT');
-const zodRoot = requireEnv('LOBSTER_COMPUTER_USE_ZOD_ROOT');
-const clientModulePath = requireEnv('LOBSTER_COMPUTER_USE_CLIENT_MODULE');
-const helperExePath = requireEnv('LOBSTER_COMPUTER_USE_EXE');
-const askUserUrl = requireEnv('LOBSTER_COMPUTER_USE_ASKUSER_URL');
-const bridgeSecret = requireEnv('LOBSTER_MCP_BRIDGE_SECRET');
-const helperStateHome = requireEnv('LOBSTER_COMPUTER_USE_HOME');
+const sdkRoot = requireEnv('WULU_COMPUTER_USE_MCP_SDK_ROOT');
+const zodRoot = requireEnv('WULU_COMPUTER_USE_ZOD_ROOT');
+const clientModulePath = requireEnv('WULU_COMPUTER_USE_CLIENT_MODULE');
+const helperExePath = requireEnv('WULU_COMPUTER_USE_EXE');
+const askUserUrl = requireEnv('WULU_COMPUTER_USE_ASKUSER_URL');
+const bridgeSecret = requireEnv('WULU_MCP_BRIDGE_SECRET');
+const helperStateHome = requireEnv('WULU_COMPUTER_USE_HOME');
 
 const { McpServer } = await import(moduleUrl(sdkRoot, 'dist', 'esm', 'server', 'mcp.js'));
 const { StdioServerTransport } = await import(moduleUrl(sdkRoot, 'dist', 'esm', 'server', 'stdio.js'));
 const { z } = await import(moduleUrl(zodRoot, 'index.js'));
 const { WindowsComputerUseClient } = await import(pathToFileURL(clientModulePath).href);
 
-const APPROVED_APP_META_KEY = 'x-lobsterai-computer-use-approved-app';
+const APPROVED_APP_META_KEY = 'x-wulu-computer-use-approved-app';
 const MAX_TEXT_CHARS = 30000;
 const deniedAppPattern = [
   'cmd.exe',
@@ -215,7 +215,7 @@ function createHelperTurnId() {
 }
 const requestMeta = {
   computerUseHome: helperStateHome,
-  session_id: 'lobsterai-computer-use',
+  session_id: 'wulu-computer-use',
   turn_id: createHelperTurnId(),
 };
 

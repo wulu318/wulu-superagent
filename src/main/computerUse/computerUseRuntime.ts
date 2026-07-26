@@ -11,7 +11,7 @@ export const ComputerUseRuntime = {
   Version: '1.0.7',
   Platform: 'win32',
   Arch: 'x64',
-  ArchiveName: 'lobsterai-computer-use-runtime-win-x64-1.0.7.zip',
+  ArchiveName: 'wulu-computer-use-runtime-win-x64-1.0.7.zip',
   DownloadUrl: 'https://ydhardwarebusiness.nosdn.127.net/806b908f1ba20905cc5c99495bccc69c.zip',
   Sha256: 'd43c15cd69e10f0fbffe62f6c5ec947b4e61c5df84efbce46b6f73e28c9de30e',
   SizeBytes: 540139,
@@ -33,7 +33,7 @@ export const ComputerUseHelperConfig = {
   Direction: 'ltr',
   Locale: 'zh-CN',
   EscToCancel: '按 Esc 取消',
-  UsingComputer: 'LobsterAI正在使用你的电脑',
+  UsingComputer: 'wulu正在使用你的电脑',
 } as const;
 export type ComputerUseHelperConfig =
   typeof ComputerUseHelperConfig[keyof typeof ComputerUseHelperConfig];

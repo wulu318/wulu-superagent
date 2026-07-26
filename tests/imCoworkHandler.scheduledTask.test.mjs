@@ -178,7 +178,7 @@ test('IM scheduled-task requests bypass agent execution and create a real cron.a
         id: 'job-1',
         name: params.request.taskName,
         agentId: 'main',
-        sessionKey: `agent:main:lobsterai:${params.sessionId}`,
+        sessionKey: `agent:main:WULU:${params.sessionId}`,
         payloadText: params.request.payloadText,
         scheduleAt: params.request.scheduleAt,
       };
@@ -233,7 +233,7 @@ test('async reminder turns on IM-created sessions relay back to the original IM 
       id: 'job-1',
       name: params.request.taskName,
       agentId: 'main',
-      sessionKey: `agent:main:lobsterai:${params.sessionId}`,
+      sessionKey: `agent:main:WULU:${params.sessionId}`,
       payloadText: params.request.payloadText,
       scheduleAt: params.request.scheduleAt,
     }),

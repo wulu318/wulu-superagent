@@ -4,11 +4,11 @@
 
 ### 1.1 背景与历史
 
-LobsterAI 在 2026 年 5 月 20 日合入 PR #2019（`feat/model-custom-params`）。其中提交
+wulu 在 2026 年 5 月 20 日合入 PR #2019（`feat/model-custom-params`）。其中提交
 `d989c082` 为 thinking 内容建立了独立消息生命周期，`e5dc5396` 与 `9df3f2ae` 补充了
 `beforeMessageId` 链路，使单个 thinking block 可以显示在普通 assistant 回复之前。
 
-当时 OpenClaw 提供给 LobsterAI 的实时事件不能稳定表达多轮工具调用之间的 thinking
+当时 OpenClaw 提供给 wulu 的实时事件不能稳定表达多轮工具调用之间的 thinking
 边界，因此实现把当前轮次的 thinking 内容合并为一个消息。其结果是：
 
 1. thinking 有时只能在最终 history 同步时获取，显示位置落在普通回复或工具消息之后；
@@ -17,7 +17,7 @@ LobsterAI 在 2026 年 5 月 20 日合入 PR #2019（`feat/model-custom-params`�
 
 当前项目固定使用 OpenClaw `v2026.6.1`。该版本的 `chat.history` 已保留 assistant
 消息中的结构化 thinking 与 tool call 边界；会话设置为 `reasoningLevel: 'stream'` 时，
-支持的模型还可以产生 `agent stream=thinking` 增量事件。因此 LobsterAI 可以采用
+支持的模型还可以产生 `agent stream=thinking` 增量事件。因此 wulu 可以采用
 “实时流用于尽早展示、结构化 history 用于确定顺序和最终对账”的双通道方案。
 
 仓库此前没有专门描述 thinking block UI 展示的 spec。以下文档同时记录既有能力和本次
@@ -57,14 +57,14 @@ history 到达后复用同一消息并补充稳定 key，不创建第二份。
 
 **When** 工具开始或当前轮次结束
 
-**Then** LobsterAI 从 history 提取当前用户轮次的 thinking，并按 assistant/tool 边界插入
+**Then** wulu 从 history 提取当前用户轮次的 thinking，并按 assistant/tool 边界插入
 到相应工具或最终回复之前。
 
 ### 场景 3：多轮工具调用
 
 **Given** history 的顺序为“thinking A → tool A → thinking B → tool B → thinking C → final”
 
-**When** LobsterAI 进行增量同步和最终对账
+**When** wulu 进行增量同步和最终对账
 
 **Then** UI 以三个独立 thinking block 展示 A、B、C，分别位于 tool A、tool B 和 final 前；
 重复对账不改变消息数量和顺序。
@@ -82,8 +82,8 @@ history 到达后复用同一消息并补充稳定 key，不创建第二份。
 
 ### FR-1：启用 OpenClaw thinking stream
 
-对 LobsterAI 管理的 OpenClaw 会话应用模型覆盖时，同时写入
-`reasoningLevel: 'stream'`。不支持 thinking 的模型可以忽略该设置，LobsterAI 必须继续支持
+对 wulu 管理的 OpenClaw 会话应用模型覆盖时，同时写入
+`reasoningLevel: 'stream'`。不支持 thinking 的模型可以忽略该设置，wulu 必须继续支持
 history-only 路径。
 
 ### FR-2：结构化分块与稳定 key
@@ -124,7 +124,7 @@ history 同步前滑出分页窗口时仍可复用。
 
 ### FR-6：安全诊断
 
-诊断日志由 `LOBSTERAI_THINKING_DIAGNOSTICS=1` 显式开启，只记录事件类型、session/run 标识、
+诊断日志由 `wulu_THINKING_DIAGNOSTICS=1` 显式开启，只记录事件类型、session/run 标识、
 稳定 key、字符数和锚点，不记录 thinking 正文。
 
 ## 4. 实现方案

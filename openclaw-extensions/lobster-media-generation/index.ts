@@ -1,7 +1,7 @@
 import { Type } from '@sinclair/typebox';
 import type { OpenClawPluginApi } from 'openclaw/plugin-sdk';
 
-import { isLobsterAiDesktopSessionKey } from './sessionKey';
+import { iswuluDesktopSessionKey } from './sessionKey';
 import {
   type MediaStatusPollPolicy,
   type MediaStatusResponse,
@@ -54,9 +54,9 @@ const VIDEO_STATUS_POLL_POLICY: MediaStatusPollPolicy = {
 };
 
 const MediaToolName = {
-  ImageGenerate: 'lobsterai_image_generate',
-  VideoGenerate: 'lobsterai_video_generate',
-  SkinManage: 'lobsterai_skin_manage',
+  ImageGenerate: 'wulu_image_generate',
+  VideoGenerate: 'wulu_video_generate',
+  SkinManage: 'wulu_skin_manage',
 } as const;
 
 const MediaToolAction = {
@@ -132,7 +132,7 @@ async function callMediaBridge(
       method: 'POST',
       headers: {
         'content-type': 'application/json',
-        'x-lobster-media-secret': config.secret,
+        'x-Wulu-media-secret': config.secret,
       },
       body: JSON.stringify(request),
       signal: controller.signal,
@@ -190,7 +190,7 @@ async function executeMediaStatusPolling(options: {
     policy: options.policy,
     signal: options.signal,
     onUpdate: options.onUpdate,
-    log: message => options.log(`[lobster-media-generation] ${message}`),
+    log: message => options.log(`[Wulu-media-generation] ${message}`),
     requestStatus: () => callMediaBridge(statusConfig, {
       tool: options.tool,
       args: { action: MediaToolAction.Status, taskId: options.taskId },
@@ -315,9 +315,9 @@ const SkinManageSchema = Type.Union([
 ], { description: 'Trusted desktop skin operation to perform.' });
 
 const plugin = {
-  id: 'lobster-media-generation',
-  name: 'LobsterMediaGeneration',
-  description: 'Image/video generation and AI skin management tools powered by LobsterAI.',
+  id: 'Wulu-media-generation',
+  name: 'WULUMediaGeneration',
+  description: 'Image/video generation and AI skin management tools powered by wulu.',
   configSchema: {
     parse(value: unknown): PluginConfig {
       return parsePluginConfig(value);
@@ -326,13 +326,13 @@ const plugin = {
   register(api: OpenClawPluginApi) {
     const config = parsePluginConfig(api.pluginConfig);
     if (!config.callbackUrl || !config.secret) {
-      api.logger.info('[lobster-media-generation] skipped: callbackUrl or secret not configured.');
+      api.logger.info('[Wulu-media-generation] skipped: callbackUrl or secret not configured.');
       return;
     }
 
     api.registerTool((ctx) => {
       const sessionKey = ctx.sessionKey ?? '';
-      if (!isLobsterAiDesktopSessionKey(sessionKey)) {
+      if (!iswuluDesktopSessionKey(sessionKey)) {
         return null;
       }
 
@@ -340,9 +340,9 @@ const plugin = {
         name: MediaToolName.ImageGenerate,
         label: 'Image Generation',
         description: [
-          'Generate images using LobsterAI server.',
+          'Generate images using wulu server.',
           'Supports text-to-image and image-to-image generation.',
-          'If the system prompt includes a LobsterAI media reference mapping, use mapped file paths or URLs in image/images arguments and never pass @ media tokens as tool argument values.',
+          'If the system prompt includes a wulu media reference mapping, use mapped file paths or URLs in image/images arguments and never pass @ media tokens as tool argument values.',
           'Use action="list" to see available models and their capabilities.',
           'Use action="status" with taskId once; that call adaptively polls until the task reaches a terminal state. Do not busy-poll status yourself.',
           'Requires an active subscription with available image generation quota.',
@@ -376,24 +376,24 @@ const plugin = {
               });
             } catch (error) {
               const message = error instanceof Error ? error.message : String(error);
-              api.logger.info(`[lobster-media-generation] image status failed: toolCallId=${id} error=${message}`);
+              api.logger.info(`[Wulu-media-generation] image status failed: toolCallId=${id} error=${message}`);
               return { content: [{ type: 'text', text: `Image status check failed: ${message}` }], isError: true };
             }
           }
 
           try {
-            api.logger.info(`[lobster-media-generation] image tool (${action}) started: toolCallId=${id} args=${JSON.stringify(sanitizeArgsForLog(args))}`);
+            api.logger.info(`[Wulu-media-generation] image tool (${action}) started: toolCallId=${id} args=${JSON.stringify(sanitizeArgsForLog(args))}`);
             const startedAt = Date.now();
             const result = await callMediaBridge(config, {
               tool: MediaToolName.ImageGenerate,
               args,
               context: { sessionKey, toolCallId: id },
             });
-            api.logger.info(`[lobster-media-generation] image tool (${action}) completed: toolCallId=${id} elapsedMs=${Date.now() - startedAt} isError=${result.isError === true}`);
+            api.logger.info(`[Wulu-media-generation] image tool (${action}) completed: toolCallId=${id} elapsedMs=${Date.now() - startedAt} isError=${result.isError === true}`);
             return result;
           } catch (error) {
             const message = error instanceof Error ? error.message : String(error);
-            api.logger.info(`[lobster-media-generation] image tool callback failed: toolCallId=${id} error=${message}`);
+            api.logger.info(`[Wulu-media-generation] image tool callback failed: toolCallId=${id} error=${message}`);
             return { content: [{ type: 'text', text: `Image generation failed: ${message}` }], isError: true };
           }
         },
@@ -402,7 +402,7 @@ const plugin = {
 
     api.registerTool((ctx) => {
       const sessionKey = ctx.sessionKey ?? '';
-      if (!isLobsterAiDesktopSessionKey(sessionKey)) {
+      if (!iswuluDesktopSessionKey(sessionKey)) {
         return null;
       }
 
@@ -410,11 +410,11 @@ const plugin = {
         name: MediaToolName.VideoGenerate,
         label: 'Video Generation',
         description: [
-          'Generate videos using LobsterAI server.',
+          'Generate videos using wulu server.',
           'Supports text-to-video, image-to-video, and video editing.',
           'For HappyHorse-1.1, pass model "HappyHorse-1.1"; the server selects happyhorse-1.1-t2v when no image is provided, happyhorse-1.1-i2v for one input image, and happyhorse-1.1-r2v for multiple input images. Do not pass the HappyHorse-1.1 submodel IDs directly.',
           'IMPORTANT: Different models have different valid parameters and value ranges.',
-          'If the system prompt includes a LobsterAI media reference mapping, use mapped file paths or URLs in image/images/firstFrame/referenceImages/video/videos/media arguments and never pass @ media tokens as tool argument values.',
+          'If the system prompt includes a wulu media reference mapping, use mapped file paths or URLs in image/images/firstFrame/referenceImages/video/videos/media arguments and never pass @ media tokens as tool argument values.',
           'WORKFLOW: You MUST follow this three-step process:',
           'Step 1: Call with action="list" to see available models, their capabilities and supported parameters.',
           'Step 2: Call with action="generate" with chosen model and parameters. Returns a taskId.',
@@ -454,25 +454,25 @@ const plugin = {
               });
             } catch (error) {
               const message = error instanceof Error ? error.message : String(error);
-              api.logger.info(`[lobster-media-generation] video status failed: toolCallId=${id} error=${message}`);
+              api.logger.info(`[Wulu-media-generation] video status failed: toolCallId=${id} error=${message}`);
               return { content: [{ type: 'text', text: `Video status check failed: ${message}` }], isError: true };
             }
           }
 
           // All other actions (list, generate, cancel): pass through directly
           try {
-            api.logger.info(`[lobster-media-generation] video tool (${action}) started: toolCallId=${id} args=${JSON.stringify(sanitizeArgsForLog(args))}`);
+            api.logger.info(`[Wulu-media-generation] video tool (${action}) started: toolCallId=${id} args=${JSON.stringify(sanitizeArgsForLog(args))}`);
             const startedAt = Date.now();
             const result = await callMediaBridge(config, {
               tool: MediaToolName.VideoGenerate,
               args,
               context: { sessionKey, toolCallId: id },
             });
-            api.logger.info(`[lobster-media-generation] video tool (${action}) completed: toolCallId=${id} elapsedMs=${Date.now() - startedAt} isError=${result.isError === true}`);
+            api.logger.info(`[Wulu-media-generation] video tool (${action}) completed: toolCallId=${id} elapsedMs=${Date.now() - startedAt} isError=${result.isError === true}`);
             return result;
           } catch (error) {
             const message = error instanceof Error ? error.message : String(error);
-            api.logger.info(`[lobster-media-generation] video tool (${action}) failed: toolCallId=${id} error=${message}`);
+            api.logger.info(`[Wulu-media-generation] video tool (${action}) failed: toolCallId=${id} error=${message}`);
             return { content: [{ type: 'text', text: `Video generation failed: ${message}` }], isError: true };
           }
         },
@@ -481,7 +481,7 @@ const plugin = {
 
     api.registerTool((ctx) => {
       const sessionKey = ctx.sessionKey ?? '';
-      if (!isLobsterAiDesktopSessionKey(sessionKey)) {
+      if (!iswuluDesktopSessionKey(sessionKey)) {
         return null;
       }
 
@@ -489,10 +489,10 @@ const plugin = {
         name: MediaToolName.SkinManage,
         label: 'AI Skin Management',
         description: [
-          'Create and manage a LobsterAI AI skin pack through the trusted desktop callback.',
+          'Create and manage a wulu AI skin pack through the trusted desktop callback.',
           'This tool manages drafts and assets; it does not generate images.',
           'For a new pack, call create_draft with a name and an optional validated immersive-shell presentation first.',
-          'LobsterAI deterministically infers a preferred light or dark appearance from presentation colors and applies it through the existing theme system; do not choose a color theme ID.',
+          'wulu deterministically infers a preferred light or dark appearance from presentation colors and applies it through the existing theme system; do not choose a color theme ID.',
           'Only allow-listed application and conversation title bars may use presentation colors. Page layout, system icons, and arbitrary CSS are never skin-controlled.',
           'Register only generated local files returned by an image tool.',
           'The only supported asset slots are workspace.backdrop followed by home.emblem.',
@@ -504,25 +504,25 @@ const plugin = {
           const args = (params ?? {}) as Record<string, unknown>;
           const action = typeof args.action === 'string' ? args.action : '';
           try {
-            api.logger.info(`[lobster-media-generation] skin tool (${action}) started: toolCallId=${id} args=${JSON.stringify(sanitizeSkinArgsForLog(args))}`);
+            api.logger.info(`[Wulu-media-generation] skin tool (${action}) started: toolCallId=${id} args=${JSON.stringify(sanitizeSkinArgsForLog(args))}`);
             const startedAt = Date.now();
             const result = await callMediaBridge(config, {
               tool: MediaToolName.SkinManage,
               args,
               context: { sessionKey, toolCallId: id },
             });
-            api.logger.info(`[lobster-media-generation] skin tool (${action}) completed: toolCallId=${id} elapsedMs=${Date.now() - startedAt} isError=${result.isError === true}`);
+            api.logger.info(`[Wulu-media-generation] skin tool (${action}) completed: toolCallId=${id} elapsedMs=${Date.now() - startedAt} isError=${result.isError === true}`);
             return result;
           } catch (error) {
             const message = error instanceof Error ? error.message : String(error);
-            api.logger.info(`[lobster-media-generation] skin tool (${action}) failed: toolCallId=${id} error=${message}`);
+            api.logger.info(`[Wulu-media-generation] skin tool (${action}) failed: toolCallId=${id} error=${message}`);
             return { content: [{ type: 'text', text: `Skin management failed: ${message}` }], isError: true };
           }
         },
       };
     });
 
-    api.logger.info('[lobster-media-generation] registered lobsterai_image_generate, lobsterai_video_generate, and lobsterai_skin_manage tools.');
+    api.logger.info('[Wulu-media-generation] registered wulu_image_generate, wulu_video_generate, and wulu_skin_manage tools.');
   },
 };
 

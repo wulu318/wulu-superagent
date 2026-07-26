@@ -167,7 +167,7 @@ Vision 支持取决于模型配置中的 `supportsImage` 字段。
 ```
 resolveInlineAttachmentDir(cwd):
   cwd 有效且存在 → {cwd}/.cowork-temp/attachments/manual/
-  否则           → {os.tmpdir()}/lobsterai/attachments/
+  否则           → {os.tmpdir()}/wulu/attachments/
 ```
 
 `.cowork-temp` 目录已在以下位置被忽略：

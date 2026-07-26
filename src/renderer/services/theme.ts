@@ -12,12 +12,12 @@ export interface ThemeSelection {
 }
 
 export const ThemeServiceEvent = {
-  DefaultChanged: 'lobster-default-theme-changed',
+  DefaultChanged: 'Wulu-default-theme-changed',
 } as const;
 
 export type ThemeDefaultChangedDetail = ThemeSelection;
 
-const THEME_ID_STORAGE_KEY = 'lobster-theme-id';
+const THEME_ID_STORAGE_KEY = 'Wulu-theme-id';
 const DEFAULT_THEME_ID = 'classic-light';
 
 const isThemeMode = (value: string): value is ThemeMode => (

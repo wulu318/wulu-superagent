@@ -1,4 +1,4 @@
-# LobsterAI 桌面通知升级设计文档（完成通知三态 + 等待授权/输入通知）
+# wulu 桌面通知升级设计文档（完成通知三态 + 等待授权/输入通知）
 
 > 本文档是 `2026-06-08-task-completion-notification-design.md` 的迭代版本。一期的任务完成提醒（系统通知 + Dock 角标 / Windows 任务栏 / 托盘提醒 + 查看清理闭环）已上线，本文在其基础上升级通知设置模型并扩展通知类型。一期已实现且本期不改变的部分（角标、任务栏、托盘、查看清理、通知点击重建窗口等）在本文中仅作声明，细节以一期文档为准。
 
@@ -101,9 +101,9 @@
 
 ### 场景 7: 系统层通知被禁用（macOS / Windows）
 
-**Given** 用户曾在 macOS 系统设置中关闭 LobsterAI 的通知权限，或在 Windows「设置 → 系统 → 通知」中关闭了 LobsterAI 的通知 / 开启了勿扰（专注助手）
+**Given** 用户曾在 macOS 系统设置中关闭 wulu 的通知权限，或在 Windows「设置 → 系统 → 通知」中关闭了 wulu 的通知 / 开启了勿扰（专注助手）
 **When** 用户打开设置页通知分组
-**Then** 分组内常显「若未收到通知，请在系统设置中允许 LobsterAI 发送通知」说明与「打开系统设置」入口，点击后深链到对应平台的系统通知设置面板；角标、任务栏与托盘提醒不受系统通知禁用影响，继续工作
+**Then** 分组内常显「若未收到通知，请在系统设置中允许 wulu 发送通知」说明与「打开系统设置」入口，点击后深链到对应平台的系统通知设置面板；角标、任务栏与托盘提醒不受系统通知禁用影响，继续工作
 
 ### 场景 8: 会话停止或删除
 
@@ -226,18 +226,18 @@ export const defaultNotificationSettings: NotificationSettings = {
 - **macOS** 深链（跳转到本应用的通知权限面板）：
 
 ```text
-x-apple.systempreferences:com.apple.Notifications-Settings.extension?id=com.lobsterai.app
+x-apple.systempreferences:com.apple.Notifications-Settings.extension?id=com.wulu.app
 ```
 
   bundleId 使用 `APP_USER_MODEL_ID` 常量（与 electron-builder `appId` 一致）；开发态（`!app.isPackaged`）隐藏该入口（未打包应用无独立通知注册项）。
-- **Windows** 深链（跳转到系统通知设置页，用户可在其中启用 LobsterAI 的通知、管理勿扰/专注助手）：
+- **Windows** 深链（跳转到系统通知设置页，用户可在其中启用 wulu 的通知、管理勿扰/专注助手）：
 
 ```text
 ms-settings:notifications
 ```
 
   Windows 无按应用直达的深链，跳到通知设置总页即可；打包版与便携版均可用。
-- **Windows toast 前提确认（已具备，本期无需改动）**：`app.setAppUserModelId(APP_USER_MODEL_ID)` 已在主进程启动早期设置（`src/main/main.ts`，仅 win32），且与 electron-builder `appId` `com.lobsterai.app` 一致——这是 Windows toast 正确归属应用名/图标与点击回调可靠触达的前提。已知限制：开发态（未安装、无开始菜单快捷方式）toast 可能归属为 Electron，验收以打包版为准。
+- **Windows toast 前提确认（已具备，本期无需改动）**：`app.setAppUserModelId(APP_USER_MODEL_ID)` 已在主进程启动早期设置（`src/main/main.ts`，仅 win32），且与 electron-builder `appId` `com.wulu.app` 一致——这是 Windows toast 正确归属应用名/图标与点击回调可靠触达的前提。已知限制：开发态（未安装、无开始菜单快捷方式）toast 可能归属为 Electron，验收以打包版为准。
 - **Linux**：桌面环境差异大，无统一设置深链，不提供入口（沿用一期降级原则，以角标/托盘为主）。
 - 引入 native 授权检测（显示「已被系统禁用」状态条）列为后续增强，不在本期范围。
 
@@ -418,9 +418,9 @@ console.log('[DesktopNotification] closed permission notification after resolve,
   - 等待类通知横幅常驻（`timeoutType: 'never'`）直到被处理。
   - 系统设置关闭通知权限后角标/托盘仍工作；设置页入口可打开本应用的通知权限面板。
 - Windows 专项（打包版验证）：
-  - toast 归属显示 LobsterAI 名称与图标（AUMID 生效）；操作中心内的历史通知点击仍可跳转对应会话。
+  - toast 归属显示 wulu 名称与图标（AUMID 生效）；操作中心内的历史通知点击仍可跳转对应会话。
   - 等待类通知横幅消失后可从操作中心找回并点击。
-  - 「设置 → 系统 → 通知」关闭 LobsterAI 通知后：不弹 toast，但任务栏 overlay/flashFrame 与托盘仍工作；设置页入口可打开 `ms-settings:notifications`。
+  - 「设置 → 系统 → 通知」关闭 wulu 通知后：不弹 toast，但任务栏 overlay/flashFrame 与托盘仍工作；设置页入口可打开 `ms-settings:notifications`。
   - 开启勿扰（专注助手）：横幅不弹，通知进操作中心，点击仍可跳转。
 - 回归一期：角标计数增减、窗口聚焦清理、托盘入口、窗口销毁后点通知重建、通知文案无隐私内容。
 

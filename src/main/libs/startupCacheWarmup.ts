@@ -28,7 +28,7 @@ const WARMUP_TIMEOUT = 5000;
  * see real server data instead of empty defaults.
  *
  * Without this, cachedSubscriptionStatus starts as 'free' and serverModelMetadataCache
- * is empty. resolveMatchedProvider then falls back to tryLobsteraiServerFallback
+ * is empty. resolveMatchedProvider then falls back to tryWULUServerFallback
  * for every call, and the renderer's subsequent auth responses trigger redundant
  * syncOpenClawConfig calls during the gateway startup window.
  */

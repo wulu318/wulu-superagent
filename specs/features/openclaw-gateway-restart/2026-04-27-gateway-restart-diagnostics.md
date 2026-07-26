@@ -164,8 +164,8 @@ needsHardRestart = secretEnvVarsChanged
 [GW-RESTART-DIAG] ... ──── syncOpenClawConfig START reason=app-config-change restartIfRunning=true
 [GW-RESTART-DIAG] ... sync() ok=true changed=true bindingsChanged=false
 [GW-RESTART-DIAG] ... SECRET ENV VARS CHANGED!
-[GW-RESTART-DIAG] ...   added: LOBSTER_APIKEY_openai
-[GW-RESTART-DIAG] ...   modified: LOBSTER_PROXY_TOKEN prev=abc123... next=def456...
+[GW-RESTART-DIAG] ...   added: WULU_APIKEY_openai
+[GW-RESTART-DIAG] ...   modified: WULU_PROXY_TOKEN prev=abc123... next=def456...
 [GW-RESTART-DIAG] ... needsHardRestart=true (envChanged=true bindingsChanged=false mcpBridgeChanged=false configChanged=true restartFlag=true)
 [GW-RESTART-DIAG] ... ──── HARD RESTART EXECUTING. reason=app-config-change, phase=running, port=18789
 ```
@@ -202,13 +202,13 @@ needsHardRestart = secretEnvVarsChanged
 ### 4.1 提取完整重启时间线
 
 ```bash
-grep 'GW-RESTART-DIAG' ~/Library/Logs/lobsterai/main.log
+grep 'GW-RESTART-DIAG' ~/Library/Logs/wulu/main.log
 ```
 
 ### 4.2 只看重启决策和执行
 
 ```bash
-grep 'GW-RESTART-DIAG.*\(HARD RESTART\|NO RESTART\|DEFERRED\|restartGateway: reason\|gateway process exited\|auto-restart\)' ~/Library/Logs/lobsterai/main.log
+grep 'GW-RESTART-DIAG.*\(HARD RESTART\|NO RESTART\|DEFERRED\|restartGateway: reason\|gateway process exited\|auto-restart\)' ~/Library/Logs/wulu/main.log
 ```
 
 ### 4.3 常见场景分析
@@ -258,7 +258,7 @@ grep 'GW-RESTART-DIAG.*\(HARD RESTART\|NO RESTART\|DEFERRED\|restartGateway: rea
 [GW-RESTART-DIAG] 2026-04-27T15:36:53.100+08:00 ──── syncOpenClawConfig START reason=app-config-change restartIfRunning=true
 [GW-RESTART-DIAG] 2026-04-27T15:36:53.105+08:00 sync() ok=true changed=true bindingsChanged=false
 [GW-RESTART-DIAG] 2026-04-27T15:36:53.106+08:00 SECRET ENV VARS CHANGED!
-[GW-RESTART-DIAG] 2026-04-27T15:36:53.106+08:00   modified: LOBSTER_APIKEY_openai prev=sk-abc123... next=sk-def456...
+[GW-RESTART-DIAG] 2026-04-27T15:36:53.106+08:00   modified: WULU_APIKEY_openai prev=sk-abc123... next=sk-def456...
 [GW-RESTART-DIAG] 2026-04-27T15:36:53.107+08:00 needsHardRestart=true (envChanged=true bindingsChanged=false mcpBridgeChanged=false configChanged=true restartFlag=true)
 [GW-RESTART-DIAG] 2026-04-27T15:36:53.108+08:00 ──── HARD RESTART EXECUTING. reason=app-config-change, phase=running, port=18789
 [GW-RESTART-DIAG] 2026-04-27T15:36:53.109+08:00 stopGatewayProcess: sending graceful kill to pid=12345

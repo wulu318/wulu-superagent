@@ -1,4 +1,4 @@
-export const APP_NAME = 'LobsterAI';
-export const APP_ID = 'lobsterai';
-export const EXPORT_FORMAT_TYPE = 'lobsterai.providers';
-export const EXPORT_PASSWORD = 'lobsterai-APP';
+export const APP_NAME = 'WULU';
+export const APP_ID = 'WULU';
+export const EXPORT_FORMAT_TYPE = 'WULU.providers';
+export const EXPORT_PASSWORD = 'WULU-APP';

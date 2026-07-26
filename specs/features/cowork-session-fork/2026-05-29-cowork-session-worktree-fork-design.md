@@ -1,4 +1,4 @@
-# LobsterAI Cowork 派生到新工作树设计文档
+# wulu Cowork 派生到新工作树设计文档
 
 ## 1. 概述
 
@@ -77,7 +77,7 @@
 
 **Given** 当前 session 的 `cwd` 位于 clean Git repo  
 **When** 用户选择“派生到新工作树”  
-**Then** LobsterAI 创建新的 Git worktree
+**Then** wulu 创建新的 Git worktree
 
 **And** 创建新的 Cowork session
 
@@ -97,16 +97,16 @@
 
 **Given** 当前 Git repo 有未提交改动  
 **When** 用户选择“派生到新工作树”  
-**Then** LobsterAI 提示未提交改动不会自动带入新工作树
+**Then** wulu 提示未提交改动不会自动带入新工作树
 
 **When** 用户确认继续  
-**Then** LobsterAI 基于 `HEAD` 创建 worktree
+**Then** wulu 基于 `HEAD` 创建 worktree
 
 ### 场景 4: worktree 创建失败
 
 **Given** branch 名称冲突、路径已存在或 Git 命令失败  
 **When** 用户选择“派生到新工作树”  
-**Then** LobsterAI 不创建新 Cowork session
+**Then** wulu 不创建新 Cowork session
 
 **And** UI 展示失败原因
 
@@ -156,7 +156,7 @@ export const CoworkForkWorkspaceState = {
 理由：
 
 - 避免污染用户 repo。
-- 便于 LobsterAI 后续做统一管理。
+- 便于 wulu 后续做统一管理。
 - 与 Codex `$CODEX_HOME/worktrees` 的思路一致。
 
 路径要求：
@@ -170,13 +170,13 @@ export const CoworkForkWorkspaceState = {
 推荐 branch：
 
 ```text
-lobster/fork/{shortSessionId}
+Wulu/fork/{shortSessionId}
 ```
 
 如果 branch 已存在：
 
 ```text
-lobster/fork/{shortSessionId}-{shortRandom}
+Wulu/fork/{shortSessionId}-{shortRandom}
 ```
 
 Branch 写入 `cowork_sessions.fork_git_branch`。

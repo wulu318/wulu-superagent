@@ -2,12 +2,12 @@
 
 ## Overview
 
-LobsterAI needs enterprise batch deployment support: IT/ops teams push a unified config file to multiple machines, and LobsterAI loads it on startup. The config file reuses OpenClaw's `openclaw.json` format so that ops teams maintain a single config for both OpenClaw and LobsterAI deployments.
+wulu needs enterprise batch deployment support: IT/ops teams push a unified config file to multiple machines, and wulu loads it on startup. The config file reuses OpenClaw's `openclaw.json` format so that ops teams maintain a single config for both OpenClaw and wulu deployments.
 
 ## Usage
 
 ```bash
-lobsterai --config /opt/lobsterai/enterprise.json
+wulu --config /opt/wulu/enterprise.json
 ```
 
 On every startup with `--config`, the specified file is parsed and its contents are **force-written** into the local database, overriding any user changes made through the UI. Fields present in the config file are marked as "managed" and become read-only in the UI.
@@ -17,7 +17,7 @@ On every startup with `--config`, the specified file is parsed and its contents 
 ### Data Flow
 
 ```
-Startup: lobsterai --config /path/to/config.json
+Startup: wulu --config /path/to/config.json
   │
   ├─ cliArgs.ts: parse --config path from process.argv
   │
@@ -66,7 +66,7 @@ Reuses OpenClaw's `openclaw.json` structure. Example:
 {
   "models": {
     "providers": {
-      "lobster": {
+      "Wulu": {
         "baseUrl": "https://api.example.com",
         "api": "anthropic-messages",
         "apiKey": "sk-xxx",
@@ -103,7 +103,7 @@ Both OpenClaw plugin-style keys (`dingtalk-connector`, `qqbot`, `moltbot-popo`, 
 
 ### LLM API Config
 
-Provider resolution: if config has multiple providers, use the one named `lobster`; if no `lobster` key, use the first provider.
+Provider resolution: if config has multiple providers, use the one named `Wulu`; if no `Wulu` key, use the first provider.
 
 ```
 openclaw.json                            →  api-config.json
@@ -134,9 +134,9 @@ Note: the existing forward sync (`openclawConfigSync.ts`) currently hardcodes sa
 
 #### Channel Key Mapping
 
-OpenClaw uses plugin-style channel keys that differ from LobsterAI's internal platform names. The importer accepts **both** forms for flexibility:
+OpenClaw uses plugin-style channel keys that differ from wulu's internal platform names. The importer accepts **both** forms for flexibility:
 
-| openclaw.json channel key | LobsterAI im_config key |
+| openclaw.json channel key | wulu im_config key |
 |---------------------------|------------------------|
 | `feishu` or `feishu-openclaw-plugin` | `feishu` |
 | `telegram` | `telegram` |
@@ -216,7 +216,7 @@ en: 'This setting is managed by your organization. Contact your admin to change 
 ### Startup Logging
 
 ```
-[ConfigImporter] loading enterprise config from /opt/lobsterai/enterprise.json
+[ConfigImporter] loading enterprise config from /opt/wulu/enterprise.json
 [ConfigImporter] imported API config: baseURL, apiKey, model, apiType
 [ConfigImporter] imported IM config: feishu (appId, appSecret), telegram (botToken)
 [ConfigImporter] imported cowork config: workingDirectory

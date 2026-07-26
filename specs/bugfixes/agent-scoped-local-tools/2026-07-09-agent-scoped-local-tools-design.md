@@ -6,14 +6,14 @@
 
 PR #2285 引入指定 `agentId` 启用 subagent 后，QA 反馈 child session 中不支持调用 `AskUserQuestion`。进一步验证发现问题不只发生在 child session：
 
-- main agent 普通桌面会话可以正常调用 `AskUserQuestion` 并弹出 LobsterAI 桌面选择窗口。
-- 非 main agent 普通桌面会话无法看到 LobsterAI 的 `AskUserQuestion`，模型会误用飞书插件的 `feishu_ask_user_question`。
+- main agent 普通桌面会话可以正常调用 `AskUserQuestion` 并弹出 wulu 桌面选择窗口。
+- 非 main agent 普通桌面会话无法看到 wulu 的 `AskUserQuestion`，模型会误用飞书插件的 `feishu_ask_user_question`。
 - 非 main agent 的 child session 同样无法使用 `AskUserQuestion`。
-- LobsterAI 自注册的 `lobsterai_image_generate` / `lobsterai_video_generate` 已支持非 main 普通桌面会话，但不支持 child session。
+- wulu 自注册的 `wulu_image_generate` / `wulu_video_generate` 已支持非 main 普通桌面会话，但不支持 child session。
 
 用户期望是：
 
-1. 桌面端普通 agent 会话和桌面端 child session 都可以使用 LobsterAI 本地交互工具。
+1. 桌面端普通 agent 会话和桌面端 child session 都可以使用 wulu 本地交互工具。
 2. IM 会话继续不出现桌面弹窗，保持原设计。
 3. 图片/视频生成在 child session 中也能继承父会话的媒体模型选择。
 
@@ -22,20 +22,20 @@ PR #2285 引入指定 `agentId` 启用 subagent 后，QA 反馈 child session �
 `ask-user-question` 插件最初设计于 2026-03-26，当时通过 `sessionKey` 区分桌面端和 IM 端：
 
 ```text
-agent:main:lobsterai:* -> 桌面端
+agent:main:wulu:* -> 桌面端
 其他 -> IM 端
 ```
 
 该设计的目标是避免 IM 端触发桌面弹窗，而不是刻意限制 main agent。但随着多 Agent 桌面会话和 delegated subagent child session 引入，桌面端 sessionKey 已扩展为：
 
 ```text
-agent:<agentId>:lobsterai:<sessionId>
+agent:<agentId>:wulu:<sessionId>
 agent:<agentId>:subagent:<...>
 ```
 
-`ask-user-question` 仍只判断 `agent:main:lobsterai:*`，因此非 main 桌面会话无法注册 `AskUserQuestion`。
+`ask-user-question` 仍只判断 `agent:main:wulu:*`，因此非 main 桌面会话无法注册 `AskUserQuestion`。
 
-媒体生成插件使用了较宽的桌面会话判断，已经允许 `agent:<agentId>:lobsterai:<sessionId>`，但未允许 `agent:<agentId>:subagent:<...>`。同时主进程媒体回调只通过 `parseManagedSessionKey()` 解析 sessionId，无法把 subagent key 映射回本地 child Cowork session。
+媒体生成插件使用了较宽的桌面会话判断，已经允许 `agent:<agentId>:wulu:<sessionId>`，但未允许 `agent:<agentId>:subagent:<...>`。同时主进程媒体回调只通过 `parseManagedSessionKey()` 解析 sessionId，无法把 subagent key 映射回本地 child Cowork session。
 
 ## 2. 用户场景
 
@@ -45,7 +45,7 @@ agent:<agentId>:subagent:<...>
 
 **When** 模型需要结构化询问用户，例如单选、多选或删除确认
 
-**Then** 工具列表中应包含 LobsterAI `AskUserQuestion`，并弹出桌面端交互窗口。
+**Then** 工具列表中应包含 wulu `AskUserQuestion`，并弹出桌面端交互窗口。
 
 ### 场景 2：桌面 child session 询问用户
 
@@ -61,13 +61,13 @@ agent:<agentId>:subagent:<...>
 
 **When** 模型需要用户确认或选择
 
-**Then** 不应弹出 LobsterAI 桌面窗口。IM 会话仍按原设计走文本交互或平台插件自己的交互能力。
+**Then** 不应弹出 wulu 桌面窗口。IM 会话仍按原设计走文本交互或平台插件自己的交互能力。
 
 ### 场景 4：child session 媒体生成
 
-**Given** 用户在父桌面会话中选择了 LobsterAI 图片或视频模型
+**Given** 用户在父桌面会话中选择了 wulu 图片或视频模型
 
-**When** child session 调用 `lobsterai_image_generate` 或 `lobsterai_video_generate`
+**When** child session 调用 `wulu_image_generate` 或 `wulu_video_generate`
 
 **Then** 工具应可见，主进程回调应能解析 child session，并在 child 没有独立选择时继承父会话的媒体模型选择。
 
@@ -77,8 +77,8 @@ agent:<agentId>:subagent:<...>
 
 `AskUserQuestion` 插件应允许：
 
-- legacy `lobsterai:<sessionId>`
-- `agent:<agentId>:lobsterai:<sessionId>`
+- legacy `wulu:<sessionId>`
+- `agent:<agentId>:wulu:<sessionId>`
 - `agent:<agentId>:subagent:<...>`
 
 插件仍应拒绝 IM channel key，例如：
@@ -86,20 +86,20 @@ agent:<agentId>:subagent:<...>
 - `agent:<agentId>:feishu:...`
 - `agent:<agentId>:dingtalk-connector:...`
 - `agent:<agentId>:openclaw-weixin:...`
-- 其他非 `lobsterai` / `subagent` 来源。
+- 其他非 `wulu` / `subagent` 来源。
 
 ### 3.2 主进程必须保留 IM 保护
 
 插件侧只根据 sessionKey 字符串做候选判断，不能作为最终安全边界。主进程收到 AskUser HTTP callback 后必须：
 
-1. 根据 `agent:<agentId>:lobsterai:<sessionId>` 解析本地 Cowork session。
+1. 根据 `agent:<agentId>:wulu:<sessionId>` 解析本地 Cowork session。
 2. 根据 `cowork_sessions.claude_session_id` 反查 materialized child session。
 3. 检查当前 session 及其 parent 链是否绑定在 `im_session_mappings`。
 4. 如果无法解析为本地桌面 Cowork session，或属于 IM 会话链路，直接 deny，不发桌面弹窗事件。
 
 ### 3.3 媒体生成支持 child session
 
-`lobsterai_image_generate` / `lobsterai_video_generate` 插件应允许 `agent:<agentId>:subagent:<...>`。
+`wulu_image_generate` / `wulu_video_generate` 插件应允许 `agent:<agentId>:subagent:<...>`。
 
 主进程媒体回调应支持：
 
@@ -113,19 +113,19 @@ agent:<agentId>:subagent:<...>
 
 ### 3.5 不处理 Feishu AskUser 暴露问题
 
-`feishu_ask_user_question` 在桌面会话中仍可见是误用诱因之一，但不是本次修复范围。本次只确保 LobsterAI 桌面 AskUser 在正确会话中可见，并保留 IM 不弹桌面窗的约束。
+`feishu_ask_user_question` 在桌面会话中仍可见是误用诱因之一，但不是本次修复范围。本次只确保 wulu 桌面 AskUser 在正确会话中可见，并保留 IM 不弹桌面窗的约束。
 
 ## 4. 实现方案
 
 ### 4.1 AskUserQuestion 插件 sessionKey 判定
 
-在 `openclaw-extensions/ask-user-question/` 下新增独立 sessionKey helper，避免继续 hardcode `agent:main:lobsterai:*`。
+在 `openclaw-extensions/ask-user-question/` 下新增独立 sessionKey helper，避免继续 hardcode `agent:main:wulu:*`。
 
 候选会话判断只允许：
 
 ```text
-lobsterai:*
-agent:*:lobsterai:*
+wulu:*
+agent:*:wulu:*
 agent:*:subagent:*
 ```
 
@@ -143,7 +143,7 @@ AskUser callback 使用 desktop resolver。无法解析或属于 IM 链路时返
 
 ### 4.3 媒体生成 child session 支持
 
-媒体插件的 `isLobsterAiDesktopSessionKey()` 增加 `agent:*:subagent:*` 支持。
+媒体插件的 `iswuluDesktopSessionKey()` 增加 `agent:*:subagent:*` 支持。
 
 媒体回调中的 sessionId 提取从 `parseManagedSessionKey()` 切换为本地 resolver，使 child key 能映射到 materialized child Cowork session。
 
@@ -191,19 +191,19 @@ AskUser callback 使用 desktop resolver。无法解析或属于 IM 链路时返
 | 文件 | 改动 |
 |------|------|
 | `openclaw-extensions/ask-user-question/index.ts` | 使用新的 sessionKey helper，支持非 main 桌面 agent 和 subagent candidate |
-| `openclaw-extensions/lobster-media-generation/sessionKey.ts` | 允许 `agent:*:subagent:*` |
+| `openclaw-extensions/Wulu-media-generation/sessionKey.ts` | 允许 `agent:*:subagent:*` |
 | `src/main/mcp/mcpRuntime.ts` | AskUser callback 使用本地桌面 session resolver，并对非桌面/未知会话 deny |
 | `src/main/main.ts` | 媒体 callback 使用本地 session resolver，并支持 parent media selection 回退 |
-| `tests/openclaw-extensions/lobster-media-generation/sessionKey.test.ts` | 增加 subagent sessionKey 覆盖 |
+| `tests/openclaw-extensions/Wulu-media-generation/sessionKey.test.ts` | 增加 subagent sessionKey 覆盖 |
 
 ## 7. 验收标准
 
 1. main agent 普通桌面会话继续可以调用 `AskUserQuestion` 并弹窗。
 2. 非 main agent 普通桌面会话可以调用 `AskUserQuestion`，不再误用飞书 AskUser。
 3. 桌面 child session 的 `AskUserQuestion` callback 能映射到 materialized child Cowork session。
-4. IM 会话及其 child 链路不会触发 LobsterAI 桌面弹窗。
-5. 普通非 main agent 继续可以使用 `lobsterai_image_generate` / `lobsterai_video_generate`。
-6. 桌面 child session 可以看到 LobsterAI 图片/视频生成工具。
+4. IM 会话及其 child 链路不会触发 wulu 桌面弹窗。
+5. 普通非 main agent 继续可以使用 `wulu_image_generate` / `wulu_video_generate`。
+6. 桌面 child session 可以看到 wulu 图片/视频生成工具。
 7. child session 媒体生成在没有独立选择时继承 parent 的媒体模型选择。
 8. 不修改 `vendor/openclaw-runtime/current` 作为最终状态。
 9. 相关 Vitest、touched-file ESLint 和 Electron 主进程编译通过。

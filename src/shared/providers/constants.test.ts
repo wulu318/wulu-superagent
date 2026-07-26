@@ -12,7 +12,7 @@ describe('ProviderName constants', () => {
     expect(ProviderName.OpenAI).toBe('openai');
     expect(ProviderName.DeepSeek).toBe('deepseek');
     expect(ProviderName.Custom).toBe('custom');
-    expect(ProviderName.LobsteraiServer).toBe('lobsterai-server');
+    expect(ProviderName.WULUServer).toBe('WULU-server');
   });
 });
 
@@ -21,7 +21,7 @@ describe('ProviderRegistry', () => {
     const ids = ProviderRegistry.providerIds;
     expect(ids.length).toBe(18);
     expect(ids).not.toContain(ProviderName.Custom);
-    expect(ids).not.toContain(ProviderName.LobsteraiServer);
+    expect(ids).not.toContain(ProviderName.WULUServer);
   });
 
   test('get returns definition for known provider', () => {
@@ -153,8 +153,8 @@ describe('ProviderRegistry', () => {
     expect(ProviderRegistry.resolveModelSupportsThinking(ProviderName.Minimax, 'MiniMax-M2.7', false)).toBe(false);
     expect(ProviderRegistry.resolveModelSupportsThinking(ProviderName.Minimax, 'MiniMax-M2.5', false)).toBe(false);
     expect(ProviderRegistry.resolveModelSupportsThinking('custom_0', 'glm-5.1', false)).toBe(false);
-    expect(ProviderRegistry.resolveModelSupportsThinking('lobsterai-server', 'glm-5.1-YoudaoInner', false)).toBe(false);
-    expect(ProviderRegistry.resolveModelSupportsThinking('lobsterai-server', 'glm-5.1-YoudaoInner', true)).toBe(true);
+    expect(ProviderRegistry.resolveModelSupportsThinking('WULU-server', 'glm-5.1-YoudaoInner', false)).toBe(false);
+    expect(ProviderRegistry.resolveModelSupportsThinking('WULU-server', 'glm-5.1-YoudaoInner', true)).toBe(true);
     expect(ProviderRegistry.resolveModelSupportsThinking('custom_0', 'unknown-model', true)).toBe(true);
     expect(ProviderRegistry.resolveModelSupportsThinking('custom_0', 'unknown-model', false)).toBe(false);
   });

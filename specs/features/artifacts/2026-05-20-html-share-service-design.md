@@ -1,8 +1,8 @@
 # HTML 分享客户端设计文档（2026-05-20，按当前实现更新）
 
-本文档只描述 LobsterAI Electron 客户端的 HTML 分享入口、打包、上传调用和 UI 行为。服务端 API contract、错误码定义、鉴权规则、数据库结构和管理后台能力由 `lobsterai-server` 项目维护，客户端仓库不再保留服务端接口文档，避免两边文档漂移。
+本文档只描述 wulu Electron 客户端的 HTML 分享入口、打包、上传调用和 UI 行为。服务端 API contract、错误码定义、鉴权规则、数据库结构和管理后台能力由 `wulu-server` 项目维护，客户端仓库不再保留服务端接口文档，避免两边文档漂移。
 
-当前 Electron 客户端已经实现 **HTML Artifact 文件分享**：用户在右侧 HTML 预览中点击分享，客户端打包该 HTML 文件所在目录的静态资源，上传到 `lobsterai-server`，并获得公网可访问地址。该能力当前仅在测试模式暴露，线上模式隐藏入口并由主进程 IPC 做二次拦截。
+当前 Electron 客户端已经实现 **HTML Artifact 文件分享**：用户在右侧 HTML 预览中点击分享，客户端打包该 HTML 文件所在目录的静态资源，上传到 `wulu-server`，并获得公网可访问地址。该能力当前仅在测试模式暴露，线上模式隐藏入口并由主进程 IPC 做二次拦截。
 
 旧的部署平台设想见 `2026-05-20-artifacts-deployment-server-design.md`。本文档以“静态 HTML 分享客户端集成”为准，不做云端构建、容器运行或 Replit 类完整部署平台。
 
@@ -128,7 +128,7 @@ selectedArtifact.filePath 存在
 | 入口文件   | 当前 HTML 文件名                                            |
 | 上传内容   | 根目录下符合白名单的静态文件，递归扫描                      |
 | 依赖分析   | HTML/CSS 依赖扫描只用于缺失资源提示，不作为唯一上传依据     |
-| 临时文件   | zip 写入系统临时目录 `lobster-html-share-*`，上传后异步清理 |
+| 临时文件   | zip 写入系统临时目录 `Wulu-html-share-*`，上传后异步清理 |
 
 客户端打包限制：
 
@@ -230,7 +230,7 @@ PUT /api/html-shares/{shareId}
 | `updatedAt`            | 分享元数据更新时间                                   |
 | `contentUpdatedAt`     | 分享内容更新时间                                     |
 
-客户端只在 `41307` 时展示订阅引导。其他服务端错误按失败信息展示。具体 endpoint、响应结构、错误码、鉴权、分享访问和管理能力以 `lobsterai-server` 项目文档与实现为准。
+客户端只在 `41307` 时展示订阅引导。其他服务端错误按失败信息展示。具体 endpoint、响应结构、错误码、鉴权、分享访问和管理能力以 `wulu-server` 项目文档与实现为准。
 
 ---
 
@@ -316,8 +316,8 @@ export const isTestModeEnabled = (): boolean => {
 
 export const getServerApiBaseUrl = (): string => {
   return isTestModeEnabled()
-    ? 'https://lobsterai-server.inner.youdao.com'
-    : 'https://lobsterai-server.youdao.com';
+    ? 'https://wulu-server.inner.youdao.com'
+    : 'https://wulu-server.youdao.com';
 };
 
 export const getHtmlSharePublicBaseUrl = (): string => {

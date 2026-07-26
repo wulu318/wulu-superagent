@@ -263,10 +263,10 @@ const MANAGED_SKILL_ENTRY_OVERRIDES: Record<string, { enabled: boolean }> = {
   'feishu-cron-reminder': {
     enabled: false,
   },
-  // LobsterAI configures MCP servers via openclaw.json mcp.servers field.
+  // WULU configures MCP servers via openclaw.json mcp.servers field.
   // The bundled mcporter skill tries to discover MCP servers via its own CLI,
   // finds none, and produces confusing "no MCP servers" output. Disable it so
-  // users are routed through LobsterAI's MCP layer instead.
+  // users are routed through WULU's MCP layer instead.
   'mcporter': {
     enabled: false,
   },
@@ -282,7 +282,7 @@ const DISABLED_MANAGED_SKILL_NAMES = Object.entries(MANAGED_SKILL_ENTRY_OVERRIDE
  */
 const providerApiKeyEnvVar = (providerName: string): string => {
   const envName = providerName.toUpperCase().replace(/[^A-Z0-9]/g, '_');
-  return `LOBSTER_APIKEY_${envName}`;
+  return `WULU_APIKEY_${envName}`;
 };
 
 const MANAGED_WEB_SEARCH_POLICY_PROMPT = [
@@ -295,10 +295,10 @@ const MANAGED_WEB_SEARCH_POLICY_PROMPT = [
   '- Do not use `web_fetch` to fetch Google/Bing search result pages as a search substitute; use `browser` or an available search skill instead.',
   '- If you need search discovery, dynamic pages, or interactive browsing, use the built-in `browser` tool.',
   '- For login-required, JavaScript-heavy, or anti-automation pages, use `browser` instead of `web_fetch`.',
-  '- Only use the LobsterAI `web-search` skill when local command execution is available. Native channel sessions may deny `exec`, so prefer `browser` or `web_fetch` there.',
+  '- Only use the WULU `web-search` skill when local command execution is available. Native channel sessions may deny `exec`, so prefer `browser` or `web_fetch` there.',
   '- Exception: the `imap-smtp-email` skill must always use `exec` to run its scripts, even in native channel sessions. Do not skip it because of exec restrictions.',
   '',
-  'Do not claim you searched the web unless you actually used `browser`, `web_fetch`, or the LobsterAI `web-search` skill.',
+  'Do not claim you searched the web unless you actually used `browser`, `web_fetch`, or the WULU `web-search` skill.',
 ].join('\n');
 
 const BUNDLED_BROWSER_PLUGIN_ID = 'browser';
@@ -306,9 +306,9 @@ const BUNDLED_BROWSER_PLUGIN_ID = 'browser';
 const MANAGED_BROWSER_POLICY_PROMPT = [
   '## Browser Policy',
   '',
-  'LobsterAI does not support sandbox browser execution in this version.',
+  'WULU does not support sandbox browser execution in this version.',
   '- For every `browser` tool call, set `target="host"` explicitly.',
-  '- Do not use `target="sandbox"` or `target="node"` unless a future LobsterAI version explicitly enables it.',
+  '- Do not use `target="sandbox"` or `target="node"` unless a future WULU version explicitly enables it.',
   '- If a browser call fails because the sandbox browser is unavailable, retry the same action with `target="host"`.',
 ].join('\n');
 
@@ -339,9 +339,9 @@ const MANAGED_EXEC_SAFETY_PROMPT = [
  * embedding in AGENTS.md so the model knows where to create new skills.
  *
  * Example outputs:
- *   macOS:   ~/Library/Application Support/LobsterAI/SKILLs
- *   Windows: ~/AppData/Roaming/LobsterAI/SKILLs
- *   Linux:   ~/.config/LobsterAI/SKILLs
+ *   macOS:   ~/Library/Application Support/WULU/SKILLs
+ *   Windows: ~/AppData/Roaming/WULU/SKILLs
+ *   Linux:   ~/.config/WULU/SKILLs
  */
 const resolveSkillCreationPath = (): string => {
   const skillsDir = path.join(app.getPath('userData'), 'SKILLs');
@@ -356,7 +356,7 @@ const resolveSkillCreationPath = (): string => {
 const buildManagedSkillCreationPrompt = (skillsDirPath: string): string => [
   '## Skill Creation',
   '',
-  'When the user asks you to create a new skill, you MUST place it under the LobsterAI skills directory:',
+  'When the user asks you to create a new skill, you MUST place it under the WULU skills directory:',
   '',
   `  ${skillsDirPath}/<skill-name>/SKILL.md`,
   '',
@@ -773,8 +773,8 @@ const resolveModelMaxTokensForOpenClaw = (options: {
 };
 
 const PROVIDER_REGISTRY: Record<string, ProviderDescriptor> = {
-  [ProviderName.LobsteraiServer]: {
-    providerId: OpenClawProviderId.LobsteraiServer,
+  [ProviderName.WULUServer]: {
+    providerId: OpenClawProviderId.WULUServer,
     resolveApi: ({ apiType, baseURL }) => mapApiTypeToOpenClawApi(apiType, undefined, baseURL),
     normalizeBaseUrl: url => {
       const proxyPort = getOpenClawTokenProxyPort();
@@ -782,7 +782,7 @@ const PROVIDER_REGISTRY: Record<string, ProviderDescriptor> = {
     },
     resolveApiKey: () => {
       const proxyPort = getOpenClawTokenProxyPort();
-      return proxyPort ? '${LOBSTER_PROXY_TOKEN}' : `\${${providerApiKeyEnvVar('server')}}`;
+      return proxyPort ? '${WULU_PROXY_TOKEN}' : `\${${providerApiKeyEnvVar('server')}}`;
     },
   },
 
@@ -921,19 +921,19 @@ const PROVIDER_REGISTRY: Record<string, ProviderDescriptor> = {
   },
 
   [ProviderName.Copilot]: {
-    providerId: OpenClawProviderId.LobsteraiCopilot,
+    providerId: OpenClawProviderId.WULUCopilot,
     resolveApi: () => OpenClawApiConst.OpenAICompletions as OpenClawProviderApi,
     normalizeBaseUrl: stripChatCompletionsSuffix,
     resolveRuntimeBaseUrl: () => {
       const proxyBase = getCoworkOpenAICompatProxyBaseURL('local');
       return proxyBase ? `${proxyBase}/v1/copilot` : null;
     },
-    resolveApiKey: () => '${LOBSTER_PROXY_TOKEN}',
+    resolveApiKey: () => '${WULU_PROXY_TOKEN}',
   },
 };
 
 const DEFAULT_DESCRIPTOR: ProviderDescriptor = {
-  providerId: OpenClawProviderId.Lobster,
+  providerId: OpenClawProviderId.Wulu,
   resolveApi: ({ apiType, baseURL }) => mapApiTypeToOpenClawApi(apiType, undefined, baseURL),
   normalizeBaseUrl: stripChatCompletionsSuffix,
 };
@@ -963,7 +963,7 @@ const resolveDescriptor = (
   }
   return {
     ...DEFAULT_DESCRIPTOR,
-    providerId: providerName || OpenClawProviderId.Lobster,
+    providerId: providerName || OpenClawProviderId.Wulu,
   };
 };
 
@@ -1082,8 +1082,8 @@ export type OpenClawProviderModelSource = {
 
 /**
  * Classifies an OpenClaw provider id (as reported in gateway error metadata)
- * back to the LobsterAI Settings entry it was generated from, so runtime
- * errors can tell the user whether the failing model is the LobsterAI plan,
+ * back to the WULU Settings entry it was generated from, so runtime
+ * errors can tell the user whether the failing model is the WULU plan,
  * a vendor coding plan, or their own custom provider.
  */
 export function resolveModelSourceForOpenClawProvider(
@@ -1092,10 +1092,10 @@ export function resolveModelSourceForOpenClawProvider(
   const providerId = openclawProviderId?.trim();
   if (!providerId) return undefined;
 
-  if (providerId === OpenClawProviderId.LobsteraiServer) {
+  if (providerId === OpenClawProviderId.WULUServer) {
     return {
-      source: CoworkErrorModelSource.LobsterAIPlan,
-      providerName: ProviderName.LobsteraiServer,
+      source: CoworkErrorModelSource.WULUPlan,
+      providerName: ProviderName.WULUServer,
     };
   }
 
@@ -1547,7 +1547,7 @@ export class OpenClawConfigSync {
    * read against a "last known good" fingerprint.  One of the checks is
    * `hasConfigMeta` — if the previous good config had `meta` but the current
    * one doesn't, an anomaly is logged and the file content is persisted as a
-   * `.clobbered.<timestamp>` snapshot.  Because LobsterAI writes openclaw.json
+   * `.clobbered.<timestamp>` snapshot.  Because WULU writes openclaw.json
    * directly (bypassing OpenClaw's own `writeConfigFile` which calls
    * `stampConfigVersion`), we need to stamp `meta` ourselves.
    */
@@ -1692,7 +1692,7 @@ loopDetection: MANAGED_TOOL_LOOP_DETECTION,
         contextWindow: apiResolution.providerMetadata?.contextWindow,
       });
       primaryModel = providerSelection.primaryModel;
-      if (providerSelection.providerId === OpenClawProviderId.LobsteraiServer) {
+      if (providerSelection.providerId === OpenClawProviderId.WULUServer) {
         addExplicitContextCacheDefault(perModelCustomDefaults, providerSelection, {
           modelId,
         });
@@ -1755,7 +1755,7 @@ loopDetection: MANAGED_TOOL_LOOP_DETECTION,
       const proxyPort = getOpenClawTokenProxyPort();
       if (proxyPort) {
         const serverModels = getAllServerModelMetadata();
-        const providerId = OpenClawProviderId.LobsteraiServer;
+        const providerId = OpenClawProviderId.WULUServer;
 
         if (serverModels.length > 0 || !allProvidersMap[providerId]) {
           const firstServerModelId = serverModels[0]?.modelId || modelId;
@@ -1764,21 +1764,21 @@ loopDetection: MANAGED_TOOL_LOOP_DETECTION,
             baseURL: `http://127.0.0.1:${proxyPort}/v1`,
             modelId: firstServerModelId,
             apiType: normalizeServerApiType(serverModels[0]?.apiFormat),
-            providerName: ProviderName.LobsteraiServer,
+            providerName: ProviderName.WULUServer,
             supportsImage: serverModels[0]?.supportsImage,
             supportsThinking: serverModels[0]?.supportsThinking,
             modelName: serverModels[0]?.modelName,
             contextWindow: serverModels[0]?.contextWindow,
           });
-          const lobsteraiProviderConfig =
+          const WULUProviderConfig =
             allProvidersMap[providerId] ?? {
               ...firstServerSel.providerConfig,
               models: [] as typeof firstServerSel.providerConfig.models,
             };
-          allProvidersMap[providerId] = lobsteraiProviderConfig;
+          allProvidersMap[providerId] = WULUProviderConfig;
 
           if (serverModels.length === 0) {
-            upsertProviderModel(lobsteraiProviderConfig, firstServerSel.providerConfig.models[0]);
+            upsertProviderModel(WULUProviderConfig, firstServerSel.providerConfig.models[0]);
           } else {
             for (const sm of serverModels) {
               const serverApiType = normalizeServerApiType(sm.apiFormat);
@@ -1787,7 +1787,7 @@ loopDetection: MANAGED_TOOL_LOOP_DETECTION,
                 baseURL: `http://127.0.0.1:${proxyPort}/v1`,
                 modelId: sm.modelId,
                 apiType: serverApiType,
-                providerName: ProviderName.LobsteraiServer,
+                providerName: ProviderName.WULUServer,
                 supportsImage: sm.supportsImage,
                 supportsThinking: sm.supportsThinking,
                 modelName: sm.modelName || sm.modelId,
@@ -1798,7 +1798,7 @@ loopDetection: MANAGED_TOOL_LOOP_DETECTION,
                 provider: sm.provider,
                 explicitContextCache: sm.explicitContextCache,
               });
-              upsertProviderModel(lobsteraiProviderConfig, serverSel.providerConfig.models[0]);
+              upsertProviderModel(WULUProviderConfig, serverSel.providerConfig.models[0]);
             }
           }
         }
@@ -1831,7 +1831,7 @@ loopDetection: MANAGED_TOOL_LOOP_DETECTION,
       preinstalledPlugins.some((plugin) => pluginMatches(plugin, ...ids))
     );
     const hasAskUserPlugin = isBundledPluginAvailable('ask-user-question');
-    const hasMediaGenPlugin = isBundledPluginAvailable('lobster-media-generation');
+    const hasMediaGenPlugin = isBundledPluginAvailable('Wulu-media-generation');
     // Runtime-bundled xai extension (dist/extensions/xai): provides the Grok
     // model compat hooks (e.g. only grok-4.3 accepts reasoningEffort) plus the
     // OAuth refresh hook for credentials in the auth-profiles store. Declare
@@ -2075,7 +2075,7 @@ loopDetection: MANAGED_TOOL_LOOP_DETECTION,
             ? { feishu: { enabled: false } }
             : {}),
           ...(hasAskUserPlugin ? { 'ask-user-question': { enabled: true } } : {}),
-          ...(hasMediaGenPlugin ? { 'lobster-media-generation': { enabled: true } } : {}),
+          ...(hasMediaGenPlugin ? { 'Wulu-media-generation': { enabled: true } } : {}),
           // Some OpenClaw versions auto-inject qwen-portal-auth for
           // Qwen/DashScope URLs. Declare it only when the plugin actually
           // exists, otherwise it becomes a stale entry on every startup.
@@ -2088,7 +2088,7 @@ loopDetection: MANAGED_TOOL_LOOP_DETECTION,
               ...(p.config && Object.keys(p.config).length > 0 ? { config: p.config } : {}),
             }]),
           ),
-          // Disable acpx (ACP agent runtime) — LobsterAI does not use ACP and
+          // Disable acpx (ACP agent runtime) — WULU does not use ACP and
           // the embedded probe adds ~11s to gateway startup while it waits for
           // a process that always fails.  See openclaw/openclaw#62588.
           'acpx': { enabled: false },
@@ -2164,21 +2164,21 @@ loopDetection: MANAGED_TOOL_LOOP_DETECTION,
         enabled: true,
         config: {
           callbackUrl: askUserCallbackUrl,
-          secret: '${LOBSTER_MCP_BRIDGE_SECRET}',
+          secret: '${WULU_MCP_BRIDGE_SECRET}',
         },
       };
     }
 
-    // Sync LobsterMediaGeneration plugin config — uses media callback endpoint
+    // Sync WULUMediaGeneration plugin config — uses media callback endpoint
     const mediaCallbackUrl = this.getMediaCallbackUrl?.();
     if (hasMediaGenPlugin && mediaCallbackUrl && managedConfig.plugins) {
       const plugins = managedConfig.plugins as Record<string, unknown>;
       const entries = plugins.entries as Record<string, Record<string, unknown>>;
-      entries['lobster-media-generation'] = {
+      entries['Wulu-media-generation'] = {
         enabled: true,
         config: {
           callbackUrl: mediaCallbackUrl,
-          secret: '${LOBSTER_MCP_BRIDGE_SECRET}',
+          secret: '${WULU_MCP_BRIDGE_SECRET}',
           requestTimeoutMs: 150000,
         },
       };
@@ -2223,8 +2223,8 @@ loopDetection: MANAGED_TOOL_LOOP_DETECTION,
       const accounts: Record<string, unknown> = {};
       for (let idx = 0; idx < enabledTelegramInstances.length; idx++) {
         const inst = enabledTelegramInstances[idx];
-        const tokenVar = idx === 0 ? 'LOBSTER_TG_BOT_TOKEN' : `LOBSTER_TG_BOT_TOKEN_${idx}`;
-        const webhookSecretVar = idx === 0 ? 'LOBSTER_TG_WEBHOOK_SECRET' : `LOBSTER_TG_WEBHOOK_SECRET_${idx}`;
+        const tokenVar = idx === 0 ? 'WULU_TG_BOT_TOKEN' : `WULU_TG_BOT_TOKEN_${idx}`;
+        const webhookSecretVar = idx === 0 ? 'WULU_TG_WEBHOOK_SECRET' : `WULU_TG_WEBHOOK_SECRET_${idx}`;
         const account: Record<string, unknown> = {
           enabled: true,
           name: inst.instanceName,
@@ -2275,7 +2275,7 @@ loopDetection: MANAGED_TOOL_LOOP_DETECTION,
       const accounts: Record<string, unknown> = {};
       for (let idx = 0; idx < enabledDiscordInstances.length; idx++) {
         const inst = enabledDiscordInstances[idx];
-        const tokenVar = idx === 0 ? 'LOBSTER_DC_BOT_TOKEN' : `LOBSTER_DC_BOT_TOKEN_${idx}`;
+        const tokenVar = idx === 0 ? 'WULU_DC_BOT_TOKEN' : `WULU_DC_BOT_TOKEN_${idx}`;
         const account: Record<string, unknown> = {
           enabled: true,
           name: inst.instanceName,
@@ -2370,7 +2370,7 @@ loopDetection: MANAGED_TOOL_LOOP_DETECTION,
       for (let idx = 0; idx < enabledFeishuInstances.length; idx++) {
         const inst = enabledFeishuInstances[idx];
         const secretVar =
-          idx === 0 ? 'LOBSTER_FEISHU_APP_SECRET' : `LOBSTER_FEISHU_APP_SECRET_${idx}`;
+          idx === 0 ? 'WULU_FEISHU_APP_SECRET' : `WULU_FEISHU_APP_SECRET_${idx}`;
         accounts[inst.instanceId.slice(0, 8)] = buildFeishuAccountConfig(inst, secretVar);
       }
 
@@ -2390,7 +2390,7 @@ loopDetection: MANAGED_TOOL_LOOP_DETECTION,
         clientSecret: `\${${secretEnvVar}}`,
         // v3.5.x schema: dmPolicy/groupPolicy/allowFrom are valid; sessionTimeout/
         // separateSessionByConversation/groupSessionScope/sharedMemoryAcrossConversations/
-        // gatewayBaseUrl were LobsterAI-specific and are not in the plugin schema.
+        // gatewayBaseUrl were WULU-specific and are not in the plugin schema.
         dmPolicy: inst.dmPolicy || 'open',
         allowFrom: (() => {
           const ids = inst.allowFrom?.length ? [...inst.allowFrom] : [];
@@ -2405,7 +2405,7 @@ loopDetection: MANAGED_TOOL_LOOP_DETECTION,
       for (let idx = 0; idx < enabledDingTalkInstances.length; idx++) {
         const inst = enabledDingTalkInstances[idx];
         const secretVar =
-          idx === 0 ? 'LOBSTER_DINGTALK_CLIENT_SECRET' : `LOBSTER_DINGTALK_CLIENT_SECRET_${idx}`;
+          idx === 0 ? 'WULU_DINGTALK_CLIENT_SECRET' : `WULU_DINGTALK_CLIENT_SECRET_${idx}`;
         accounts[inst.instanceId.slice(0, 8)] = buildDingTalkAccountConfig(inst, secretVar);
       }
 
@@ -2449,7 +2449,7 @@ loopDetection: MANAGED_TOOL_LOOP_DETECTION,
       for (let idx = 0; idx < enabledQQInstances.length; idx++) {
         const inst = enabledQQInstances[idx];
         const secretVar =
-          idx === 0 ? 'LOBSTER_QQ_CLIENT_SECRET' : `LOBSTER_QQ_CLIENT_SECRET_${idx}`;
+          idx === 0 ? 'WULU_QQ_CLIENT_SECRET' : `WULU_QQ_CLIENT_SECRET_${idx}`;
         accounts[inst.instanceId.slice(0, 8)] = buildQQAccountConfig(inst, secretVar);
       }
 
@@ -2462,7 +2462,7 @@ loopDetection: MANAGED_TOOL_LOOP_DETECTION,
       const accounts: Record<string, unknown> = {};
       for (let idx = 0; idx < enabledWecomInstances.length; idx++) {
         const inst = enabledWecomInstances[idx];
-        const secretVar = idx === 0 ? 'LOBSTER_WECOM_SECRET' : `LOBSTER_WECOM_SECRET_${idx}`;
+        const secretVar = idx === 0 ? 'WULU_WECOM_SECRET' : `WULU_WECOM_SECRET_${idx}`;
         accounts[inst.instanceId.slice(0, 8)] = {
           enabled: true,
           name: inst.instanceName,
@@ -2500,7 +2500,7 @@ loopDetection: MANAGED_TOOL_LOOP_DETECTION,
         const effectiveConnectionMode =
           inst.connectionMode || (inst.token ? 'webhook' : 'websocket');
         const isWebSocket = effectiveConnectionMode === 'websocket';
-        const secretVar = idx === 0 ? 'LOBSTER_POPO_APP_SECRET' : `LOBSTER_POPO_APP_SECRET_${idx}`;
+        const secretVar = idx === 0 ? 'WULU_POPO_APP_SECRET' : `WULU_POPO_APP_SECRET_${idx}`;
         const account: Record<string, unknown> = {
           enabled: true,
           name: inst.instanceName,
@@ -2523,7 +2523,7 @@ loopDetection: MANAGED_TOOL_LOOP_DETECTION,
         };
         // Webhook-only fields
         if (!isWebSocket) {
-          const tokenVar = idx === 0 ? 'LOBSTER_POPO_TOKEN' : `LOBSTER_POPO_TOKEN_${idx}`;
+          const tokenVar = idx === 0 ? 'WULU_POPO_TOKEN' : `WULU_POPO_TOKEN_${idx}`;
           account.token = `\${${tokenVar}}`;
           account.webhookPort = inst.webhookPort || 3100;
           if (inst.webhookBaseUrl) {
@@ -2568,7 +2568,7 @@ loopDetection: MANAGED_TOOL_LOOP_DETECTION,
 
           // IMAP/SMTP mode configuration
           if (inst.transport === 'imap') {
-            accountConfig.password = `\${LOBSTER_EMAIL_${envSuffix}_PASSWORD}`;
+            accountConfig.password = `\${WULU_EMAIL_${envSuffix}_PASSWORD}`;
             if (inst.imapHost) accountConfig.imapHost = inst.imapHost;
             if (inst.imapPort) accountConfig.imapPort = inst.imapPort;
             if (inst.smtpHost) accountConfig.smtpHost = inst.smtpHost;
@@ -2577,7 +2577,7 @@ loopDetection: MANAGED_TOOL_LOOP_DETECTION,
 
           // WebSocket mode configuration
           if (inst.transport === 'ws') {
-            accountConfig.apiKey = `\${LOBSTER_EMAIL_${envSuffix}_APIKEY}`;
+            accountConfig.apiKey = `\${WULU_EMAIL_${envSuffix}_APIKEY}`;
           }
 
           // Common configuration
@@ -2621,7 +2621,7 @@ loopDetection: MANAGED_TOOL_LOOP_DETECTION,
     if (configuredNimInstances.length > 0) {
       const accounts: Record<string, Record<string, unknown>> = {};
       configuredNimInstances.forEach((inst, idx) => {
-        const tokenEnvVar = idx === 0 ? 'LOBSTER_NIM_TOKEN' : `LOBSTER_NIM_TOKEN_${idx}`;
+        const tokenEnvVar = idx === 0 ? 'WULU_NIM_TOKEN' : `WULU_NIM_TOKEN_${idx}`;
         const nimToken = inst.nimToken?.trim()
           ? inst.nimToken.trim()
           : `${inst.appKey}|${inst.account}|\${${tokenEnvVar}}`;
@@ -2800,22 +2800,22 @@ loopDetection: MANAGED_TOOL_LOOP_DETECTION,
     // never changes env vars and avoids gateway process restarts.
     const allApiKeys = resolveAllProviderApiKeys();
     for (const [envSuffix, apiKey] of Object.entries(allApiKeys)) {
-      console.info(`[OpenClawConfigSync] set secret env var LOBSTER_APIKEY_${envSuffix} for provider ${envSuffix}`);
-      env[`LOBSTER_APIKEY_${envSuffix}`] = apiKey;
+      console.info(`[OpenClawConfigSync] set secret env var WULU_APIKEY_${envSuffix} for provider ${envSuffix}`);
+      env[`WULU_APIKEY_${envSuffix}`] = apiKey;
     }
-    // Legacy fallback: keep LOBSTER_PROVIDER_API_KEY set to a stable value so stale
+    // Legacy fallback: keep WULU_PROVIDER_API_KEY set to a stable value so stale
     // openclaw.json files with the old placeholder don't crash the gateway.
     // Use the active provider's key if available, but ONLY for the first sync —
     // after that, openclaw.json uses provider-specific placeholders and this var
     // is never resolved. Use a fixed value to avoid secretEnvVarsChanged on switch.
-    env.LOBSTER_PROVIDER_API_KEY = 'legacy-unused';
+    env.WULU_PROVIDER_API_KEY = 'legacy-unused';
 
-    env.LOBSTER_PROXY_TOKEN = getCoworkOpenAICompatProxyToken() || 'unconfigured';
+    env.WULU_PROXY_TOKEN = getCoworkOpenAICompatProxyToken() || 'unconfigured';
 
     // MCP Bridge Secret — always set so stale openclaw.json with
-    // ${LOBSTER_MCP_BRIDGE_SECRET} placeholder doesn't crash the gateway.
+    // ${WULU_MCP_BRIDGE_SECRET} placeholder doesn't crash the gateway.
     // Used by the ask-user-question plugin.
-    env.LOBSTER_MCP_BRIDGE_SECRET = this.getMcpBridgeSecret?.() || 'unconfigured';
+    env.WULU_MCP_BRIDGE_SECRET = this.getMcpBridgeSecret?.() || 'unconfigured';
 
     // Telegram — per-instance secrets (must match sync() indexing: enabled instances only)
     const tgInstances = this.getTelegramInstances();
@@ -2823,11 +2823,11 @@ loopDetection: MANAGED_TOOL_LOOP_DETECTION,
     for (let idx = 0; idx < enabledTelegram.length; idx++) {
       const inst = enabledTelegram[idx];
       if (idx === 0) {
-        env.LOBSTER_TG_BOT_TOKEN = inst.botToken;
-        if (inst.webhookSecret) env.LOBSTER_TG_WEBHOOK_SECRET = inst.webhookSecret;
+        env.WULU_TG_BOT_TOKEN = inst.botToken;
+        if (inst.webhookSecret) env.WULU_TG_WEBHOOK_SECRET = inst.webhookSecret;
       } else {
-        env[`LOBSTER_TG_BOT_TOKEN_${idx}`] = inst.botToken;
-        if (inst.webhookSecret) env[`LOBSTER_TG_WEBHOOK_SECRET_${idx}`] = inst.webhookSecret;
+        env[`WULU_TG_BOT_TOKEN_${idx}`] = inst.botToken;
+        if (inst.webhookSecret) env[`WULU_TG_WEBHOOK_SECRET_${idx}`] = inst.webhookSecret;
       }
     }
 
@@ -2836,9 +2836,9 @@ loopDetection: MANAGED_TOOL_LOOP_DETECTION,
     const enabledDiscord = dcInstances.filter(i => i.enabled && i.botToken);
     for (let idx = 0; idx < enabledDiscord.length; idx++) {
       if (idx === 0) {
-        env.LOBSTER_DC_BOT_TOKEN = enabledDiscord[idx].botToken;
+        env.WULU_DC_BOT_TOKEN = enabledDiscord[idx].botToken;
       } else {
-        env[`LOBSTER_DC_BOT_TOKEN_${idx}`] = enabledDiscord[idx].botToken;
+        env[`WULU_DC_BOT_TOKEN_${idx}`] = enabledDiscord[idx].botToken;
       }
     }
 
@@ -2847,9 +2847,9 @@ loopDetection: MANAGED_TOOL_LOOP_DETECTION,
     const enabledFeishu = feishuInstances.filter(i => i.enabled && i.appSecret);
     for (let idx = 0; idx < enabledFeishu.length; idx++) {
       if (idx === 0) {
-        env.LOBSTER_FEISHU_APP_SECRET = enabledFeishu[idx].appSecret;
+        env.WULU_FEISHU_APP_SECRET = enabledFeishu[idx].appSecret;
       } else {
-        env[`LOBSTER_FEISHU_APP_SECRET_${idx}`] = enabledFeishu[idx].appSecret;
+        env[`WULU_FEISHU_APP_SECRET_${idx}`] = enabledFeishu[idx].appSecret;
       }
     }
 
@@ -2858,15 +2858,15 @@ loopDetection: MANAGED_TOOL_LOOP_DETECTION,
     const enabledDingTalk = dingTalkInstances.filter(i => i.enabled && i.clientSecret);
     for (let idx = 0; idx < enabledDingTalk.length; idx++) {
       if (idx === 0) {
-        env.LOBSTER_DINGTALK_CLIENT_SECRET = enabledDingTalk[idx].clientSecret;
+        env.WULU_DINGTALK_CLIENT_SECRET = enabledDingTalk[idx].clientSecret;
       } else {
-        env[`LOBSTER_DINGTALK_CLIENT_SECRET_${idx}`] = enabledDingTalk[idx].clientSecret;
+        env[`WULU_DINGTALK_CLIENT_SECRET_${idx}`] = enabledDingTalk[idx].clientSecret;
       }
     }
     // Gateway token is shared (not per-instance)
     const gatewayToken = this.engineManager.getGatewayToken();
     if (gatewayToken) {
-      env.LOBSTER_DINGTALK_GW_TOKEN = gatewayToken;
+      env.WULU_DINGTALK_GW_TOKEN = gatewayToken;
     }
 
     // QQ — per-instance secrets (must match sync() indexing: enabled instances only)
@@ -2874,9 +2874,9 @@ loopDetection: MANAGED_TOOL_LOOP_DETECTION,
     const enabledQQ = qqInstances.filter(i => i.enabled && i.appSecret);
     for (let idx = 0; idx < enabledQQ.length; idx++) {
       if (idx === 0) {
-        env.LOBSTER_QQ_CLIENT_SECRET = enabledQQ[idx].appSecret;
+        env.WULU_QQ_CLIENT_SECRET = enabledQQ[idx].appSecret;
       } else {
-        env[`LOBSTER_QQ_CLIENT_SECRET_${idx}`] = enabledQQ[idx].appSecret;
+        env[`WULU_QQ_CLIENT_SECRET_${idx}`] = enabledQQ[idx].appSecret;
       }
     }
 
@@ -2885,9 +2885,9 @@ loopDetection: MANAGED_TOOL_LOOP_DETECTION,
     const enabledWecom = wecomInstances.filter(i => i.enabled && i.secret);
     for (let idx = 0; idx < enabledWecom.length; idx++) {
       if (idx === 0) {
-        env.LOBSTER_WECOM_SECRET = enabledWecom[idx].secret;
+        env.WULU_WECOM_SECRET = enabledWecom[idx].secret;
       } else {
-        env[`LOBSTER_WECOM_SECRET_${idx}`] = enabledWecom[idx].secret;
+        env[`WULU_WECOM_SECRET_${idx}`] = enabledWecom[idx].secret;
       }
     }
 
@@ -2895,21 +2895,21 @@ loopDetection: MANAGED_TOOL_LOOP_DETECTION,
     const enabledPopo = this.getPopoInstances().filter(i => i.enabled && i.appSecret);
     for (let idx = 0; idx < enabledPopo.length; idx++) {
       if (idx === 0) {
-        env.LOBSTER_POPO_APP_SECRET = enabledPopo[idx].appSecret;
+        env.WULU_POPO_APP_SECRET = enabledPopo[idx].appSecret;
         if (enabledPopo[idx].token) {
-          env.LOBSTER_POPO_TOKEN = enabledPopo[idx].token;
+          env.WULU_POPO_TOKEN = enabledPopo[idx].token;
         } else {
           // Provide non-empty fallback so stale openclaw.json files that still
-          // contain ${LOBSTER_POPO_TOKEN} from a previous webhook config
+          // contain ${WULU_POPO_TOKEN} from a previous webhook config
           // don't crash the gateway with MissingEnvVarError.
-          env.LOBSTER_POPO_TOKEN = 'unconfigured';
+          env.WULU_POPO_TOKEN = 'unconfigured';
         }
       } else {
-        env[`LOBSTER_POPO_APP_SECRET_${idx}`] = enabledPopo[idx].appSecret;
+        env[`WULU_POPO_APP_SECRET_${idx}`] = enabledPopo[idx].appSecret;
         if (enabledPopo[idx].token) {
-          env[`LOBSTER_POPO_TOKEN_${idx}`] = enabledPopo[idx].token;
+          env[`WULU_POPO_TOKEN_${idx}`] = enabledPopo[idx].token;
         } else {
-          env[`LOBSTER_POPO_TOKEN_${idx}`] = 'unconfigured';
+          env[`WULU_POPO_TOKEN_${idx}`] = 'unconfigured';
         }
       }
     }
@@ -2923,11 +2923,11 @@ loopDetection: MANAGED_TOOL_LOOP_DETECTION,
         const envSuffix = inst.instanceId.replace(/^email-/, '').replace(/-/g, '_').toUpperCase();
 
         if (inst.transport === 'imap' && inst.password) {
-          env[`LOBSTER_EMAIL_${envSuffix}_PASSWORD`] = inst.password;
+          env[`WULU_EMAIL_${envSuffix}_PASSWORD`] = inst.password;
         }
 
         if (inst.transport === 'ws' && inst.apiKey) {
-          env[`LOBSTER_EMAIL_${envSuffix}_APIKEY`] = inst.apiKey;
+          env[`WULU_EMAIL_${envSuffix}_APIKEY`] = inst.apiKey;
         }
       }
     }
@@ -2937,7 +2937,7 @@ loopDetection: MANAGED_TOOL_LOOP_DETECTION,
     for (let idx = 0; idx < nimInstances.length; idx++) {
       const inst = nimInstances[idx];
       if (inst.nimToken?.trim() || !inst.token) continue;
-      const key = idx === 0 ? 'LOBSTER_NIM_TOKEN' : `LOBSTER_NIM_TOKEN_${idx}`;
+      const key = idx === 0 ? 'WULU_NIM_TOKEN' : `WULU_NIM_TOKEN_${idx}`;
       env[key] = inst.token;
     }
 
@@ -2952,7 +2952,7 @@ loopDetection: MANAGED_TOOL_LOOP_DETECTION,
   }
 
   /**
-   * Ensures exec-approvals.json under the LobsterAI-managed openclaw home has
+   * Ensures exec-approvals.json under the WULU-managed openclaw home has
    * security=full + ask=off so the gateway never triggers approval-pending
    * for any command. The path must match the OPENCLAW_HOME env var passed to
    * the gateway process so both sides read/write the same file.
@@ -3006,7 +3006,7 @@ loopDetection: MANAGED_TOOL_LOOP_DETECTION,
     availableProviders: Record<string, OpenClawProviderSelection['providerConfig']>,
   ): boolean {
     const shouldMigrateManagedModelRefs = !(
-      selection.providerId === 'lobster' && selection.sessionModelId === selection.legacyModelId
+      selection.providerId === 'Wulu' && selection.sessionModelId === selection.legacyModelId
     );
     const fallbackTarget = parsePrimaryModelRef(selection.primaryModel) ?? {
       providerId: selection.providerId,
@@ -3092,7 +3092,7 @@ loopDetection: MANAGED_TOOL_LOOP_DETECTION,
           }
         }
 
-        if (!/^agent:[^:]+:lobsterai:/.test(sessionKey)) {
+        if (!/^agent:[^:]+:WULU:/.test(sessionKey)) {
           continue;
         }
 
@@ -3155,13 +3155,13 @@ loopDetection: MANAGED_TOOL_LOOP_DETECTION,
   }
 
   /**
-   * Resolve the LobsterAI SKILLs installation directory for OpenClaw's
+   * Resolve the WULU SKILLs installation directory for OpenClaw's
    * `skills.load.extraDirs` configuration.
    *
    * Cross-platform paths (via Electron app.getPath('userData')):
-   *   macOS:   ~/Library/Application Support/LobsterAI/SKILLs
-   *   Windows: %APPDATA%/LobsterAI/SKILLs
-   *   Linux:   ~/.config/LobsterAI/SKILLs
+   *   macOS:   ~/Library/Application Support/WULU/SKILLs
+   *   Windows: %APPDATA%/WULU/SKILLs
+   *   Linux:   ~/.config/WULU/SKILLs
    */
   private resolveSkillsExtraDirs(): string[] {
     const userDataSkillsDir = path.join(app.getPath('userData'), 'SKILLs');
@@ -3184,8 +3184,8 @@ loopDetection: MANAGED_TOOL_LOOP_DETECTION,
   }
 
   /**
-   * Build per-skill `enabled` overrides from the LobsterAI SkillManager state,
-   * so that skills disabled in the LobsterAI UI are also hidden from OpenClaw.
+   * Build per-skill `enabled` overrides from the WULU SkillManager state,
+   * so that skills disabled in the WULU UI are also hidden from OpenClaw.
    */
   private buildSkillEntries(): Record<string, { enabled: boolean }> {
     const skills = this.getSkillsList?.() ?? [];
@@ -3200,10 +3200,10 @@ loopDetection: MANAGED_TOOL_LOOP_DETECTION,
    * Sync AGENTS.md to the OpenClaw workspace directory.
    * Embeds the skills routing prompt and system prompt so that OpenClaw's
    * native channel connectors (DingTalk, Feishu, etc.) can discover and
-   * invoke LobsterAI skills.
+   * invoke WULU skills.
    */
   private syncAgentsMd(workspaceDir: string, coworkConfig: CoworkConfig): string | undefined {
-    const MARKER = '<!-- LobsterAI managed: do not edit below this line -->';
+    const MARKER = '<!-- WULU managed: do not edit below this line -->';
 
     try {
       ensureDir(workspaceDir);
@@ -3542,7 +3542,7 @@ loopDetection: MANAGED_TOOL_LOOP_DETECTION,
     // Build the config to write: start from the base minimal config, then
     // selectively preserve non-provider sections from the existing file.
     // Critically, we do NOT preserve existing.models — it may contain
-    // ${LOBSTER_APIKEY_X} placeholders for providers that are no longer
+    // ${WULU_APIKEY_X} placeholders for providers that are no longer
     // configured, causing the gateway to fail to start because those env
     // vars are no longer injected.
     let mergedConfig: Record<string, unknown> = { ...baseMinimalConfig };
@@ -3550,7 +3550,7 @@ loopDetection: MANAGED_TOOL_LOOP_DETECTION,
       try {
         const existing = JSON.parse(currentContent);
         // Preserve IM channel plugin entries — these reference their own env
-        // vars (${LOBSTER_TG_BOT_TOKEN} etc.) that are still injected when
+        // vars (${WULU_TG_BOT_TOKEN} etc.) that are still injected when
         // the corresponding IM channels remain enabled.
         if (existing.plugins) {
           mergedConfig.plugins = existing.plugins;
@@ -3560,7 +3560,7 @@ loopDetection: MANAGED_TOOL_LOOP_DETECTION,
           mergedConfig.gateway = existing.gateway;
         }
         // existing.models is intentionally NOT preserved — it references
-        // ${LOBSTER_APIKEY_*} env vars that may no longer be set.
+        // ${WULU_APIKEY_*} env vars that may no longer be set.
       } catch {
         // Malformed JSON — overwrite with base minimal config.
       }

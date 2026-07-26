@@ -20,52 +20,52 @@ interface SkinBackdropProps {
 
 const HOME_OVERLAY = [
   'radial-gradient(ellipse at 50% 47%,',
-  'color-mix(in srgb, var(--lobster-background) 62%, transparent) 0%,',
-  'color-mix(in srgb, var(--lobster-background) 44%, transparent) 47%,',
-  'color-mix(in srgb, var(--lobster-background) 22%, transparent) 100%)',
+  'color-mix(in srgb, var(--Wulu-background) 62%, transparent) 0%,',
+  'color-mix(in srgb, var(--Wulu-background) 44%, transparent) 47%,',
+  'color-mix(in srgb, var(--Wulu-background) 22%, transparent) 100%)',
   ', linear-gradient(to bottom,',
-  'color-mix(in srgb, var(--lobster-background) 12%, transparent),',
-  'color-mix(in srgb, var(--lobster-background) 54%, transparent))',
+  'color-mix(in srgb, var(--Wulu-background) 12%, transparent),',
+  'color-mix(in srgb, var(--Wulu-background) 54%, transparent))',
 ].join(' ');
 
 const CONVERSATION_OVERLAY = [
   'linear-gradient(to bottom,',
-  'color-mix(in srgb, var(--lobster-background) 20%, transparent),',
-  'color-mix(in srgb, var(--lobster-background) 36%, transparent))',
+  'color-mix(in srgb, var(--Wulu-background) 20%, transparent),',
+  'color-mix(in srgb, var(--Wulu-background) 36%, transparent))',
 ].join(' ');
 
 const PRESENTED_HOME_OVERLAY = [
   'radial-gradient(ellipse at 50% 46%,',
-  'color-mix(in srgb, var(--lobster-skin-canvas) 52%, transparent) 0%,',
-  'color-mix(in srgb, var(--lobster-skin-canvas) 34%, transparent) 48%,',
-  'color-mix(in srgb, var(--lobster-skin-canvas) 18%, transparent) 100%)',
+  'color-mix(in srgb, var(--Wulu-skin-canvas) 52%, transparent) 0%,',
+  'color-mix(in srgb, var(--Wulu-skin-canvas) 34%, transparent) 48%,',
+  'color-mix(in srgb, var(--Wulu-skin-canvas) 18%, transparent) 100%)',
   ', linear-gradient(to bottom,',
-  'color-mix(in srgb, var(--lobster-skin-canvas) 12%, transparent),',
-  'color-mix(in srgb, var(--lobster-skin-canvas) 82%, transparent))',
+  'color-mix(in srgb, var(--Wulu-skin-canvas) 12%, transparent),',
+  'color-mix(in srgb, var(--Wulu-skin-canvas) 82%, transparent))',
 ].join(' ');
 
 const PRESENTED_CONVERSATION_OVERLAY = [
   'linear-gradient(to bottom,',
-  'color-mix(in srgb, var(--lobster-skin-canvas) 44%, transparent),',
-  'color-mix(in srgb, var(--lobster-skin-canvas) 62%, transparent))',
+  'color-mix(in srgb, var(--Wulu-skin-canvas) 44%, transparent),',
+  'color-mix(in srgb, var(--Wulu-skin-canvas) 62%, transparent))',
 ].join(' ');
 
 const PRESENTED_DARK_CONVERSATION_OVERLAY = [
   'linear-gradient(to bottom,',
-  'color-mix(in srgb, var(--lobster-skin-canvas) 30%, transparent),',
-  'color-mix(in srgb, var(--lobster-skin-canvas) 45%, transparent))',
+  'color-mix(in srgb, var(--Wulu-skin-canvas) 30%, transparent),',
+  'color-mix(in srgb, var(--Wulu-skin-canvas) 45%, transparent))',
 ].join(' ');
 
 const PRESENTED_MANAGEMENT_OVERLAY = [
   'linear-gradient(to bottom,',
-  'color-mix(in srgb, var(--lobster-skin-canvas) 32%, transparent),',
-  'color-mix(in srgb, var(--lobster-skin-canvas) 46%, transparent))',
+  'color-mix(in srgb, var(--Wulu-skin-canvas) 32%, transparent),',
+  'color-mix(in srgb, var(--Wulu-skin-canvas) 46%, transparent))',
 ].join(' ');
 
 const PRESENTED_DARK_MANAGEMENT_OVERLAY = [
   'linear-gradient(to bottom,',
-  'color-mix(in srgb, var(--lobster-skin-canvas) 18%, transparent),',
-  'color-mix(in srgb, var(--lobster-skin-canvas) 30%, transparent))',
+  'color-mix(in srgb, var(--Wulu-skin-canvas) 18%, transparent),',
+  'color-mix(in srgb, var(--Wulu-skin-canvas) 30%, transparent))',
 ].join(' ');
 
 const SkinBackdrop: React.FC<SkinBackdropProps> = ({ variant }) => {
@@ -107,7 +107,7 @@ const SkinBackdrop: React.FC<SkinBackdropProps> = ({ variant }) => {
         draggable={false}
         onError={() => setFailedUrl(assetUrl)}
         style={hasPresentation ? {
-          objectPosition: 'var(--lobster-skin-focus-x) var(--lobster-skin-focus-y)',
+          objectPosition: 'var(--Wulu-skin-focus-x) var(--Wulu-skin-focus-y)',
         } : undefined}
         className={`h-full w-full scale-[1.01] object-cover object-center ${
           hasPresentation

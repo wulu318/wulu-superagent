@@ -25,7 +25,7 @@ afterEach(() => {
 });
 
 function createTempWorkspace(): { rootDir: string; sourceDir: string } {
-  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'lobsterai-skins-'));
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'WULU-skins-'));
   tempDirs.push(tempDir);
   const rootDir = path.join(tempDir, 'managed');
   const sourceDir = path.join(tempDir, 'sources');

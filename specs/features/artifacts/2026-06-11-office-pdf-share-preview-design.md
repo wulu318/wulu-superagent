@@ -4,7 +4,7 @@
 
 ### 1.1 问题/背景
 
-当前 LobsterAI 已支持 HTML Artifact 分享，并在近期扩展了图片和 SVG 分享。分享链路由 `lobsterai-server` 提供：
+当前 wulu 已支持 HTML Artifact 分享，并在近期扩展了图片和 SVG 分享。分享链路由 `wulu-server` 提供：
 
 - 客户端把待分享内容打成 zip，通过 `/api/html-shares` 上传。
 - 服务端保存 `html_shares` / `html_share_files`，把文件上传到 NOS。
@@ -186,7 +186,7 @@ GET /s/{shareId}/content/?download=1
 文档预览静态资源由服务端同源托管，不使用外部 CDN。建议位置：
 
 ```text
-lobsterai-server/src/main/resources/static/html-share/office-preview/
+wulu-server/src/main/resources/static/html-share/office-preview/
 ```
 
 建议独立 mini bundle：
@@ -260,7 +260,7 @@ html-share.moderation.document.empty-text-policy=review
 
 ### FR-7: 管理员后台展示
 
-`lobsterai-admin` 分享管理页需要：
+`wulu-admin` 分享管理页需要：
 
 - 来源筛选增加 `document_file`。
 - 来源标签显示“Office/PDF 文件”。
@@ -321,7 +321,7 @@ export type ArtifactFileShareSourceType =
 
 ### 4.3 服务端 sourceType 与文件校验
 
-`lobsterai-server` 的 `HtmlShareService` 新增服务端 sourceType 常量或枚举，并加入 `SOURCE_TYPES`。不要在 controller、mapper 或后台接口中散落 `"document_file"` 裸字符串。
+`wulu-server` 的 `HtmlShareService` 新增服务端 sourceType 常量或枚举，并加入 `SOURCE_TYPES`。不要在 controller、mapper 或后台接口中散落 `"document_file"` 裸字符串。
 
 ```java
 private static final String SOURCE_TYPE_DOCUMENT_FILE = "document_file";
@@ -377,7 +377,7 @@ document_file -> documentShareShellPage()
 `documentShareShellPage()` 在返回 HTML 前读取入口文件元数据并计算预览策略。可预览时输出配置 JSON：
 
 ```html
-<script type="application/json" id="lobster-share-config">
+<script type="application/json" id="Wulu-share-config">
 {
   "shareId": "shr_xxx",
   "title": "report.docx",
@@ -422,13 +422,13 @@ document_file -> documentShareShellPage()
 建议在服务端仓库新增独立前端 bundle 源码目录，例如：
 
 ```text
-lobsterai-server/src/main/share-preview/
+wulu-server/src/main/share-preview/
 ```
 
 构建输出到：
 
 ```text
-lobsterai-server/src/main/resources/static/html-share/office-preview/
+wulu-server/src/main/resources/static/html-share/office-preview/
 ```
 
 锁定与客户端一致的依赖版本：
@@ -521,7 +521,7 @@ html-share.moderation.document.empty-text-policy=review
 
 ### 4.10 后台 UI
 
-`lobsterai-admin/src/views/HtmlShareListView.vue`：
+`wulu-admin/src/views/HtmlShareListView.vue`：
 
 - 来源筛选增加 `document_file`。
 - `sourceTypeLabel()` 增加 `document_file -> Office/PDF 文件`。
@@ -530,7 +530,7 @@ html-share.moderation.document.empty-text-policy=review
 - 详情页展示审核项列表，至少包含审核项类型、状态、风险等级、分类、原因、模型、更新时间。
 - `skipped`、`manual_review`、`error` 需要有明确标识，避免管理员误认为已经通过。
 
-`lobsterai-admin/src/api/htmlShares.ts`：
+`wulu-admin/src/api/htmlShares.ts`：
 
 - `HtmlShareListItem` / `HtmlShareDetail` 增加可选 `preview` 字段。
 - `HtmlShareFileItem` 现有字段可复用。
@@ -566,7 +566,7 @@ html-share.moderation.document.empty-text-policy=review
 
 ## 6. 涉及文件
 
-### LobsterAI 客户端
+### wulu 客户端
 
 | 文件 | 改动 |
 | --- | --- |
@@ -577,7 +577,7 @@ html-share.moderation.document.empty-text-policy=review
 | `src/renderer/components/artifacts/ArtifactPanel.tsx` | document artifact 显示分享入口，映射 sourceType |
 | `src/renderer/services/i18n.ts` | 新增中英文分享文案 |
 
-### lobsterai-server
+### wulu-server
 
 | 文件 | 改动 |
 | --- | --- |
@@ -596,7 +596,7 @@ html-share.moderation.document.empty-text-policy=review
 | `src/main/share-preview/**` | 新增公共文档预览 bundle 源码 |
 | `src/main/resources/static/html-share/office-preview/**` | 构建产物 |
 
-### lobsterai-admin
+### wulu-admin
 
 | 文件 | 改动 |
 | --- | --- |

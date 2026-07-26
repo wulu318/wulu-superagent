@@ -63,8 +63,8 @@ describe('resolveComputerUseRuntimePaths', () => {
     runtimePackageRoot: string;
   } {
     const rootDir = getComputerUseRuntimeRoot();
-    const runtimePackageRoot = path.join(rootDir, 'node_modules', '@lobsterai', 'computer-use');
-    const helperExePath = path.join(runtimePackageRoot, 'bin', 'windows', 'lobster-computer-use.exe');
+    const runtimePackageRoot = path.join(rootDir, 'node_modules', '@wulu', 'computer-use');
+    const helperExePath = path.join(runtimePackageRoot, 'bin', 'windows', 'Wulu-computer-use.exe');
     const clientPath = path.join(
       runtimePackageRoot,
       'dist',
@@ -78,9 +78,9 @@ describe('resolveComputerUseRuntimePaths', () => {
       id: ComputerUseRuntime.Id,
       platform: ComputerUseRuntime.Platform,
       version: ComputerUseRuntime.Version,
-      clientModule: 'node_modules/@lobsterai/computer-use/dist/windows/computer_use_client.js',
-      helper: 'node_modules/@lobsterai/computer-use/bin/windows/lobster-computer-use.exe',
-      runtimePackageRoot: 'node_modules/@lobsterai/computer-use',
+      clientModule: 'node_modules/@wulu/computer-use/dist/windows/computer_use_client.js',
+      helper: 'node_modules/@wulu/computer-use/bin/windows/Wulu-computer-use.exe',
+      runtimePackageRoot: 'node_modules/@wulu/computer-use',
     })}`);
     fs.writeFileSync(helperExePath, '');
     fs.writeFileSync(clientPath, '');
@@ -97,7 +97,7 @@ describe('resolveComputerUseRuntimePaths', () => {
     expect(paths).toEqual({ clientModulePath, helperExePath, rootDir, runtimePackageRoot });
   });
 
-  test('configures the helper with LobsterAI branding', () => {
+  test('configures the helper with wulu branding', () => {
     writeRuntimeFixture();
 
     const server = resolveComputerUseMcpServer({
@@ -114,7 +114,7 @@ describe('resolveComputerUseRuntimePaths', () => {
     expect(server?.env?.[ComputerUseMcpEnv.HelperStateHome]).toBe(helperStateHome);
     expect(server?.env?.[ComputerUseMcpEnv.ClientModulePath]).toContain(path.join(
       'node_modules',
-      '@lobsterai',
+      '@wulu',
       'computer-use',
       'dist',
       'windows',
@@ -123,7 +123,7 @@ describe('resolveComputerUseRuntimePaths', () => {
     expect(server?.env?.[ComputerUseMcpEnv.LogDir]).toBe(path.join(TEST_USER_DATA, 'computer-use', 'logs'));
     expect(server?.env?.[ComputerUseMcpEnv.LogLevel]).toBe('info');
     expect(server?.env?.[ComputerUseMcpEnv.LogRetentionDays]).toBe('7');
-    expect(config.strings?.usingComputer).toBe('LobsterAI正在使用你的电脑');
+    expect(config.strings?.usingComputer).toBe('wulu正在使用你的电脑');
     expect(config.strings?.escToCancel).toBe('按 Esc 取消');
   });
 
@@ -131,13 +131,13 @@ describe('resolveComputerUseRuntimePaths', () => {
     const scriptPath = ensureComputerUseMcpServerScript();
     const script = fs.readFileSync(scriptPath, 'utf8');
 
-    expect(script).toContain("requireEnv('LOBSTER_COMPUTER_USE_HOME')");
-    expect(script).toContain("requireEnv('LOBSTER_COMPUTER_USE_CLIENT_MODULE')");
+    expect(script).toContain("requireEnv('WULU_COMPUTER_USE_HOME')");
+    expect(script).toContain("requireEnv('WULU_COMPUTER_USE_CLIENT_MODULE')");
     expect(script).not.toContain("requireEnv('CODEX_HOME')");
     expect(script).not.toContain('sky_js');
     expect(script).not.toContain('@oai');
     expect(script).not.toContain('x-oai-cua-approved-app');
-    expect(script).toContain("const APPROVED_APP_META_KEY = 'x-lobsterai-computer-use-approved-app'");
+    expect(script).toContain("const APPROVED_APP_META_KEY = 'x-wulu-computer-use-approved-app'");
     expect(script).toContain('computerUseHome: helperStateHome');
     expect(script).toContain('function hasHelperInterruptMarker()');
     expect(script).toContain('function assertHelperTurnActive()');

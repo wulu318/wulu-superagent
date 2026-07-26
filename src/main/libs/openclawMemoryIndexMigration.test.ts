@@ -124,7 +124,7 @@ function successfulRunner(updatedIndexPaths: string[]): ReturnType<typeof vi.fn<
 
 describe('openclawMemoryIndexMigration', () => {
   beforeEach(() => {
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'lobsterai-openclaw-memory-migration-'));
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'WULU-openclaw-memory-migration-'));
     stateDir = path.join(tmpDir, 'openclaw', 'state');
     runtimeRoot = path.join(tmpDir, 'runtime');
     configPath = path.join(stateDir, 'openclaw.json');

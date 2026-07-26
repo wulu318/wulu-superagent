@@ -10,7 +10,7 @@
 gateway request timeout for sessions.patch
 ```
 
-从日志看，这次失败不是模型没有生成回复，而是 LobsterAI 在真正调用 `chat.send` 之前，先执行 OpenClaw `sessions.patch` 更新会话模型。该 RPC 在客户端默认 30 秒内没有返回，导致 `runTurn()` 直接进入 error，用户消息没有被发送给模型。
+从日志看，这次失败不是模型没有生成回复，而是 wulu 在真正调用 `chat.send` 之前，先执行 OpenClaw `sessions.patch` 更新会话模型。该 RPC 在客户端默认 30 秒内没有返回，导致 `runTurn()` 直接进入 error，用户消息没有被发送给模型。
 
 ### 1.2 结论
 
@@ -20,7 +20,7 @@ gateway request timeout for sessions.patch
 2. `OpenClawRuntimeAdapter.runTurn()` 将本地 session 状态置为 `running`。
 3. 发送 `chat.send` 前，`ensureSessionModelForTurn()` 调用 `sessions.patch` 以确保 OpenClaw 当前 session 使用本地选中的模型。
 4. OpenClaw gateway 的 `sessions.patch` 请求超过 30 秒未返回。
-5. LobsterAI 抛出 `gateway request timeout for sessions.patch`。
+5. wulu 抛出 `gateway request timeout for sessions.patch`。
 6. 当前 turn 结束为 error，`chat.send` 没有执行。
 
 系统性原因是 OpenClaw gateway 的 session 存储/RPC 路径已经处于拥塞状态，尤其是 `sessions.json.lock` 长时间持有后阻塞了 session 读写类 RPC。日志中同一阶段还有大量 `sessions.list` 上下文用量刷新超时，说明这不是单次 patch 偶发失败，而是 session RPC 队列整体被拖慢。
@@ -60,7 +60,7 @@ OpenClaw 侧也记录了 session 写锁异常：
 
 ```text
 [session-write-lock] releasing lock held for 57907ms (max=15000ms):
-/Users/wangning/Library/Application Support/LobsterAI/openclaw/state/agents/main/sessions/sessions.json.lock
+/Users/wangning/Library/Application Support/wulu/openclaw/state/agents/main/sessions/sessions.json.lock
 ```
 
 这说明需要解决的是“关键发送路径被 session 存储拥塞拖死”，而不是单纯把错误提示翻译得更友好。
@@ -103,7 +103,7 @@ OpenClaw 侧也记录了 session 写锁异常：
 
 **Given** 最近一段时间出现多个 `sessions.list`、`sessions.patch` 或 `chat.history` timeout  
 **When** 用户发起新 turn  
-**Then** LobsterAI 应优先保护用户发送链路  
+**Then** wulu 应优先保护用户发送链路  
 **And** 应记录可诊断的健康状态和降级原因
 
 ## 3. 功能需求
@@ -182,7 +182,7 @@ type SessionModelPatchState = {
 
 ### FR-5：Gateway RPC 健康状态需要可观测
 
-LobsterAI 需要维护轻量 gateway RPC health state：
+wulu 需要维护轻量 gateway RPC health state：
 
 ```typescript
 type GatewayRpcHealth = {
@@ -222,7 +222,7 @@ gateway request timeout for sessions.patch
 
 ### FR-7：OpenClaw runtime 侧需要补足锁诊断
 
-LobsterAI 可以先做降级和限流，但根因仍在 OpenClaw session 写锁持有过久。
+wulu 可以先做降级和限流，但根因仍在 OpenClaw session 写锁持有过久。
 
 OpenClaw runtime 侧后续应增加：
 

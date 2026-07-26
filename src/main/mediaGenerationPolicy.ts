@@ -1,6 +1,6 @@
 export const MediaGenerationTool = {
-  Image: 'lobsterai_image_generate',
-  Video: 'lobsterai_video_generate',
+  Image: 'WULU_image_generate',
+  Video: 'WULU_video_generate',
 } as const;
 export type MediaGenerationTool = typeof MediaGenerationTool[keyof typeof MediaGenerationTool];
 

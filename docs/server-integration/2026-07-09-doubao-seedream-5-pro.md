@@ -2,7 +2,7 @@
 
 ## Change Summary
 
-lobsterai-server 新增 Doubao-Seedream-5.0-pro 图片模型配置，并新增媒体计费单位：
+wulu-server 新增 Doubao-Seedream-5.0-pro 图片模型配置，并新增媒体计费单位：
 
 - `doubao-seedream-5-0-pro-260628`
 - `billingUnit=per_image_io`

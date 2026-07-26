@@ -222,10 +222,10 @@ export class McpRuntime {
       : '';
     const buildShimEnv = (): Record<string, string> => {
       const shimEnv: Record<string, string> = {
-        LOBSTERAI_ELECTRON_PATH: electronPath,
+        WULU_ELECTRON_PATH: electronPath,
       };
       if (npmBinDir) {
-        shimEnv.LOBSTERAI_NPM_BIN_DIR = npmBinDir;
+        shimEnv.WULU_NPM_BIN_DIR = npmBinDir;
       }
       return shimEnv;
     };
@@ -248,10 +248,10 @@ export class McpRuntime {
           if (readyResolution) {
             optimizedCount++;
             const shimEnv: Record<string, string> = {
-              LOBSTERAI_ELECTRON_PATH: electronPath,
+              WULU_ELECTRON_PATH: electronPath,
             };
             if (npmBinDir) {
-              shimEnv.LOBSTERAI_NPM_BIN_DIR = npmBinDir;
+              shimEnv.WULU_NPM_BIN_DIR = npmBinDir;
             }
             resolved.push({
               name: server.name,

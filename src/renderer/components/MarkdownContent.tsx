@@ -392,7 +392,7 @@ const createMarkdownComponents = (
     </h1>
   ),
   h2: ({ node: _node, className: _className, children, ...props }: any) => (
-    <h2 className={`${spacing === 'compact' ? 'mt-2.5 mb-1' : 'mt-5 mb-2.5'} text-[length:var(--lobster-text-markdownH2)] font-semibold leading-snug first:mt-0 text-foreground`} {...props}>
+    <h2 className={`${spacing === 'compact' ? 'mt-2.5 mb-1' : 'mt-5 mb-2.5'} text-[length:var(--Wulu-text-markdownH2)] font-semibold leading-snug first:mt-0 text-foreground`} {...props}>
       {children}
     </h2>
   ),
@@ -402,7 +402,7 @@ const createMarkdownComponents = (
     </h3>
   ),
   h4: ({ node: _node, className: _className, children, ...props }: any) => (
-    <h4 className={`${spacing === 'compact' ? 'mt-2 mb-1' : 'mt-4 mb-1.5'} text-[length:var(--lobster-text-markdownH4)] font-semibold leading-snug first:mt-0 text-foreground`} {...props}>
+    <h4 className={`${spacing === 'compact' ? 'mt-2 mb-1' : 'mt-4 mb-1.5'} text-[length:var(--Wulu-text-markdownH4)] font-semibold leading-snug first:mt-0 text-foreground`} {...props}>
       {children}
     </h4>
   ),

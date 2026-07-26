@@ -2,7 +2,7 @@
 
 ## Change Summary
 
-`lobsterai-server` now distinguishes HTML shares closed by the active share limit from shares closed by users, admins, moderation, or other system reasons.
+`wulu-server` now distinguishes HTML shares closed by the active share limit from shares closed by users, admins, moderation, or other system reasons.
 
 When a share was automatically closed because the user's active share count exceeded the configured limit, Electron may update that existing share with `PUT /api/html-shares/{shareId}`. The server updates the content, reopens that share, and closes the oldest other active share to keep the active count within the limit.
 
@@ -25,7 +25,7 @@ Response may include disabled metadata:
   "message": "success",
   "data": {
     "shareId": "shr_xxxxxxxxxxxxxxxx",
-    "url": "https://lobsterai.youdaosmart.com/s/shr_xxxxxxxxxxxxxxxx/",
+    "url": "https://wulu.youdaosmart.com/s/shr_xxxxxxxxxxxxxxxx/",
     "accessMode": "code",
     "status": "disabled",
     "disabledAt": "2026-06-16T10:00:00",
@@ -63,7 +63,7 @@ For `status=disabled` and `disabledSource=active_limit`, the server updates cont
   "message": "success",
   "data": {
     "shareId": "shr_xxxxxxxxxxxxxxxx",
-    "url": "https://lobsterai.youdaosmart.com/s/shr_xxxxxxxxxxxxxxxx/",
+    "url": "https://wulu.youdaosmart.com/s/shr_xxxxxxxxxxxxxxxx/",
     "accessMode": "code",
     "status": "live",
     "disabledAt": null,

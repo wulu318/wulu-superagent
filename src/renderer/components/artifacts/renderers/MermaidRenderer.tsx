@@ -22,7 +22,7 @@ function cleanupMermaidRenderArtifacts(id: string) {
 
 function createMermaidRenderContainer(): HTMLDivElement {
   const container = document.createElement('div');
-  container.setAttribute('data-lobster-mermaid-render-container', 'true');
+  container.setAttribute('data-Wulu-mermaid-render-container', 'true');
   container.style.position = 'absolute';
   container.style.left = '0';
   container.style.top = '0';

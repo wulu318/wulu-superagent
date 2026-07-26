@@ -2,7 +2,7 @@
 
 ## Change Summary
 
-lobsterai-server exposes public client banner endpoints for the desktop sidebar invitation ad. As of 2026-07-03, the desktop client should use the list endpoint and rotate multiple active banners in the left-bottom sidebar slot.
+wulu-server exposes public client banner endpoints for the desktop sidebar invitation ad. As of 2026-07-03, the desktop client should use the list endpoint and rotate multiple active banners in the left-bottom sidebar slot.
 
 ## Endpoint Details
 
@@ -27,7 +27,7 @@ Response:
       "activityDescription": "邀请好友赚积分",
       "weight": 1,
       "status": 1,
-      "linkUrl": "https://lobsterai.youdao.com/portal#/invitation",
+      "linkUrl": "https://wulu.youdao.com/portal#/invitation",
       "imageUrl": "https://nos.example.com/banner.png",
       "imageWidth": 800,
       "imageHeight": 250,

@@ -5,7 +5,7 @@ import {
   type MediaStatusPollPolicy,
   type MediaStatusResponse,
   pollMediaStatus,
-} from '../../../openclaw-extensions/lobster-media-generation/statusPolling';
+} from '../../../openclaw-extensions/Wulu-media-generation/statusPolling';
 
 const policy: MediaStatusPollPolicy = {
   timeoutMs: 100,

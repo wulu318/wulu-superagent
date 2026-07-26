@@ -290,7 +290,7 @@ export function registerKitHandlers(deps: KitHandlerDeps): void {
       }
 
       // 1. Download zip
-      tempRoot = fs.mkdtempSync(path.join(app.getPath('temp'), 'lobsterai-kit-'));
+      tempRoot = fs.mkdtempSync(path.join(app.getPath('temp'), 'wulu-kit-'));
       const buffer = await downloadBuffer(bundleUrl);
       if (isComputerUseKit) {
         if (buffer.length !== ComputerUseKitBundleIntegrity.SizeBytes) {

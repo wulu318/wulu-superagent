@@ -942,10 +942,10 @@ interface ProvidersImportPayload {
   providers?: Record<string, ProvidersImportEntry>;
 }
 
-const ABOUT_CONTACT_EMAIL = 'lobsterai.project@rd.netease.com';
-const ABOUT_USER_MANUAL_URL = 'https://lobsterai.youdao.com/#/docs/lobsterai_user_manual';
-const ABOUT_USER_COMMUNITY_URL = 'https://lobsterai.youdao.com/#/about';
-const ABOUT_SERVICE_TERMS_URL = 'https://c.youdao.com/dict/hardware/lobsterai/lobsterai_service.html';
+const ABOUT_CONTACT_EMAIL = 'WULU.project@rd.netease.com';
+const ABOUT_USER_MANUAL_URL = 'https://WULU.youdao.com/#/docs/WULU_user_manual';
+const ABOUT_USER_COMMUNITY_URL = 'https://WULU.youdao.com/#/about';
+const ABOUT_SERVICE_TERMS_URL = 'https://c.youdao.com/dict/hardware/WULU/WULU_service.html';
 
 // MiniMax Portal OAuth constants
 const MINIMAX_OAUTH_CLIENT_ID = '78257093-7e40-4613-99e0-527b14b39113';
@@ -4490,7 +4490,7 @@ const Settings: React.FC<SettingsProps> = ({
   const renderAppearanceSettings = () => (
     <div className="space-y-8">
       <div>
-        <h4 className="text-sm font-medium mb-3" style={{ color: 'var(--lobster-text-primary)' }}>
+        <h4 className="text-sm font-medium mb-3" style={{ color: 'var(--Wulu-text-primary)' }}>
           {i18nService.t('appearance')}
         </h4>
 
@@ -4505,8 +4505,8 @@ const Settings: React.FC<SettingsProps> = ({
                 disabled={isAppearanceChanging}
                 className="flex flex-col items-center rounded-xl border-2 p-3 transition-colors cursor-pointer disabled:cursor-wait disabled:opacity-60"
                 style={{
-                  borderColor: isSelected ? 'var(--lobster-primary)' : 'var(--lobster-border)',
-                  backgroundColor: isSelected ? 'var(--lobster-primary-muted)' : undefined,
+                  borderColor: isSelected ? 'var(--Wulu-primary)' : 'var(--Wulu-border)',
+                  backgroundColor: isSelected ? 'var(--Wulu-primary-muted)' : undefined,
                 }}
               >
                 <svg viewBox="0 0 120 80" className="w-full h-auto rounded-md mb-2 overflow-hidden" xmlns="http://www.w3.org/2000/svg">
@@ -4590,7 +4590,7 @@ const Settings: React.FC<SettingsProps> = ({
                     </>
                   )}
                 </svg>
-                <span className="text-xs font-medium" style={{ color: isSelected ? 'var(--lobster-primary)' : 'var(--lobster-text-primary)' }}>
+                <span className="text-xs font-medium" style={{ color: isSelected ? 'var(--Wulu-primary)' : 'var(--Wulu-text-primary)' }}>
                   {i18nService.t(mode)}
                 </span>
               </button>
@@ -4598,7 +4598,7 @@ const Settings: React.FC<SettingsProps> = ({
           })}
         </div>
 
-        <h4 className="text-sm font-medium mb-3 mt-5" style={{ color: 'var(--lobster-text-primary)' }}>
+        <h4 className="text-sm font-medium mb-3 mt-5" style={{ color: 'var(--Wulu-text-primary)' }}>
           {i18nService.t('themeColor')}
         </h4>
         {(() => {
@@ -4616,8 +4616,8 @@ const Settings: React.FC<SettingsProps> = ({
                 disabled={isAppearanceChanging}
                 className="flex flex-col items-center rounded-xl border-2 p-2 transition-colors cursor-pointer disabled:cursor-wait disabled:opacity-60"
                 style={{
-                  borderColor: isSelected ? 'var(--lobster-primary)' : 'var(--lobster-border)',
-                  backgroundColor: isSelected ? 'var(--lobster-primary-muted)' : undefined,
+                  borderColor: isSelected ? 'var(--Wulu-primary)' : 'var(--Wulu-border)',
+                  backgroundColor: isSelected ? 'var(--Wulu-primary-muted)' : undefined,
                 }}
               >
                 <svg viewBox="0 0 80 48" className="w-full h-auto rounded-md mb-1.5 overflow-hidden" xmlns="http://www.w3.org/2000/svg">
@@ -4627,7 +4627,7 @@ const Settings: React.FC<SettingsProps> = ({
                   <circle cx="52" cy="24" r="8" fill={c3} opacity="0.8" />
                   <rect x="32" y="34" width="40" height="4" rx="2" fill={c1} opacity="0.6" />
                 </svg>
-                <span className="text-[10px] font-medium truncate w-full text-center" style={{ color: isSelected ? 'var(--lobster-primary)' : 'var(--lobster-text-primary)' }}>
+                <span className="text-[10px] font-medium truncate w-full text-center" style={{ color: isSelected ? 'var(--Wulu-primary)' : 'var(--Wulu-text-primary)' }}>
                   {i18nService.t('theme-name-' + t.meta.id) || t.meta.name}
                 </span>
               </button>
@@ -5637,7 +5637,7 @@ const Settings: React.FC<SettingsProps> = ({
             {/* Logo & App Name */}
             <img
               src="logo.png"
-              alt="LobsterAI"
+              alt="WULU"
               className="w-16 h-16 mb-3 cursor-pointer select-none"
               onClick={(e) => {
                 if (!e.altKey || !e.shiftKey) return;
@@ -5649,7 +5649,7 @@ const Settings: React.FC<SettingsProps> = ({
                 }
               }}
             />
-            <h3 className="text-lg font-semibold text-foreground">LobsterAI</h3>
+            <h3 className="text-lg font-semibold text-foreground">WULU</h3>
             <span className="text-xs text-secondary mt-1">v{appVersion}</span>
 
             {/* Info Card */}

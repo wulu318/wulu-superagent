@@ -133,7 +133,7 @@ export type ShareDeploymentKind = typeof ShareDeploymentKind[keyof typeof ShareD
 
 ### FR-3: 静态构建打包不生成运行时
 
-静态部署禁止生成 `.lobster-static-runtime/server.js`，也不上传 `startCommand = node server.js`。
+静态部署禁止生成 `.Wulu-static-runtime/server.js`，也不上传 `startCommand = node server.js`。
 
 静态部署包只包含构建输出目录中的静态文件和 manifest：
 
@@ -634,7 +634,7 @@ return file with MIME and cache headers
 | 用户配置了自定义输出目录 | UI 允许高级配置覆盖；必须包含入口 HTML |
 | 静态资源使用绝对 `/assets/...` | 独立 host 下可正常访问 |
 | SPA 子路径刷新 404 | `spaFallback = true` 返回入口 HTML |
-| 静态站点调用 `/api/*` | 静态 host 不提供后端 API；如果资源不存在则按 fallback/404 处理，不代理到 LobsterAI API |
+| 静态站点调用 `/api/*` | 静态 host 不提供后端 API；如果资源不存在则按 fallback/404 处理，不代理到 wulu API |
 | 构建依赖需要环境变量 | 首版不采集 `.env`；用户可在本地已配置环境中构建，敏感文件不上传 |
 | 包体超过静态限制 | 上传前阻止并展示具体限制 |
 | 旧静态项目已有 Node 部署 | 允许查看旧部署；重新部署时切到静态链路 |

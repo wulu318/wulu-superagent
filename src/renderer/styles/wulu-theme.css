@@ -1,0 +1,152 @@
+/**
+ * WULU Theme — 伍陆超级智能体品牌主题
+ *
+ * 基于金色+白色+纯黑的高端配色方案
+ * 此文件集中管理品牌色板，减少与上游同步冲突
+ */
+
+/* ============================================================
+ * WULU 暗黑模式（默认） — 纯黑 + 金色高亮
+ * ============================================================ */
+:root[data-theme="dark"],
+html.dark {
+  /* 背景 */
+  --wulu-bg-primary: #000000;
+  --wulu-bg-secondary: #0A0A0A;
+  --wulu-bg-tertiary: #111111;
+  --wulu-surface: #1A1A1A;
+  --wulu-surface-raised: #222222;
+
+  /* 边框 */
+  --wulu-border: #2A2A2A;
+  --wulu-border-subtle: #1A1A1A;
+
+  /* 文字 */
+  --wulu-text-primary: #FFFFFF;
+  --wulu-text-secondary: #A0A0A0;
+  --wulu-text-tertiary: #666666;
+
+  /* 金色强调 */
+  --wulu-accent: #FFD700;
+  --wulu-accent-hover: #FFC107;
+  --wulu-accent-muted: #B8860B;
+  --wulu-accent-subtle: rgba(255, 215, 0, 0.1);
+  --wulu-glow: rgba(255, 215, 0, 0.15);
+
+  /* 蓝色辅助（保留科技感） */
+  --wulu-blue: #3B82F6;
+  --wulu-blue-hover: #60A5FA;
+
+  /* 状态色 */
+  --wulu-success: #22C55E;
+  --wulu-warning: #F59E0B;
+  --wulu-error: #EF4444;
+  --wulu-info: #3B82F6;
+}
+
+/* ============================================================
+ * WULU 亮色模式 — 白色 + 深金主色
+ * ============================================================ */
+:root[data-theme="light"],
+html:not(.dark) {
+  /* 背景 */
+  --wulu-bg-primary: #FFFFFF;
+  --wulu-bg-secondary: #F8FAFC;
+  --wulu-bg-tertiary: #F1F5F9;
+  --wulu-surface: #FFFFFF;
+  --wulu-surface-raised: #F8FAFC;
+
+  /* 边框 */
+  --wulu-border: #E2E8F0;
+  --wulu-border-subtle: #F1F5F9;
+
+  /* 文字 */
+  --wulu-text-primary: #0F172A;
+  --wulu-text-secondary: #64748B;
+  --wulu-text-tertiary: #94A3B8;
+
+  /* 深金强调（亮色模式下降饱和） */
+  --wulu-accent: #B8860B;
+  --wulu-accent-hover: #996D00;
+  --wulu-accent-muted: #DAA520;
+  --wulu-accent-subtle: rgba(184, 134, 11, 0.08);
+  --wulu-glow: rgba(184, 134, 11, 0.1);
+
+  /* 蓝色辅助 */
+  --wulu-blue: #2563EB;
+  --wulu-blue-hover: #1D4ED8;
+
+  /* 状态色 */
+  --wulu-success: #16A34A;
+  --wulu-warning: #D97706;
+  --wulu-error: #DC2626;
+  --wulu-info: #2563EB;
+}
+
+/* ============================================================
+ * 覆盖原有 wulu 变量（映射到 WULU 色板）
+ * 这样不需要改动所有引用 --wulu-* 的组件
+ * ============================================================ */
+:root {
+  /* 主色 → 金色 */
+  --wulu-primary: var(--wulu-accent);
+  --wulu-primary-hover: var(--wulu-accent-hover);
+  --wulu-primary-muted: var(--wulu-accent-muted);
+
+  /* 背景 */
+  --wulu-bg-app: var(--wulu-bg-primary);
+
+  /* 表面 */
+  --wulu-surface-default: var(--wulu-surface);
+  --wulu-surface-raised: var(--wulu-surface-raised);
+
+  /* 文字 */
+  --wulu-text-primary: var(--wulu-text-primary);
+  --wulu-text-secondary: var(--wulu-text-secondary);
+
+  /* 边框 */
+  --wulu-border-default: var(--wulu-border);
+}
+
+/* ============================================================
+ * WULU 品牌辉光效果
+ * ============================================================ */
+.wulu-glow {
+  box-shadow: 0 0 20px var(--wulu-glow);
+}
+
+.wulu-glow-accent {
+  box-shadow: 0 0 30px var(--wulu-glow), 0 0 60px var(--wulu-accent-subtle);
+}
+
+/* ============================================================
+ * WULU 启动画面配色覆盖
+ * ============================================================ */
+html.dark .splash {
+  background: #000000 !important;
+}
+
+html.dark .splash-title {
+  color: var(--wulu-accent) !important;
+}
+
+.splash-logo-glow {
+  background: var(--wulu-glow) !important;
+}
+
+.splash-bar {
+  background: var(--wulu-accent-subtle) !important;
+}
+
+.splash-bar-shimmer {
+  background: linear-gradient(to right, transparent, var(--wulu-accent), transparent) !important;
+}
+
+.splash-tips-label {
+  color: var(--wulu-accent) !important;
+}
+
+.splash-dot-active,
+.splash-dot-active:hover {
+  background: var(--wulu-accent) !important;
+}

@@ -1,10 +1,10 @@
 /**
- * Where the failing model comes from in LobsterAI terms, so users can tell at
- * a glance whether an error concerns the LobsterAI plan, a vendor coding plan
+ * Where the failing model comes from in WULU terms, so users can tell at
+ * a glance whether an error concerns the WULU plan, a vendor coding plan
  * they configured, or their own custom provider.
  */
 export const CoworkErrorModelSource = {
-  LobsterAIPlan: 'lobsterai-plan',
+  WULUPlan: 'WULU-plan',
   CodingPlan: 'coding-plan',
   CustomProvider: 'custom-provider',
   BuiltinOAuth: 'builtin-oauth',
@@ -29,11 +29,11 @@ export function isCoworkErrorModelSource(value: unknown): value is CoworkErrorMo
  * provider payloads in this structure.
  */
 export interface CoworkErrorDetail {
-  /** Runtime error message before LobsterAI i18n normalization. */
+  /** Runtime error message before WULU i18n normalization. */
   rawErrorMessage?: string;
   provider?: string;
   model?: string;
-  /** LobsterAI-side classification of where the failing model comes from. */
+  /** WULU-side classification of where the failing model comes from. */
   modelSource?: CoworkErrorModelSource;
   /** User-visible provider name from Settings (e.g. a custom provider's displayName). */
   providerDisplayName?: string;

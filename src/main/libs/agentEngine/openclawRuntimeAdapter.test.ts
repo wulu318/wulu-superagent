@@ -52,8 +52,8 @@ test('plan mode allows read-only shell inspection on macOS and Windows', () => {
   expect(isPlanModeSafeExecCommand('Get-ChildItem src')).toBe(true);
   expect(isPlanModeSafeExecCommand('findstr /s PlanMode src\\*.ts')).toBe(true);
   expect(isPlanModeSafeExecCommand(
-    'ls -la /Users/admin/lobsterai/project/wheat-bakery/ 2>/dev/null; '
-    + 'echo "---"; cat /Users/admin/lobsterai/project/index.html 2>/dev/null | head -50',
+    'ls -la /Users/admin/wulu/project/wheat-bakery/ 2>/dev/null; '
+    + 'echo "---"; cat /Users/admin/wulu/project/index.html 2>/dev/null | head -50',
   )).toBe(true);
   expect(isPlanModeSafeExecCommand('git status --short && rg -n "Plan Mode" src | head -20')).toBe(true);
   expect(isPlanModeSafeExecCommand('Get-Content app.log 2>$null | Select-Object -First 20')).toBe(true);
@@ -115,7 +115,7 @@ test('plan mode treats OpenClaw failure finals as system errors instead of propo
   session.status = 'running';
   const adapter = new OpenClawRuntimeAdapter(store, {});
   adapter.on('error', vi.fn());
-  const sessionKey = `agent:main:lobsterai:${session.id}`;
+  const sessionKey = `agent:main:wulu:${session.id}`;
   const turn = createActiveTurn(session.id, sessionKey, 'run-lock-final');
   turn.planMode = true;
   adapter.activeTurns.set(session.id, turn);
@@ -168,7 +168,7 @@ test('plan mode assistant snapshot jitter keeps one visible plan message', () =>
     { id: 'msg-1', type: 'user', content: '帮我写小红书文案', timestamp: 1, metadata: {} },
   ]);
   const adapter = new OpenClawRuntimeAdapter(store, {});
-  const sessionKey = `agent:main:lobsterai:${session.id}`;
+  const sessionKey = `agent:main:wulu:${session.id}`;
   const turn = createActiveTurn(session.id, sessionKey, 'run-plan-snapshot');
   turn.planMode = true;
   adapter.activeTurns.set(session.id, turn);
@@ -262,7 +262,7 @@ test('resolveOpenClawRuntimeErrorMessage restores recent quota error hidden by O
   expect(consumeRecentOpenClawTokenProxyQuotaError()).toBeNull();
 });
 
-test('resolveOpenClawRuntimeErrorMessage classifies raw LobsterAI quota errors', () => {
+test('resolveOpenClawRuntimeErrorMessage classifies raw wulu quota errors', () => {
   expect(resolveOpenClawRuntimeErrorMessage('本月积分已用完')).toContain('积分额度已用完');
 });
 
@@ -402,7 +402,7 @@ test('buildOpenClawRuntimeErrorDetail falls back to the turn model ref when meta
 
 test('estimateOpenClawChatSendFrameBytes measures the full RPC frame as UTF-8 JSON', () => {
   const params = {
-    sessionKey: 'agent:main:lobsterai:session-1',
+    sessionKey: 'agent:main:wulu:session-1',
     message: '分析这张图',
     deliver: false,
     idempotencyKey: 'run-1',
@@ -515,10 +515,10 @@ test('outbound prompt injects continuity capsule bridge before the current reque
 
   const prompt = await internal.buildOutboundPrompt('session-1', '继续');
 
-  expect(prompt).toContain('[LobsterAI continuity context after context compaction]');
+  expect(prompt).toContain('[wulu continuity context after context compaction]');
   expect(prompt).toContain('Improve compaction continuity.');
   expect(prompt).toContain('src/main/libs/agentEngine/openclawRuntimeAdapter.ts');
-  expect(prompt.indexOf('[LobsterAI continuity context after context compaction]')).toBeLessThan(
+  expect(prompt.indexOf('[wulu continuity context after context compaction]')).toBeLessThan(
     prompt.indexOf('[Current user request]'),
   );
 });
@@ -563,10 +563,10 @@ test('outbound prompt injects full capsule first and mini capsule on later turns
   const firstPrompt = await internal.buildOutboundPrompt('session-1', '继续');
   const secondPrompt = await internal.buildOutboundPrompt('session-1', '再继续');
 
-  expect(firstPrompt).toContain('[LobsterAI continuity context after context compaction]');
+  expect(firstPrompt).toContain('[wulu continuity context after context compaction]');
   expect(firstPrompt).toContain('Touched files:');
   expect(firstPrompt).toContain('src/main/libs/agentEngine/openclawRuntimeAdapter.ts');
-  expect(secondPrompt).toContain('[LobsterAI brief continuity context after context compaction]');
+  expect(secondPrompt).toContain('[wulu brief continuity context after context compaction]');
   expect(secondPrompt).toContain('Improve compaction continuity.');
   expect(secondPrompt).toContain('Inject capsule bridge.');
   expect(secondPrompt).not.toContain('Touched files:');
@@ -615,9 +615,9 @@ test('outbound prompt injects workspace rehydration bridge before the current re
 
   const prompt = await internal.buildOutboundPrompt('session-1', '继续');
 
-  expect(prompt).toContain('[LobsterAI workspace state after context compaction]');
+  expect(prompt).toContain('[wulu workspace state after context compaction]');
   expect(prompt).toContain('src/main/libs/agentEngine/coworkWorkspaceRehydration.ts');
-  expect(prompt.indexOf('[LobsterAI workspace state after context compaction]')).toBeLessThan(
+  expect(prompt.indexOf('[wulu workspace state after context compaction]')).toBeLessThan(
     prompt.indexOf('[Current user request]'),
   );
 });
@@ -665,8 +665,8 @@ test('outbound prompt injects workspace rehydration bridge once per compaction',
   const firstPrompt = await internal.buildOutboundPrompt('session-1', '继续');
   const secondPrompt = await internal.buildOutboundPrompt('session-1', '再继续');
 
-  expect(firstPrompt).toContain('[LobsterAI workspace state after context compaction]');
-  expect(secondPrompt).not.toContain('[LobsterAI workspace state after context compaction]');
+  expect(firstPrompt).toContain('[wulu workspace state after context compaction]');
+  expect(secondPrompt).not.toContain('[wulu workspace state after context compaction]');
 });
 
 test('outbound prompt injects top-k evidence bridge before the current request', async () => {
@@ -725,9 +725,9 @@ test('outbound prompt injects top-k evidence bridge before the current request',
 
   const prompt = await internal.buildOutboundPrompt('session-1', '继续处理 src/pages/Bakery.tsx 的 npm test failed');
 
-  expect(prompt).toContain('[LobsterAI retrieved evidence after context compaction]');
+  expect(prompt).toContain('[wulu retrieved evidence after context compaction]');
   expect(prompt).toContain('npm test failed in src/pages/Bakery.tsx');
-  expect(prompt.indexOf('[LobsterAI retrieved evidence after context compaction]')).toBeLessThan(
+  expect(prompt.indexOf('[wulu retrieved evidence after context compaction]')).toBeLessThan(
     prompt.indexOf('[Current user request]'),
   );
 });
@@ -769,7 +769,7 @@ test('outbound prompt skips continuity capsule bridge before compaction', async 
 
   const prompt = await internal.buildOutboundPrompt('session-1', 'hello');
 
-  expect(prompt).not.toContain('[LobsterAI continuity context after context compaction]');
+  expect(prompt).not.toContain('[wulu continuity context after context compaction]');
 });
 
 test('context usage ignores non-checkpoint compactionCount', () => {
@@ -777,7 +777,7 @@ test('context usage ignores non-checkpoint compactionCount', () => {
   const usage = (adapter as unknown as {
     buildContextUsageFromSessionRow: (sessionId: string, row: Record<string, unknown>) => Record<string, unknown>;
   }).buildContextUsageFromSessionRow('session-1', {
-    key: 'agent:main:lobsterai:session-1',
+    key: 'agent:main:wulu:session-1',
     tokenCount: 53_250,
     contextTokens: 60_000,
     compactionCount: 1,
@@ -792,7 +792,7 @@ test('context usage uses checkpoint compaction count', () => {
   const usage = (adapter as unknown as {
     buildContextUsageFromSessionRow: (sessionId: string, row: Record<string, unknown>) => Record<string, unknown>;
   }).buildContextUsageFromSessionRow('session-1', {
-    key: 'agent:main:lobsterai:session-1',
+    key: 'agent:main:wulu:session-1',
     tokenCount: 20_000,
     contextTokens: 60_000,
     compactionCount: 9,
@@ -926,7 +926,7 @@ test('fork compaction lookup prefers an available summary over a newer empty che
 });
 
 test('context compaction diagnostic logs safe checkpoint metadata without summary text', async () => {
-  const sessionKey = 'agent:main:lobsterai:diag-safe';
+  const sessionKey = 'agent:main:wulu:diag-safe';
   const adapter = new OpenClawRuntimeAdapter({} as never, {} as never);
   adapter.gatewayClient = {
     request: async () => ({
@@ -968,7 +968,7 @@ test('context compaction diagnostic logs safe checkpoint metadata without summar
 });
 
 test('context compaction diagnostic does not reuse checkpoint metadata for no-op compaction', async () => {
-  const sessionKey = 'agent:main:lobsterai:diag-noop';
+  const sessionKey = 'agent:main:wulu:diag-noop';
   const requests: string[] = [];
   const adapter = new OpenClawRuntimeAdapter({} as never, {} as never);
   adapter.gatewayClient = {
@@ -1019,7 +1019,7 @@ test('context compaction diagnostic does not reuse checkpoint metadata for no-op
 });
 
 test('context compaction diagnostic fetches checkpoint details when list omits summary', async () => {
-  const sessionKey = 'agent:main:lobsterai:diag-get';
+  const sessionKey = 'agent:main:wulu:diag-get';
   const requests: Array<{ method: string; params: unknown }> = [];
   const adapter = new OpenClawRuntimeAdapter({} as never, {} as never);
   adapter.gatewayClient = {
@@ -1069,7 +1069,7 @@ test('context compaction diagnostic fetches checkpoint details when list omits s
 });
 
 test('context compaction diagnostic lookup failure warns without throwing', async () => {
-  const sessionKey = 'agent:main:lobsterai:diag-failure';
+  const sessionKey = 'agent:main:wulu:diag-failure';
   const error = new Error('gateway unavailable');
   const adapter = new OpenClawRuntimeAdapter({} as never, {} as never);
   adapter.gatewayClient = {
@@ -1118,7 +1118,7 @@ test('context usage resolves historical sessions with targeted lookup', async ()
     createdAt: 1,
     updatedAt: 1,
   };
-  const sessionKey = `agent:main:lobsterai:${session.id}`;
+  const sessionKey = `agent:main:wulu:${session.id}`;
   const requests: Array<{ method: string; params: Record<string, unknown> }> = [];
   const adapter = new OpenClawRuntimeAdapter({
     getSession: (sessionId: string) => (sessionId === session.id ? session : null),
@@ -1169,7 +1169,7 @@ test('context usage does not fall back to recent session lookup when targeted lo
     createdAt: 1,
     updatedAt: 1,
   };
-  const sessionKey = `agent:main:lobsterai:${session.id}`;
+  const sessionKey = `agent:main:wulu:${session.id}`;
   const requests: Array<{ method: string; params: Record<string, unknown> }> = [];
   const adapter = new OpenClawRuntimeAdapter({
     getSession: (sessionId: string) => (sessionId === session.id ? session : null),
@@ -1209,7 +1209,7 @@ test('context usage coalesces concurrent refreshes for the same session', async 
     createdAt: 1,
     updatedAt: 1,
   };
-  const sessionKey = `agent:main:lobsterai:${session.id}`;
+  const sessionKey = `agent:main:wulu:${session.id}`;
   const requests: Array<{ method: string; params: Record<string, unknown> }> = [];
   let releaseRequest: (() => void) | null = null;
   const requestBlocked = new Promise<void>((resolve) => {
@@ -1266,7 +1266,7 @@ test('usage metadata falls back to latest assistant when preferred id was replac
     ) => Promise<void>;
   }).applyUsageMetadataFromFinal(
     session.id,
-    `agent:main:lobsterai:${session.id}`,
+    `agent:main:wulu:${session.id}`,
     'stale-message-id',
     80_262,
     391,
@@ -1481,14 +1481,14 @@ test('patchSession uses the persisted IM channel session key after runtime cache
     persistedSessionKey: 'agent:main:feishu:dm:ou_123',
   });
 
-  await adapter.patchSession('session-1', { model: 'lobsterai-server/qwen3.6-plus-YoudaoInner' });
+  await adapter.patchSession('session-1', { model: 'wulu-server/qwen3.6-plus-YoudaoInner' });
 
   expect(requests).toEqual([
     {
       method: 'sessions.patch',
       params: {
         key: 'agent:main:feishu:dm:ou_123',
-        model: 'lobsterai-server/qwen3.6-plus-YoudaoInner',
+        model: 'wulu-server/qwen3.6-plus-YoudaoInner',
       },
     },
   ]);
@@ -1500,7 +1500,7 @@ test('patchSession rejects IM channel sessions when the real OpenClaw key is mis
     persistedSessionKey: null,
   });
 
-  await expect(adapter.patchSession('session-1', { model: 'lobsterai-server/qwen3.6-plus-YoudaoInner' }))
+  await expect(adapter.patchSession('session-1', { model: 'wulu-server/qwen3.6-plus-YoudaoInner' }))
     .rejects.toThrow('Cannot patch IM channel session because the OpenClaw session key is missing.');
 
   expect(requests).toHaveLength(0);
@@ -1517,7 +1517,7 @@ test('patchSession keeps managed-key fallback for normal Cowork sessions', async
   expect(requests[0]).toEqual({
     method: 'sessions.patch',
     params: {
-      key: 'agent:main:lobsterai:session-1',
+      key: 'agent:main:wulu:session-1',
       model: 'moonshot/kimi-k2.6',
     },
   });
@@ -1537,7 +1537,7 @@ test('pollChannelSessions syncs channel row model into the local session overrid
         return {
           sessions: [{
             key: sessionKey,
-            modelProvider: 'lobsterai-server',
+            modelProvider: 'wulu-server',
             model: 'kimi-k2.6-YoudaoInner',
           }],
         };
@@ -1557,11 +1557,11 @@ test('pollChannelSessions syncs channel row model into the local session overrid
 
   await adapter.pollChannelSessions();
 
-  expect(session.modelOverride).toBe('lobsterai-server/kimi-k2.6-YoudaoInner');
+  expect(session.modelOverride).toBe('wulu-server/kimi-k2.6-YoudaoInner');
   expect(getUpdateSessionCalls()).toEqual([
     {
       sessionId: session.id,
-      patch: { modelOverride: 'lobsterai-server/kimi-k2.6-YoudaoInner' },
+      patch: { modelOverride: 'wulu-server/kimi-k2.6-YoudaoInner' },
       options: { touchUpdatedAt: false },
     },
   ]);
@@ -1569,12 +1569,12 @@ test('pollChannelSessions syncs channel row model into the local session overrid
 
 test('pollChannelSessions clears stale override when channel row matches the agent default model', async () => {
   const sessionKey = 'agent:main:feishu:dm:ou_123';
-  const defaultModel = 'lobsterai-server/deepseek-v4-flash-YoudaoInner';
+  const defaultModel = 'wulu-server/deepseek-v4-flash-YoudaoInner';
   const { session, store, getUpdateSessionCalls } = createReconcileStore([], {
     agentModel: defaultModel,
     sessionId: 'session-1',
   });
-  session.modelOverride = 'lobsterai-server/qwen3.7-max-YoudaoInner';
+  session.modelOverride = 'wulu-server/qwen3.7-max-YoudaoInner';
   const adapter = new OpenClawRuntimeAdapter(store, {});
   adapter.gatewayClient = {
     start: () => {},
@@ -1582,7 +1582,7 @@ test('pollChannelSessions clears stale override when channel row matches the age
     request: async () => ({
       sessions: [{
         key: sessionKey,
-        modelProvider: 'lobsterai-server',
+        modelProvider: 'wulu-server',
         model: 'deepseek-v4-flash-YoudaoInner',
       }],
     }),
@@ -1798,7 +1798,7 @@ test('sessions.changed IM status handling excludes desktop, cron, main, subagent
   };
 
   for (const sessionKey of [
-    `agent:main:lobsterai:${session.id}`,
+    `agent:main:wulu:${session.id}`,
     'agent:main:cron:job-1:run:run-1',
     'agent:main:main',
     'agent:main:subagent:run-1',
@@ -2077,7 +2077,7 @@ function createRunTurnAdapter(options: {
       ? {
         id: 'main',
         name: 'Main',
-        model: options.agentModel ?? 'lobsterai-server/qwen3.5-plus-YoudaoInner',
+        model: options.agentModel ?? 'wulu-server/qwen3.5-plus-YoudaoInner',
       }
       : null),
     updateAgent: () => {},
@@ -2122,7 +2122,7 @@ function createRunTurnAdapter(options: {
           : 'run-1';
         const sessionKey = typeof requestParams.sessionKey === 'string'
           ? requestParams.sessionKey
-          : 'agent:main:lobsterai:session-1';
+          : 'agent:main:wulu:session-1';
         queueMicrotask(() => {
           (adapter as unknown as {
             handleChatEvent: (payload: unknown, seq?: number) => void;
@@ -2146,7 +2146,7 @@ function createRunTurnAdapter(options: {
   if (options.cachedModel) {
     adapter.sessionModelPatchStateBySession.set(session.id, {
       model: options.cachedModel,
-      sessionKey: 'agent:main:lobsterai:session-1',
+      sessionKey: 'agent:main:wulu:session-1',
       source: options.sessionModelOverride ? 'sessionOverride' : 'agentModel',
       confirmedAt: Date.now(),
     });
@@ -2290,7 +2290,7 @@ test('continueSession strips NUL characters from the persisted message and chat.
 });
 
 test('continueSession blocks an oversized active transcript before gateway requests', async () => {
-  const stateDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'lobster-runtime-transcript-'));
+  const stateDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'Wulu-runtime-transcript-'));
   try {
     const sessionsDir = path.join(stateDir, 'agents', 'main', 'sessions');
     const transcriptPath = path.join(sessionsDir, 'openclaw-session-1.jsonl');
@@ -2298,7 +2298,7 @@ test('continueSession blocks an oversized active transcript before gateway reque
     await fs.promises.writeFile(transcriptPath, '');
     await fs.promises.truncate(transcriptPath, OpenClawTranscriptSafetyLimit.HardBytes);
     await fs.promises.writeFile(path.join(sessionsDir, 'sessions.json'), JSON.stringify({
-      'agent:main:lobsterai:session-1': {
+      'agent:main:wulu:session-1': {
         sessionId: 'openclaw-session-1',
         sessionFile: transcriptPath,
       },
@@ -2325,7 +2325,7 @@ test('continueSession blocks an oversized active transcript before gateway reque
 });
 
 test('continueSession patches a session override before chat.send even when the model cache matches', async () => {
-  const model = 'lobsterai-server/qwen3.6-plus-YoudaoInner';
+  const model = 'wulu-server/qwen3.6-plus-YoudaoInner';
   const { adapter, requests } = createRunTurnAdapter({
     sessionModelOverride: model,
     cachedModel: model,
@@ -2339,14 +2339,14 @@ test('continueSession patches a session override before chat.send even when the 
     'chat.send',
   ]);
   expect(requests[0].params).toEqual({
-    key: 'agent:main:lobsterai:session-1',
+    key: 'agent:main:wulu:session-1',
     model,
     reasoningLevel: 'stream',
   });
 });
 
 test('continueSession continues after a redundant session override patch times out', async () => {
-  const model = 'lobsterai-server/qwen3.6-plus-YoudaoInner';
+  const model = 'wulu-server/qwen3.6-plus-YoudaoInner';
   const { adapter, requests } = createRunTurnAdapter({
     sessionModelOverride: model,
     cachedModel: model,
@@ -2363,7 +2363,7 @@ test('continueSession continues after a redundant session override patch times o
 });
 
 test('continueSession rejects an unconfirmed session override patch timeout before chat.send', async () => {
-  const model = 'lobsterai-server/qwen3.6-plus-YoudaoInner';
+  const model = 'wulu-server/qwen3.6-plus-YoudaoInner';
   const { adapter, requests } = createRunTurnAdapter({
     sessionModelOverride: model,
     modelPatchError: new Error('gateway request timeout for sessions.patch'),
@@ -2377,7 +2377,7 @@ test('continueSession rejects an unconfirmed session override patch timeout befo
 });
 
 test('continueSession waits for an in-flight model patch before chat.send', async () => {
-  const model = 'lobsterai-server/qwen3.6-plus-YoudaoInner';
+  const model = 'wulu-server/qwen3.6-plus-YoudaoInner';
   const {
     adapter,
     requests,
@@ -2434,14 +2434,14 @@ test('continueSession stopped before active turn creation does not send chat', a
 
 test('continueSession sends the session cwd to OpenClaw chat.send', async () => {
   const { adapter, requests } = createRunTurnAdapter({
-    sessionCwd: '/tmp/lobsterai-selected-project',
+    sessionCwd: '/tmp/wulu-selected-project',
   });
 
   await adapter.continueSession('session-1', 'hello');
 
   const chatSend = requests.find((request) => request.method === 'chat.send');
   expect(chatSend?.params).toMatchObject({
-    cwd: path.resolve('/tmp/lobsterai-selected-project'),
+    cwd: path.resolve('/tmp/wulu-selected-project'),
   });
 });
 
@@ -2461,7 +2461,7 @@ test('continueSession clears the pending turn when chat.send fails immediately',
 });
 
 test('pre-send model patch uses the extended send timeout while patchSession keeps the default', async () => {
-  const model = 'lobsterai-server/qwen3.6-plus-YoudaoInner';
+  const model = 'wulu-server/qwen3.6-plus-YoudaoInner';
   const { adapter, requests } = createRunTurnAdapter({
     sessionModelOverride: model,
   });
@@ -2476,7 +2476,7 @@ test('pre-send model patch uses the extended send timeout while patchSession kee
 });
 
 test('continueSession sends after a slow pre-send model patch eventually succeeds', async () => {
-  const model = 'lobsterai-server/qwen3.6-plus-YoudaoInner';
+  const model = 'wulu-server/qwen3.6-plus-YoudaoInner';
   const {
     adapter,
     requests,
@@ -2503,7 +2503,7 @@ test('continueSession sends after a slow pre-send model patch eventually succeed
 });
 
 test('continueSession aborts silently when the session is stopped during the model patch wait', async () => {
-  const model = 'lobsterai-server/qwen3.6-plus-YoudaoInner';
+  const model = 'wulu-server/qwen3.6-plus-YoudaoInner';
   const {
     adapter,
     requests,
@@ -2755,7 +2755,7 @@ test('incomplete plan mode output requests one hidden completion retry', async (
       stop: () => {},
       request,
     };
-    const sessionKey = `agent:main:lobsterai:${session.id}`;
+    const sessionKey = `agent:main:wulu:${session.id}`;
     const turn = createActiveTurn(session.id, sessionKey, 'run-plan-short');
     turn.planMode = true;
     turn.currentText = 'Workspace 是空的，新项目。设计方向明确。';
@@ -2816,7 +2816,7 @@ test('incomplete final after plan recovery waits for the automatic continuation'
         }],
       })),
     };
-    const sessionKey = `agent:main:lobsterai:${session.id}`;
+    const sessionKey = `agent:main:wulu:${session.id}`;
     const turn = createActiveTurn(session.id, sessionKey, 'run-plan-recovery');
     turn.planMode = true;
     turn.planModeRecoveryAttempted = true;
@@ -2881,7 +2881,7 @@ test('deferred plan recovery completion backfills the complete plan from history
       ],
     })),
   };
-  const sessionKey = `agent:main:lobsterai:${session.id}`;
+  const sessionKey = `agent:main:wulu:${session.id}`;
   const turn = createActiveTurn(session.id, sessionKey, 'run-plan-recovery');
   turn.planMode = true;
   turn.planModeRecoveryAttempted = true;
@@ -2913,7 +2913,7 @@ test('plan mode does not request completion while a tool-use boundary is active'
     stop: () => {},
     request,
   };
-  const sessionKey = `agent:main:lobsterai:${session.id}`;
+  const sessionKey = `agent:main:wulu:${session.id}`;
   const turn = createActiveTurn(session.id, sessionKey, 'run-plan-tools');
   turn.planMode = true;
   adapter.activeTurns.set(session.id, turn);
@@ -2952,7 +2952,7 @@ test('failed plan mode recovery restores the original turn state', async () => {
         throw new Error('session busy');
       }),
     };
-    const sessionKey = `agent:main:lobsterai:${session.id}`;
+    const sessionKey = `agent:main:wulu:${session.id}`;
     const turn = createActiveTurn(session.id, sessionKey, 'run-plan-original');
     turn.planMode = true;
     turn.currentText = '计划生成前言。';
@@ -2979,7 +2979,7 @@ test('failed plan mode recovery restores the original turn state', async () => {
 });
 
 test('stopSession finalizes streamed assistant metadata with the active model', () => {
-  const model = 'lobsterai-server/qwen3.6-plus';
+  const model = 'wulu-server/qwen3.6-plus';
   const { session, store } = createReconcileStore([
     { id: 'msg-1', type: 'user', content: 'hello', timestamp: 1, metadata: {} },
     {
@@ -3003,7 +3003,7 @@ test('stopSession finalizes streamed assistant metadata with the active model', 
   };
   adapter.on('messageUpdate', messageUpdateSpy);
 
-  const sessionKey = `agent:main:lobsterai:${session.id}`;
+  const sessionKey = `agent:main:wulu:${session.id}`;
   const turn = createActiveTurn(session.id, sessionKey, 'run-stop');
   turn.model = model;
   turn.assistantMessageId = 'msg-2';
@@ -3178,7 +3178,7 @@ test('reconcileWithHistory: syncs session_status model changes into the local se
   const { session, store, getUpdateSessionCalls } = createReconcileStore([
     { id: 'msg-1', type: 'user', content: '切成 kimi2.6', timestamp: 1, metadata: {} },
   ]);
-  session.modelOverride = 'lobsterai-server/qwen3.7-max-YoudaoInner';
+  session.modelOverride = 'wulu-server/qwen3.7-max-YoudaoInner';
 
   const adapter = new OpenClawRuntimeAdapter(store, {});
   adapter.channelSessionSync = {
@@ -3198,8 +3198,8 @@ test('reconcileWithHistory: syncs session_status model changes into the local se
             ok: true,
             changedModel: true,
             model: 'kimi-k2.6-YoudaoInner',
-            modelProvider: 'lobsterai-server',
-            modelOverride: 'lobsterai-server/kimi-k2.6-YoudaoInner',
+            modelProvider: 'wulu-server',
+            modelOverride: 'wulu-server/kimi-k2.6-YoudaoInner',
           },
         },
         { role: 'assistant', content: '已经切好了', model: 'qwen3.7-max-YoudaoInner' },
@@ -3209,10 +3209,10 @@ test('reconcileWithHistory: syncs session_status model changes into the local se
 
   await adapter.reconcileWithHistory(session.id, sessionKey);
 
-  expect(session.modelOverride).toBe('lobsterai-server/kimi-k2.6-YoudaoInner');
+  expect(session.modelOverride).toBe('wulu-server/kimi-k2.6-YoudaoInner');
   expect(getUpdateSessionCalls()).toContainEqual({
     sessionId: session.id,
-    patch: { modelOverride: 'lobsterai-server/kimi-k2.6-YoudaoInner' },
+    patch: { modelOverride: 'wulu-server/kimi-k2.6-YoudaoInner' },
     options: { touchUpdatedAt: false },
   });
 });
@@ -3222,7 +3222,7 @@ test('reconcileWithHistory: syncs model-snapshot entries without reading assista
   const { session, store, getUpdateSessionCalls } = createReconcileStore([
     { id: 'msg-1', type: 'user', content: '你现在是什么模型', timestamp: 1, metadata: {} },
   ]);
-  session.modelOverride = 'lobsterai-server/qwen3.7-max-YoudaoInner';
+  session.modelOverride = 'wulu-server/qwen3.7-max-YoudaoInner';
 
   const adapter = new OpenClawRuntimeAdapter(store, {});
   adapter.channelSessionSync = {
@@ -3237,7 +3237,7 @@ test('reconcileWithHistory: syncs model-snapshot entries without reading assista
           type: 'custom',
           customType: 'model-snapshot',
           data: {
-            provider: 'lobsterai-server',
+            provider: 'wulu-server',
             modelId: 'kimi-k2.6-YoudaoInner',
           },
         },
@@ -3253,10 +3253,10 @@ test('reconcileWithHistory: syncs model-snapshot entries without reading assista
 
   await adapter.reconcileWithHistory(session.id, sessionKey);
 
-  expect(session.modelOverride).toBe('lobsterai-server/kimi-k2.6-YoudaoInner');
+  expect(session.modelOverride).toBe('wulu-server/kimi-k2.6-YoudaoInner');
   expect(getUpdateSessionCalls()).toContainEqual({
     sessionId: session.id,
-    patch: { modelOverride: 'lobsterai-server/kimi-k2.6-YoudaoInner' },
+    patch: { modelOverride: 'wulu-server/kimi-k2.6-YoudaoInner' },
     options: { touchUpdatedAt: false },
   });
 });
@@ -3266,7 +3266,7 @@ test('reconcileWithHistory: assistant text and message model metadata do not ove
   const { session, store, getUpdateSessionCalls } = createReconcileStore([
     { id: 'msg-1', type: 'user', content: '你现在是什么模型', timestamp: 1, metadata: {} },
   ]);
-  session.modelOverride = 'lobsterai-server/qwen3.7-max-YoudaoInner';
+  session.modelOverride = 'wulu-server/qwen3.7-max-YoudaoInner';
 
   const adapter = new OpenClawRuntimeAdapter(store, {});
   adapter.channelSessionSync = {
@@ -3289,7 +3289,7 @@ test('reconcileWithHistory: assistant text and message model metadata do not ove
 
   await adapter.reconcileWithHistory(session.id, sessionKey);
 
-  expect(session.modelOverride).toBe('lobsterai-server/qwen3.7-max-YoudaoInner');
+  expect(session.modelOverride).toBe('wulu-server/qwen3.7-max-YoudaoInner');
   expect(
     getUpdateSessionCalls().some((call) =>
       Object.prototype.hasOwnProperty.call(call.patch, 'modelOverride'),
@@ -3441,10 +3441,10 @@ test('reconcileWithHistory: content mismatch — triggers replace', async () => 
 });
 
 test('subagent history sync preserves visible local user text instead of raw outbound prompt', async () => {
-  const rawOutboundPrompt = `[LobsterAI system instructions]
+  const rawOutboundPrompt = `[wulu system instructions]
 hidden setup
 
-[Context bridge from previous LobsterAI conversation]
+[Context bridge from previous wulu conversation]
 previous context
 
 [Current user request]
@@ -3508,7 +3508,7 @@ test('lifecycle fallback repairs managed session assistant text from history', a
 
   const turn = {
     sessionId: session.id,
-    sessionKey: `agent:main:lobsterai:${session.id}`,
+    sessionKey: `agent:main:wulu:${session.id}`,
     runId: 'run-1',
     turnToken: 1,
     startedAtMs: 1,
@@ -3552,7 +3552,7 @@ test('lifecycle fallback backfills missing tool result for the current turn', as
     { id: 'msg-2', type: 'tool_use', content: 'Using tool: read', timestamp: 2, metadata: { toolUseId: 'call-read' } },
   ]);
   const adapter = new OpenClawRuntimeAdapter(store, {});
-  const sessionKey = `agent:main:lobsterai:${session.id}`;
+  const sessionKey = `agent:main:wulu:${session.id}`;
 
   adapter.gatewayClient = {
     start: () => {},
@@ -3616,7 +3616,7 @@ test('lifecycle fallback waits when history sync returns a short assistant segme
       { id: 'msg-3', type: 'tool_result', content: 'partial log output', timestamp: 3, metadata: { toolUseId: 'call-grep' } },
     ]);
     const adapter = new OpenClawRuntimeAdapter(store, {});
-    const sessionKey = `agent:main:lobsterai:${session.id}`;
+    const sessionKey = `agent:main:wulu:${session.id}`;
     const completeSpy = vi.fn();
     const maintenanceSpy = vi.fn();
 
@@ -3717,7 +3717,7 @@ test('chat final backfills only current-turn tool results from history', async (
       { id: 'msg-3', type: 'assistant', content: 'working', timestamp: 3, metadata: { isStreaming: true } },
     ]);
     const adapter = new OpenClawRuntimeAdapter(store, {});
-    const sessionKey = `agent:main:lobsterai:${session.id}`;
+    const sessionKey = `agent:main:wulu:${session.id}`;
     const historyMessages = [
       { role: 'user', content: 'old question' },
       {
@@ -3778,7 +3778,7 @@ test('chat error maps non-managed OpenClaw session key to existing local session
     { id: 'msg-1', type: 'user', content: 'create a ppt', timestamp: 1, metadata: {} },
   ], { sessionId: localSessionId });
   const adapter = new OpenClawRuntimeAdapter(store, {});
-  const canonicalSessionKey = `agent:main:lobsterai:${session.id}`;
+  const canonicalSessionKey = `agent:main:wulu:${session.id}`;
   const gatewaySessionKey = `agent:main:openai:${session.id}`;
   const errorSpy = vi.fn();
 
@@ -3807,7 +3807,7 @@ test('chat error replaces generic LLM failure using safe OpenClaw metadata', () 
     { id: 'msg-1', type: 'user', content: 'hello', timestamp: 1, metadata: {} },
   ]);
   const adapter = new OpenClawRuntimeAdapter(store, {});
-  const sessionKey = `agent:main:lobsterai:${session.id}`;
+  const sessionKey = `agent:main:wulu:${session.id}`;
   const errorSpy = vi.fn();
 
   session.status = 'running';
@@ -3839,7 +3839,7 @@ test('chat error can consume quota signal after lifecycle error schedules fallba
       { id: 'msg-1', type: 'user', content: 'hello', timestamp: 1, metadata: {} },
     ]);
     const adapter = new OpenClawRuntimeAdapter(store, {});
-    const sessionKey = `agent:main:lobsterai:${session.id}`;
+    const sessionKey = `agent:main:wulu:${session.id}`;
     const errorSpy = vi.fn();
     const abortRequest = vi.fn(async () => ({}));
 
@@ -3887,7 +3887,7 @@ test('stale chat error after a successful deferred final completes the turn inst
     const adapter = new OpenClawRuntimeAdapter(store, {});
     const errorSpy = vi.fn();
     adapter.on('error', errorSpy);
-    const sessionKey = `agent:main:lobsterai:${session.id}`;
+    const sessionKey = `agent:main:wulu:${session.id}`;
     const turn = createActiveTurn(session.id, sessionKey, 'run-stale-error');
     adapter.activeTurns.set(session.id, turn);
     adapter.latestTurnTokenBySession.set(session.id, turn.turnToken);
@@ -3932,7 +3932,7 @@ test('chat error still surfaces when a deferred final exists but the run reporte
     const adapter = new OpenClawRuntimeAdapter(store, {});
     const errorSpy = vi.fn();
     adapter.on('error', errorSpy);
-    const sessionKey = `agent:main:lobsterai:${session.id}`;
+    const sessionKey = `agent:main:wulu:${session.id}`;
     const turn = createActiveTurn(session.id, sessionKey, 'run-real-error');
     adapter.activeTurns.set(session.id, turn);
     adapter.latestTurnTokenBySession.set(session.id, turn.turnToken);
@@ -3974,7 +3974,7 @@ test('turn cleanup finalizes a running context compaction message as failed', ()
   const adapter = new OpenClawRuntimeAdapter(store, {});
   const errorSpy = vi.fn();
   adapter.on('error', errorSpy);
-  const sessionKey = `agent:main:lobsterai:${session.id}`;
+  const sessionKey = `agent:main:wulu:${session.id}`;
   const turn = createActiveTurn(session.id, sessionKey, 'run-compaction-stuck');
   adapter.activeTurns.set(session.id, turn);
 
@@ -4005,7 +4005,7 @@ test('chat final stopReason=error replaces generic LLM failure using safe OpenCl
     { id: 'msg-1', type: 'user', content: 'hello', timestamp: 1, metadata: {} },
   ]);
   const adapter = new OpenClawRuntimeAdapter(store, {});
-  const sessionKey = `agent:main:lobsterai:${session.id}`;
+  const sessionKey = `agent:main:wulu:${session.id}`;
   const errorSpy = vi.fn();
 
   session.status = 'running';
@@ -4033,7 +4033,7 @@ test('chat final terminal error persists visible system message when no assistan
     { id: 'msg-1', type: 'user', content: 'hello', timestamp: 1, metadata: {} },
   ]);
   const adapter = new OpenClawRuntimeAdapter(store, {});
-  const sessionKey = `agent:main:lobsterai:${session.id}`;
+  const sessionKey = `agent:main:wulu:${session.id}`;
   const errorSpy = vi.fn();
 
   session.status = 'running';
@@ -4065,7 +4065,7 @@ test('chat error ignores non-managed OpenClaw session key when local session id 
     { id: 'msg-1', type: 'user', content: 'create a ppt', timestamp: 1, metadata: {} },
   ], { sessionId: localSessionId });
   const adapter = new OpenClawRuntimeAdapter(store, {});
-  const canonicalSessionKey = `agent:main:lobsterai:${session.id}`;
+  const canonicalSessionKey = `agent:main:wulu:${session.id}`;
   const gatewaySessionKey = `agent:main:openai:${unknownSessionId}`;
 
   session.status = 'running';
@@ -4089,7 +4089,7 @@ test('chat error ignores non-managed OpenClaw session key when agent id mismatch
     { id: 'msg-1', type: 'user', content: 'create a ppt', timestamp: 1, metadata: {} },
   ], { sessionId: localSessionId });
   const adapter = new OpenClawRuntimeAdapter(store, {});
-  const canonicalSessionKey = `agent:main:lobsterai:${session.id}`;
+  const canonicalSessionKey = `agent:main:wulu:${session.id}`;
   const gatewaySessionKey = `agent:agent-2:openai:${session.id}`;
 
   session.status = 'running';
@@ -4118,7 +4118,7 @@ test('chat final repairs managed session assistant text from history', async () 
     ]);
 
     const adapter = new OpenClawRuntimeAdapter(store, {});
-    const sessionKey = `agent:main:lobsterai:${session.id}`;
+    const sessionKey = `agent:main:wulu:${session.id}`;
     adapter.gatewayClient = {
       start: () => {},
       stop: () => {},
@@ -4172,7 +4172,7 @@ test('chat final repairs last segment with corrupted committed text from tool ca
     ]);
 
     const adapter = new OpenClawRuntimeAdapter(store, {});
-    const sessionKey = `agent:main:lobsterai:${session.id}`;
+    const sessionKey = `agent:main:wulu:${session.id}`;
     adapter.gatewayClient = {
       start: () => {},
       stop: () => {},
@@ -4233,7 +4233,7 @@ test('chat final reuses committed assistant segment after sessions_yield history
     ]);
 
     const adapter = new OpenClawRuntimeAdapter(store, {});
-    const sessionKey = `agent:main:lobsterai:${session.id}`;
+    const sessionKey = `agent:main:wulu:${session.id}`;
     adapter.gatewayClient = {
       start: () => {},
       stop: () => {},
@@ -4317,7 +4317,7 @@ test('chat history sync reconstructs missed sessions_spawn tools after yield', a
     };
 
     const adapter = new OpenClawRuntimeAdapter(store, {}, {}, subagentRunStore as never);
-    const sessionKey = `agent:main:lobsterai:${session.id}`;
+    const sessionKey = `agent:main:wulu:${session.id}`;
     adapter.gatewayClient = {
       start: () => {},
       stop: () => {},
@@ -4426,7 +4426,7 @@ test('chat history sync materializes missed backfillable tool results by result 
     };
 
     const adapter = new OpenClawRuntimeAdapter(store, {}, {}, subagentRunStore as never);
-    const sessionKey = `agent:main:lobsterai:${session.id}`;
+    const sessionKey = `agent:main:wulu:${session.id}`;
     adapter.gatewayClient = {
       start: () => {},
       stop: () => {},
@@ -4519,7 +4519,7 @@ test('chat final removes redundant assistant prefix segment before final summary
     ]);
 
     const adapter = new OpenClawRuntimeAdapter(store, {});
-    const sessionKey = `agent:main:lobsterai:${session.id}`;
+    const sessionKey = `agent:main:wulu:${session.id}`;
     adapter.gatewayClient = {
       start: () => {},
       stop: () => {},
@@ -4573,7 +4573,7 @@ test('late lifecycle fallback event does not reopen a completed managed session'
     },
   ]);
   const adapter = new OpenClawRuntimeAdapter(store, {});
-  const sessionKey = `agent:main:lobsterai:${session.id}`;
+  const sessionKey = `agent:main:wulu:${session.id}`;
 
   adapter.rememberSessionKey(session.id, sessionKey);
   adapter.handleGatewayEvent({
@@ -4650,7 +4650,7 @@ test('late event for a closed run does not recreate a managed session turn', () 
     { id: 'msg-2', type: 'assistant', content: 'done', timestamp: 2, metadata: { isStreaming: false, isFinal: true } },
   ]);
   const adapter = new OpenClawRuntimeAdapter(store, {});
-  const sessionKey = `agent:main:lobsterai:${session.id}`;
+  const sessionKey = `agent:main:wulu:${session.id}`;
 
   adapter.rememberSessionKey(session.id, sessionKey);
   adapter.ensureActiveTurn(session.id, sessionKey, 'closed-run');
@@ -4679,7 +4679,7 @@ test('retryable closed run reopens on same-run lifecycle start', () => {
     { id: 'msg-2', type: 'assistant', content: 'interim', timestamp: 2, metadata: { isStreaming: false, isFinal: true } },
   ]);
   const adapter = new OpenClawRuntimeAdapter(store, {});
-  const sessionKey = `agent:main:lobsterai:${session.id}`;
+  const sessionKey = `agent:main:wulu:${session.id}`;
 
   adapter.rememberSessionKey(session.id, sessionKey);
   adapter.ensureActiveTurn(session.id, sessionKey, 'retry-run');
@@ -4728,7 +4728,7 @@ test('plugin approval request is forwarded as a cowork permission and resolves t
     { id: 'msg-1', type: 'user', content: 'apply the skill proposal', timestamp: 1, metadata: {} },
   ]);
   const adapter = new OpenClawRuntimeAdapter(store, {});
-  const sessionKey = `agent:main:lobsterai:${session.id}`;
+  const sessionKey = `agent:main:wulu:${session.id}`;
   const request = vi.fn().mockResolvedValue({});
   const permissionListener = vi.fn();
 
@@ -4795,7 +4795,7 @@ test('plugin approval resolved event clears pending plugin approval', () => {
     { id: 'msg-1', type: 'user', content: 'apply the skill proposal', timestamp: 1, metadata: {} },
   ]);
   const adapter = new OpenClawRuntimeAdapter(store, {});
-  const sessionKey = `agent:main:lobsterai:${session.id}`;
+  const sessionKey = `agent:main:wulu:${session.id}`;
   const request = vi.fn().mockResolvedValue({});
 
   adapter.gatewayClient = {
@@ -4844,7 +4844,7 @@ test('chat final completes after the retry grace window', async () => {
       { id: 'msg-1', type: 'user', content: 'hello', timestamp: 1, metadata: {} },
     ]);
     const adapter = new OpenClawRuntimeAdapter(store, {});
-    const sessionKey = `agent:main:lobsterai:${session.id}`;
+    const sessionKey = `agent:main:wulu:${session.id}`;
     const completeSpy = vi.fn();
 
     session.status = 'running';
@@ -4880,7 +4880,7 @@ test('chat final completion is postponed when the same run continues streaming',
       { id: 'msg-1', type: 'user', content: 'hello', timestamp: 1, metadata: {} },
     ]);
     const adapter = new OpenClawRuntimeAdapter(store, {});
-    const sessionKey = `agent:main:lobsterai:${session.id}`;
+    const sessionKey = `agent:main:wulu:${session.id}`;
     const completeSpy = vi.fn();
 
     session.status = 'running';
@@ -4926,7 +4926,7 @@ test('lifecycle end completes a pending chat final immediately', async () => {
       { id: 'msg-1', type: 'user', content: 'hello', timestamp: 1, metadata: {} },
     ]);
     const adapter = new OpenClawRuntimeAdapter(store, {});
-    const sessionKey = `agent:main:lobsterai:${session.id}`;
+    const sessionKey = `agent:main:wulu:${session.id}`;
     const completeSpy = vi.fn();
 
     session.status = 'running';
@@ -4964,7 +4964,7 @@ test('chat final completion is canceled when tool work continues after final', a
       { id: 'msg-1', type: 'user', content: 'hello', timestamp: 1, metadata: {} },
     ]);
     const adapter = new OpenClawRuntimeAdapter(store, {});
-    const sessionKey = `agent:main:lobsterai:${session.id}`;
+    const sessionKey = `agent:main:wulu:${session.id}`;
     const completeSpy = vi.fn();
 
     session.status = 'running';
@@ -5005,7 +5005,7 @@ test('tool-use chat final keeps the session running until tool work arrives', as
       { id: 'msg-1', type: 'user', content: 'read a file', timestamp: 1, metadata: {} },
     ]);
     const adapter = new OpenClawRuntimeAdapter(store, {});
-    const sessionKey = `agent:main:lobsterai:${session.id}`;
+    const sessionKey = `agent:main:wulu:${session.id}`;
     const completeSpy = vi.fn();
 
     session.status = 'running';
@@ -5055,7 +5055,7 @@ test('tool-use chat final inserts later tools after the preceding assistant segm
       { id: 'msg-1', type: 'user', content: 'verify the file', timestamp: 1, metadata: {} },
     ]);
     const adapter = new OpenClawRuntimeAdapter(store, {});
-    const sessionKey = `agent:main:lobsterai:${session.id}`;
+    const sessionKey = `agent:main:wulu:${session.id}`;
     const messageUpdateSpy = vi.fn();
 
     session.status = 'running';
@@ -5140,7 +5140,7 @@ test('tool-use lifecycle end waits for OpenClaw compaction retry', async () => {
       { id: 'msg-1', type: 'user', content: 'read a file', timestamp: 1, metadata: {} },
     ]);
     const adapter = new OpenClawRuntimeAdapter(store, {});
-    const sessionKey = `agent:main:lobsterai:${session.id}`;
+    const sessionKey = `agent:main:wulu:${session.id}`;
     const completeSpy = vi.fn();
 
     session.status = 'running';
@@ -5197,7 +5197,7 @@ test('compaction stream shows context maintenance state while keeping the sessio
     { id: 'msg-1', type: 'user', content: 'continue the task', timestamp: 1, metadata: {} },
   ]);
   const adapter = new OpenClawRuntimeAdapter(store, {});
-  const sessionKey = `agent:main:lobsterai:${session.id}`;
+  const sessionKey = `agent:main:wulu:${session.id}`;
   const messageSpy = vi.fn();
   const messageUpdateSpy = vi.fn();
   const maintenanceSpy = vi.fn();
@@ -5262,7 +5262,7 @@ test('compaction retry wait clears context maintenance when no follow-up arrives
       { id: 'msg-1', type: 'user', content: 'continue the task', timestamp: 1, metadata: {} },
     ]);
     const adapter = new OpenClawRuntimeAdapter(store, {});
-    const sessionKey = `agent:main:lobsterai:${session.id}`;
+    const sessionKey = `agent:main:wulu:${session.id}`;
     const maintenanceSpy = vi.fn();
     const completeSpy = vi.fn();
 
@@ -5305,7 +5305,7 @@ test('chat error clears context maintenance after compaction starts', () => {
     { id: 'msg-1', type: 'user', content: 'continue the task', timestamp: 1, metadata: {} },
   ]);
   const adapter = new OpenClawRuntimeAdapter(store, {});
-  const sessionKey = `agent:main:lobsterai:${session.id}`;
+  const sessionKey = `agent:main:wulu:${session.id}`;
   const maintenanceSpy = vi.fn();
   const errorSpy = vi.fn();
 
@@ -5356,7 +5356,7 @@ test('chat error prevents stale empty final history sync from restarting context
     { id: 'msg-3', type: 'tool_result', content: 'mailbox list', timestamp: 3, metadata: { toolUseId: 'call-1' } },
   ]);
   const adapter = new OpenClawRuntimeAdapter(store, {});
-  const sessionKey = `agent:main:lobsterai:${session.id}`;
+  const sessionKey = `agent:main:wulu:${session.id}`;
   const maintenanceSpy = vi.fn();
   const errorSpy = vi.fn();
 
@@ -5422,7 +5422,7 @@ test('compaction stream reuses active structured message for duplicate start eve
     { id: 'msg-1', type: 'user', content: 'continue the task', timestamp: 1, metadata: {} },
   ]);
   const adapter = new OpenClawRuntimeAdapter(store, {});
-  const sessionKey = `agent:main:lobsterai:${session.id}`;
+  const sessionKey = `agent:main:wulu:${session.id}`;
 
   session.status = 'running';
   adapter.activeTurns.set(session.id, createActiveTurn(session.id, sessionKey, 'run-compaction'));
@@ -5450,7 +5450,7 @@ test('compaction end without a structured start message does not append a late m
     { id: 'msg-1', type: 'user', content: 'continue the task', timestamp: 1, metadata: {} },
   ]);
   const adapter = new OpenClawRuntimeAdapter(store, {});
-  const sessionKey = `agent:main:lobsterai:${session.id}`;
+  const sessionKey = `agent:main:wulu:${session.id}`;
 
   session.status = 'running';
   adapter.activeTurns.set(session.id, createActiveTurn(session.id, sessionKey, 'run-compaction'));
@@ -5476,7 +5476,7 @@ test('empty tool final waits for compaction retry and accepts same-run continuat
       { id: 'msg-3', type: 'tool_result', content: 'OK', timestamp: 3, metadata: { toolUseId: 'call-1' } },
     ]);
     const adapter = new OpenClawRuntimeAdapter(store, {});
-    const sessionKey = `agent:main:lobsterai:${session.id}`;
+    const sessionKey = `agent:main:wulu:${session.id}`;
     const completeSpy = vi.fn();
     const maintenanceSpy = vi.fn();
 
@@ -5576,7 +5576,7 @@ test('empty final with local tool messages waits when history only has interim a
       { id: 'msg-3', type: 'tool_result', content: '80 lines of output', timestamp: 3, metadata: { toolUseId: 'call-1' } },
     ]);
     const adapter = new OpenClawRuntimeAdapter(store, {});
-    const sessionKey = `agent:main:lobsterai:${session.id}`;
+    const sessionKey = `agent:main:wulu:${session.id}`;
     const completeSpy = vi.fn();
     const maintenanceSpy = vi.fn();
     let historyAnswer = interimAnswer;
@@ -5689,7 +5689,7 @@ test('visible short tool final waits with retry signal and accepts same-run cont
       { id: 'msg-3', type: 'tool_result', content: 'partial', timestamp: 3, metadata: { toolUseId: 'call-1' } },
     ]);
     const adapter = new OpenClawRuntimeAdapter(store, {});
-    const sessionKey = `agent:main:lobsterai:${session.id}`;
+    const sessionKey = `agent:main:wulu:${session.id}`;
     const completeSpy = vi.fn();
     const maintenanceSpy = vi.fn();
 
@@ -5792,7 +5792,7 @@ test('visible short tool final uses short confirmation when only large tool resu
       { id: 'msg-3', type: 'tool_result', content: 'partial', timestamp: 3, metadata: { toolUseId: 'call-1' } },
     ]);
     const adapter = new OpenClawRuntimeAdapter(store, {});
-    const sessionKey = `agent:main:lobsterai:${session.id}`;
+    const sessionKey = `agent:main:wulu:${session.id}`;
     const completeSpy = vi.fn();
 
     adapter.gatewayClient = {
@@ -5877,7 +5877,7 @@ test('empty tool final shows thinking-only hint only after the follow-up grace w
       { id: 'msg-3', type: 'tool_result', content: 'OK', timestamp: 3, metadata: { toolUseId: 'call-1' } },
     ]);
     const adapter = new OpenClawRuntimeAdapter(store, {});
-    const sessionKey = `agent:main:lobsterai:${session.id}`;
+    const sessionKey = `agent:main:wulu:${session.id}`;
     const completeSpy = vi.fn();
 
     adapter.gatewayClient = {
@@ -5945,7 +5945,7 @@ test('memory maintenance NO_REPLY stays running while waiting for a follow-up ru
       { id: 'msg-1', type: 'user', content: 'continue the task', timestamp: 1, metadata: {} },
     ]);
     const adapter = new OpenClawRuntimeAdapter(store, {});
-    const sessionKey = `agent:main:lobsterai:${session.id}`;
+    const sessionKey = `agent:main:wulu:${session.id}`;
     const completeSpy = vi.fn();
     const maintenanceSpy = vi.fn();
 
@@ -6014,7 +6014,7 @@ test('memory maintenance fallback does not block a delayed queued run', async ()
       { id: 'msg-1', type: 'user', content: 'continue the task', timestamp: 1, metadata: {} },
     ]);
     const adapter = new OpenClawRuntimeAdapter(store, {});
-    const sessionKey = `agent:main:lobsterai:${session.id}`;
+    const sessionKey = `agent:main:wulu:${session.id}`;
     const completeSpy = vi.fn();
 
     session.status = 'running';
@@ -6080,7 +6080,7 @@ test('empty final with memory flush history waits for the original run to resume
       { id: 'msg-1', type: 'user', content: 'create a Japanese version', timestamp: 1, metadata: {} },
     ]);
     const adapter = new OpenClawRuntimeAdapter(store, {});
-    const sessionKey = `agent:main:lobsterai:${session.id}`;
+    const sessionKey = `agent:main:wulu:${session.id}`;
     const completeSpy = vi.fn();
     const maintenanceSpy = vi.fn();
 
@@ -6170,7 +6170,7 @@ test('pre-compaction NO_REPLY without memory tools still waits for follow-up wor
       { id: 'msg-1', type: 'user', content: 'continue the task', timestamp: 1, metadata: {} },
     ]);
     const adapter = new OpenClawRuntimeAdapter(store, {});
-    const sessionKey = `agent:main:lobsterai:${session.id}`;
+    const sessionKey = `agent:main:wulu:${session.id}`;
     const completeSpy = vi.fn();
     const maintenanceSpy = vi.fn();
 
@@ -6242,7 +6242,7 @@ test('silent token prefixes do not create visible assistant messages', () => {
     { id: 'msg-1', type: 'user', content: 'continue the task', timestamp: 1, metadata: {} },
   ]);
   const adapter = new OpenClawRuntimeAdapter(store, {});
-  const sessionKey = `agent:main:lobsterai:${session.id}`;
+  const sessionKey = `agent:main:wulu:${session.id}`;
 
   session.status = 'running';
   adapter.activeTurns.set(session.id, createActiveTurn(session.id, sessionKey, 'run-memory'));
@@ -6282,7 +6282,7 @@ test('usage metadata sync ignores silent latest assistant history entries', asyn
 
   await (adapter as unknown as {
     syncUsageMetadata: (sessionId: string, sessionKey: string, assistantMessageId: string) => Promise<void>;
-  }).syncUsageMetadata(session.id, `agent:main:lobsterai:${session.id}`, 'missing-message-id');
+  }).syncUsageMetadata(session.id, `agent:main:wulu:${session.id}`, 'missing-message-id');
 
   expect(session.messages[1].metadata).toEqual({});
   expect(session.messages[2].metadata).toEqual({});
@@ -6295,7 +6295,7 @@ test('memory maintenance wait is canceled when a follow-up run starts', async ()
       { id: 'msg-1', type: 'user', content: 'continue the task', timestamp: 1, metadata: {} },
     ]);
     const adapter = new OpenClawRuntimeAdapter(store, {});
-    const sessionKey = `agent:main:lobsterai:${session.id}`;
+    const sessionKey = `agent:main:wulu:${session.id}`;
     const completeSpy = vi.fn();
     const maintenanceSpy = vi.fn();
 
@@ -6350,7 +6350,7 @@ test('memory maintenance lifecycle end does not close a follow-up run', async ()
       { id: 'msg-1', type: 'user', content: 'continue the task', timestamp: 1, metadata: {} },
     ]);
     const adapter = new OpenClawRuntimeAdapter(store, {});
-    const sessionKey = `agent:main:lobsterai:${session.id}`;
+    const sessionKey = `agent:main:wulu:${session.id}`;
     const completeSpy = vi.fn();
 
     session.status = 'running';
@@ -6412,7 +6412,7 @@ test('ordinary write tool does not trigger memory maintenance handling', async (
     { id: 'msg-1', type: 'user', content: 'write a file', timestamp: 1, metadata: {} },
   ]);
   const adapter = new OpenClawRuntimeAdapter(store, {});
-  const sessionKey = `agent:main:lobsterai:${session.id}`;
+  const sessionKey = `agent:main:wulu:${session.id}`;
   const maintenanceSpy = vi.fn();
 
   adapter.on('contextMaintenance', maintenanceSpy);
@@ -6450,7 +6450,7 @@ test('blocked plan mode mutation waits for lifecycle end before safety recovery'
     session.status = 'running';
     const adapter = new OpenClawRuntimeAdapter(store, {});
     const requests: Array<{ method: string; params: Record<string, unknown> }> = [];
-    const sessionKey = `agent:main:lobsterai:${session.id}`;
+    const sessionKey = `agent:main:wulu:${session.id}`;
     const turn = createActiveTurn(session.id, sessionKey, 'run-plan-unsafe');
     turn.planMode = true;
     turn.assistantMessageId = 'msg-2';
@@ -6545,7 +6545,7 @@ test('repeated blocked mutation in one plan turn stops instead of looping recove
   session.status = 'running';
   const adapter = new OpenClawRuntimeAdapter(store, {});
   const request = vi.fn(async () => ({}));
-  const sessionKey = `agent:main:lobsterai:${session.id}`;
+  const sessionKey = `agent:main:wulu:${session.id}`;
   const turn = createActiveTurn(session.id, sessionKey, 'run-plan-repeat');
   turn.planMode = true;
   turn.planModeRecoveryAttempted = true;
@@ -6583,7 +6583,7 @@ test.each(['write_file', 'create_file', 'delete_file', 'powershell'])(
     session.status = 'running';
     const adapter = new OpenClawRuntimeAdapter(store, {});
     const request = vi.fn(async () => ({}));
-    const sessionKey = `agent:main:lobsterai:${session.id}`;
+    const sessionKey = `agent:main:wulu:${session.id}`;
     const turn = createActiveTurn(session.id, sessionKey, `run-${toolName}`);
     turn.planMode = true;
     adapter.gatewayClient = { start: () => {}, stop: () => {}, request };
@@ -6621,7 +6621,7 @@ test('lifecycle error fallback waits before aborting a gateway run', async () =>
     ]);
     const adapter = new OpenClawRuntimeAdapter(store, {});
     const requests: Array<{ method: string; params: Record<string, unknown> }> = [];
-    const sessionKey = `agent:main:lobsterai:${session.id}`;
+    const sessionKey = `agent:main:wulu:${session.id}`;
     const turn = createActiveTurn(session.id, sessionKey, 'run-error');
 
     adapter.on('error', () => {});
@@ -6661,7 +6661,7 @@ test('lifecycle error fallback replaces generic LLM failure using safe OpenClaw 
     ]);
     const adapter = new OpenClawRuntimeAdapter(store, {});
     const requests: Array<{ method: string; params: Record<string, unknown> }> = [];
-    const sessionKey = `agent:main:lobsterai:${session.id}`;
+    const sessionKey = `agent:main:wulu:${session.id}`;
     const errorSpy = vi.fn();
     const turn = createActiveTurn(session.id, sessionKey, 'run-lifecycle-generic');
 
@@ -6708,7 +6708,7 @@ test('lifecycle error fallback ignores a later run for the same session', async 
     ]);
     const adapter = new OpenClawRuntimeAdapter(store, {});
     const requests: Array<{ method: string; params: Record<string, unknown> }> = [];
-    const sessionKey = `agent:main:lobsterai:${session.id}`;
+    const sessionKey = `agent:main:wulu:${session.id}`;
 
     adapter.gatewayClient = {
       start: () => {},
@@ -7383,7 +7383,7 @@ test('onSessionDeleted deletes gateway transcripts for all session keys', async 
   };
   const adapter = new OpenClawRuntimeAdapter({} as never, {}, {}, subagentRunStore as never);
   const channelSessionKey = 'agent:main:feishu:feishu-bot-1:direct:ou_zhangsan';
-  const managedSessionKey = 'agent:main:lobsterai:session-1';
+  const managedSessionKey = 'agent:main:wulu:session-1';
   adapter.gatewayClient = {
     start: () => {},
     stop: () => {},
@@ -7566,10 +7566,10 @@ test('getSessionKeysForSession prefers channel keys before managed fallback', ()
   const adapter = new OpenClawRuntimeAdapter(store, {});
 
   adapter.rememberSessionKey('session-1', 'agent:main:openai-user:dingtalk-connector:__default__:2459325231940374');
-  adapter.rememberSessionKey('session-1', 'agent:main:lobsterai:session-1');
+  adapter.rememberSessionKey('session-1', 'agent:main:wulu:session-1');
 
   expect(adapter.getSessionKeysForSession('session-1')).toEqual([
     'agent:main:openai-user:dingtalk-connector:__default__:2459325231940374',
-    'agent:main:lobsterai:session-1',
+    'agent:main:wulu:session-1',
   ]);
 });

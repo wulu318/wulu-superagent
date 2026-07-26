@@ -32,7 +32,7 @@ const makeCapsule = (overrides: Partial<CoworkContinuityCapsule> = {}): CoworkCo
   ...overrides,
 });
 
-const makeTempWorkspace = (): string => fs.mkdtempSync(path.join(os.tmpdir(), 'lobster-workspace-'));
+const makeTempWorkspace = (): string => fs.mkdtempSync(path.join(os.tmpdir(), 'Wulu-workspace-'));
 
 test('workspace rehydration bridge is skipped before compaction', async () => {
   const bridge = await buildCoworkWorkspaceRehydrationBridge({
@@ -64,7 +64,7 @@ test('workspace rehydration bridge includes bounded capsule and git state', asyn
     commandRunner,
   });
 
-  expect(bridge).toContain('[LobsterAI workspace state after context compaction]');
+  expect(bridge).toContain('[wulu workspace state after context compaction]');
   expect(bridge).toContain('Recently touched files:');
   expect(bridge).toContain('src/main/libs/agentEngine/openclawRuntimeAdapter.ts');
   expect(bridge).toContain('Git status:');
@@ -76,7 +76,7 @@ test('workspace rehydration bridge includes bounded capsule and git state', asyn
 test('workspace rehydration bridge skips invalid workspace but keeps capsule state', async () => {
   const bridge = await buildCoworkWorkspaceRehydrationBridge({
     sessionId: 'session-1',
-    cwd: path.join(os.tmpdir(), 'missing-lobster-workspace'),
+    cwd: path.join(os.tmpdir(), 'missing-Wulu-workspace'),
     capsule: makeCapsule(),
   });
 

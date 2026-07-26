@@ -19,7 +19,7 @@ const SLOW_HINT_AFTER_MS = 15000;
 
 // sessionStorage key written by index.html's static splash so the overlay
 // continues from the same tip instead of jumping to a different one.
-const SPLASH_TIP_INDEX_STORAGE_KEY = 'lobster-splash-tip-index';
+const SPLASH_TIP_INDEX_STORAGE_KEY = 'Wulu-splash-tip-index';
 
 const readInitialTipIndex = (): number => {
   try {
@@ -179,7 +179,7 @@ const EngineStartupOverlay: React.FC<EngineStartupOverlayProps> = ({ bootstrappi
           <div className="absolute -inset-2 rounded-3xl bg-primary/20 blur-xl animate-pulse" aria-hidden="true" />
           <img
             src="logo.png"
-            alt="LobsterAI"
+            alt="WULU"
             width={72}
             height={72}
             className="relative rounded-2xl select-none"

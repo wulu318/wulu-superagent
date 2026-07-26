@@ -430,7 +430,7 @@ import { ProviderName } from '@shared/providers';
 
 // ProviderName 的值顺序与 PROVIDER_DEFINITIONS 定义顺序一致（China first, then Global）
 const providerKeys = [
-  ...Object.values(ProviderName).filter(id => id !== ProviderName.Custom && id !== ProviderName.LobsteraiServer),
+  ...Object.values(ProviderName).filter(id => id !== ProviderName.Custom && id !== ProviderName.wuluServer),
   ...CUSTOM_PROVIDER_KEYS,
 ] as const;
 
@@ -440,7 +440,7 @@ type CustomProviderType = (typeof CUSTOM_PROVIDER_KEYS)[number];
 type ProviderType = BuiltinProviderType | CustomProviderType;
 ```
 
-> **注：** `ProviderName.Custom`（`'custom'`）是遗留占位符，实际使用 `custom_0`…`custom_9`，需过滤掉。`LobsteraiServer` 是后端内部 provider，不在 UI 中展示，同样过滤。
+> **注：** `ProviderName.Custom`（`'custom'`）是遗留占位符，实际使用 `custom_0`…`custom_9`，需过滤掉。`wuluServer` 是后端内部 provider，不在 UI 中展示，同样过滤。
 
 #### 7b. 删除 `providerMeta`，改为 Registry 查询 + `getProviderIcon()`
 

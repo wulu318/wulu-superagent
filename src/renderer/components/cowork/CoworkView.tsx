@@ -747,7 +747,7 @@ const CoworkView: React.FC<CoworkViewProps> = ({
         <div className="flex items-center gap-1.5 mr-2 px-2.5 py-1">
           <ShieldCheckIcon className="h-3.5 w-3.5 text-green-600 dark:text-green-400" />
           <span className="text-xs text-green-600 dark:text-green-400 whitespace-nowrap">
-            {i18nService.t('lobsterGuardEnabled')}
+            {i18nService.t('WULUGuardEnabled')}
           </span>
         </div>
       </div>
@@ -846,13 +846,13 @@ const CoworkView: React.FC<CoworkViewProps> = ({
                   className="mx-auto h-12 w-12 animate-fade-in-up"
                 />
                 <h2
-                  className="mt-4 text-2xl font-semibold leading-[var(--lobster-leading-2xl)] tracking-normal text-foreground animate-fade-in-up"
+                  className="mt-4 text-2xl font-semibold leading-[var(--Wulu-leading-2xl)] tracking-normal text-foreground animate-fade-in-up"
                   style={{ animationDelay: '70ms', animationFillMode: 'both' }}
                 >
                   {i18nService.t(resolveHomeGreetingKey())}
                 </h2>
                 <p
-                  className="mt-2 text-[length:var(--lobster-text-promptLarge)] font-normal leading-[var(--lobster-leading-promptLarge)] text-secondary animate-fade-in-up"
+                  className="mt-2 text-[length:var(--Wulu-text-promptLarge)] font-normal leading-[var(--Wulu-leading-promptLarge)] text-secondary animate-fade-in-up"
                   style={{ animationDelay: '120ms', animationFillMode: 'both' }}
                 >
                   {i18nService.t('coworkHomeTagline')}

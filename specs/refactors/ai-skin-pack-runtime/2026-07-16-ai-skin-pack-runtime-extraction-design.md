@@ -26,7 +26,7 @@ AI 皮肤包 MVP 同时涉及可信 Kit 校验、会话事务、媒体工具路�
 
 | 模块 | 单一职责 | 对外接口 |
 |------|----------|----------|
-| `skinRuntimeController.ts` | 组合皮肤 Store、Registry 和 Bridge | `prepareTurn`、`handleToolRequest`、`preflightLobsterImageGeneration`、会话生命周期方法 |
+| `skinRuntimeController.ts` | 组合皮肤 Store、Registry 和 Bridge | `prepareTurn`、`handleToolRequest`、`preflightWULUImageGeneration`、会话生命周期方法 |
 | `skinWorkflowRegistry.ts` | 可信 Kit 与会话流程状态 | Turn 准备、父会话解析、draft、完成或清理 |
 | `skinMediaBridge.ts` | 本地工具桥策略 | 皮肤管理工具校验、会员生图前置校验 |
 | `registerSkinElectron.ts` | Electron 边界 | 特权 scheme、协议/IPC 注册、变更广播 |
@@ -39,7 +39,7 @@ AI 皮肤包 MVP 同时涉及可信 Kit 校验、会话事务、媒体工具路�
 
 1. Renderer 选择内置 `ai-skin-designer` Kit 并开始或继续 Turn。
 2. Controller 同时校验稳定 Kit ID 和已安装记录中的 `skin_pack` 标记，随后建立新的内存事务。
-3. 会员路线强制使用 LobsterAI 图片模式；非会员路线不启用 LobsterAI 媒体选择，由 OpenClaw 原生工具处理。
+3. 会员路线强制使用 wulu 图片模式；非会员路线不启用 wulu 媒体选择，由 OpenClaw 原生工具处理。
 4. `runtime complete` 保留事务，以支持原生后台生图完成后的同会话 wake。
 5. 成功 `apply`/`deactivate` 清理事务；显式不带 Kit 的新 Turn、runtime error、单个或批量会话删除也会清理。
 6. MVP 不跨进程重启恢复未完成事务，半成品 draft 仍可留作诊断但不会自动应用。
@@ -48,7 +48,7 @@ AI 皮肤包 MVP 同时涉及可信 Kit 校验、会话事务、媒体工具路�
 
 - 不重构通用媒体生成请求、Cowork session IPC 或 Computer Use Kit。
 - 不改变 SQLite schema。
-- 不改变 Renderer 的 preload API 和 `lobster-skin://` URL 契约。
+- 不改变 Renderer 的 preload API 和 `Wulu-skin://` URL 契约。
 - 不让 manifest 控制布局、CSS、透明度或任意文件路径。
 
 ## 4. 实施步骤

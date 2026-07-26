@@ -624,14 +624,14 @@ const oneLightHighlightStyle = HighlightStyle.define([
 
 const baseTheme = EditorView.theme({
   '&': {
-    fontSize: 'var(--lobster-code-font-size)',
+    fontSize: 'var(--Wulu-code-font-size)',
     fontFamily: "'SF Mono', 'Fira Code', Menlo, Monaco, 'Courier New', monospace",
   },
   '.cm-gutters': { border: 'none', userSelect: 'none' },
   '.cm-lineNumbers .cm-gutterElement': {
     minWidth: '2.5em',
     padding: '0 8px 0 4px',
-    fontSize: 'calc(var(--lobster-code-font-size) - 1px)',
+    fontSize: 'calc(var(--Wulu-code-font-size) - 1px)',
   },
   '.cm-content': { padding: '10px 0' },
   '.cm-line': { padding: '0 14px' },
@@ -648,30 +648,30 @@ const baseTheme = EditorView.theme({
     alignItems: 'center',
     gap: '4px',
     padding: '5px 10px',
-    borderBottom: '1px solid var(--lobster-border)',
-    background: 'var(--lobster-surface-raised)',
+    borderBottom: '1px solid var(--Wulu-border)',
+    background: 'var(--Wulu-surface-raised)',
     fontFamily: "'SF Mono', 'Fira Code', Menlo, Monaco, 'Courier New', monospace",
-    fontSize: 'var(--lobster-code-font-size)',
+    fontSize: 'var(--Wulu-code-font-size)',
   },
   '.cm-search-input': {
     flex: '0 0 160px',
     height: '26px',
     padding: '0 8px',
     borderRadius: '5px',
-    border: '1px solid var(--lobster-border)',
-    background: 'var(--lobster-surface)',
-    color: 'var(--lobster-foreground)',
-    fontSize: 'var(--lobster-code-font-size)',
+    border: '1px solid var(--Wulu-border)',
+    background: 'var(--Wulu-surface)',
+    color: 'var(--Wulu-foreground)',
+    fontSize: 'var(--Wulu-code-font-size)',
     outline: 'none',
   },
   '.cm-search-input:focus': {
-    borderColor: 'var(--lobster-primary)',
+    borderColor: 'var(--Wulu-primary)',
   },
   '.cm-search-count': {
     flex: '0 0 auto',
     minWidth: '36px',
-    fontSize: 'calc(var(--lobster-code-font-size) - 1px)',
-    color: 'var(--lobster-text-secondary)',
+    fontSize: 'calc(var(--Wulu-code-font-size) - 1px)',
+    color: 'var(--Wulu-text-secondary)',
     textAlign: 'center',
     fontVariantNumeric: 'tabular-nums',
   },
@@ -686,20 +686,20 @@ const baseTheme = EditorView.theme({
     height: '26px',
     padding: '0',
     borderRadius: '5px',
-    border: '1px solid var(--lobster-border)',
-    background: 'var(--lobster-surface-raised)',
-    color: 'var(--lobster-text-secondary)',
+    border: '1px solid var(--Wulu-border)',
+    background: 'var(--Wulu-surface-raised)',
+    color: 'var(--Wulu-text-secondary)',
     cursor: 'pointer',
     transition: 'background 0.15s, color 0.15s',
   },
   '.cm-search-nav-btn:hover': {
-    background: 'var(--lobster-surface-hover)',
-    color: 'var(--lobster-foreground)',
+    background: 'var(--Wulu-surface-hover)',
+    color: 'var(--Wulu-foreground)',
   },
   '.cm-search-sep': {
     width: '1px',
     height: '16px',
-    background: 'var(--lobster-border)',
+    background: 'var(--Wulu-border)',
     margin: '0 2px',
     flex: '0 0 auto',
   },
@@ -711,17 +711,17 @@ const baseTheme = EditorView.theme({
     padding: '0 6px',
     borderRadius: '5px',
     border: '1px solid transparent',
-    fontSize: 'var(--lobster-code-font-size)',
+    fontSize: 'var(--Wulu-code-font-size)',
     lineHeight: '1',
-    color: 'var(--lobster-text-secondary)',
+    color: 'var(--Wulu-text-secondary)',
     cursor: 'pointer',
     userSelect: 'none',
     transition: 'background 0.15s, border-color 0.15s, color 0.15s',
     whiteSpace: 'nowrap',
   },
   '.cm-search-opt:hover': {
-    background: 'var(--lobster-surface-hover)',
-    color: 'var(--lobster-foreground)',
+    background: 'var(--Wulu-surface-hover)',
+    color: 'var(--Wulu-foreground)',
   },
   '.cm-search-opt input[type="checkbox"]': {
     display: 'block',
@@ -730,7 +730,7 @@ const baseTheme = EditorView.theme({
     height: '13px',
     margin: '0',
     cursor: 'pointer',
-    accentColor: 'var(--lobster-primary)',
+    accentColor: 'var(--Wulu-primary)',
   },
   '.cm-search-close-btn': {
     display: 'inline-flex',
@@ -743,13 +743,13 @@ const baseTheme = EditorView.theme({
     borderRadius: '5px',
     border: 'none',
     background: 'transparent',
-    color: 'var(--lobster-text-secondary)',
+    color: 'var(--Wulu-text-secondary)',
     cursor: 'pointer',
     transition: 'background 0.15s, color 0.15s',
   },
   '.cm-search-close-btn:hover': {
-    background: 'var(--lobster-surface-hover)',
-    color: 'var(--lobster-foreground)',
+    background: 'var(--Wulu-surface-hover)',
+    color: 'var(--Wulu-foreground)',
   },
   '.cm-searchMatch': {
     backgroundColor: 'rgba(255,180,0,0.3)',
@@ -765,9 +765,9 @@ const baseTheme = EditorView.theme({
 
 const darkThemeExt = EditorView.theme({
   '&': { backgroundColor: 'transparent', color: '#abb2bf' },
-  '.cm-gutters': { backgroundColor: 'transparent', color: 'var(--lobster-text-muted)' },
+  '.cm-gutters': { backgroundColor: 'transparent', color: 'var(--Wulu-text-muted)' },
   '&.cm-focused .cm-selectionBackground, .cm-selectionBackground': {
-    backgroundColor: 'color-mix(in srgb, var(--lobster-primary) 30%, transparent) !important',
+    backgroundColor: 'color-mix(in srgb, var(--Wulu-primary) 30%, transparent) !important',
   },
   '.cm-deletedChunk .cm-line, .cm-changedChunk .cm-deletedLine': {
     backgroundColor: 'rgba(255,80,80,0.18)',
@@ -787,9 +787,9 @@ const syntaxHighlightExt = (isDark: boolean): Extension =>
 
 const lightThemeExt = EditorView.theme({
   '&': { backgroundColor: 'transparent', color: '#383a42' },
-  '.cm-gutters': { backgroundColor: 'transparent', color: 'var(--lobster-text-muted)' },
+  '.cm-gutters': { backgroundColor: 'transparent', color: 'var(--Wulu-text-muted)' },
   '&.cm-focused .cm-selectionBackground, .cm-selectionBackground': {
-    backgroundColor: 'color-mix(in srgb, var(--lobster-primary) 16%, transparent) !important',
+    backgroundColor: 'color-mix(in srgb, var(--Wulu-primary) 16%, transparent) !important',
   },
   '.cm-deletedChunk .cm-line, .cm-changedChunk .cm-deletedLine': {
     backgroundColor: 'rgba(220,40,40,0.12)',
@@ -991,7 +991,7 @@ const CodeFullscreenModal: React.FC<CodeFullscreenModalProps> = ({ code, lang, i
       {/* Modal container */}
       <div
         className="flex flex-col m-8 rounded-xl overflow-hidden border border-border shadow-2xl"
-        style={{ flex: 1, minHeight: 0, backgroundColor: 'var(--lobster-surface)' }}
+        style={{ flex: 1, minHeight: 0, backgroundColor: 'var(--Wulu-surface)' }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal header */}

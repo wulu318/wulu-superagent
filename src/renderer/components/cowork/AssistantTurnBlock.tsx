@@ -112,7 +112,7 @@ const ContextCompactionDivider: React.FC<{ label: string; active?: boolean }> = 
   >
     <div className="h-px min-w-0 flex-1 bg-border" />
     <div className="flex max-w-[min(100%,360px)] flex-col items-center gap-1.5 bg-background px-2">
-      <div className="inline-flex max-w-full items-center gap-2 text-sm font-normal leading-[var(--lobster-leading-promptLarge)] text-foreground/95">
+      <div className="inline-flex max-w-full items-center gap-2 text-sm font-normal leading-[var(--Wulu-leading-promptLarge)] text-foreground/95">
         <ContextCompressionIcon className={`h-3.5 w-3.5 flex-shrink-0 text-foreground/70 ${active ? 'animate-pulse' : ''}`} />
         <span className="truncate">{label}</span>
       </div>
@@ -145,14 +145,14 @@ const getSystemMessageDisplayContent = (message: CoworkMessage, content: string)
 // ── SystemErrorTechnicalDetail ───────────────────────────────────────────────
 
 /**
- * User-facing model source label. Users only need two buckets — the LobsterAI
+ * User-facing model source label. Users only need two buckets — the WULU
  * plan vs. a model they configured themselves; finer detail (provider name,
  * Coding Plan, OAuth) goes into the parenthesized qualifier.
  */
 const buildErrorModelSourceLabel = (detail: CoworkErrorDetail): string | null => {
   if (!detail.modelSource) return null;
-  if (detail.modelSource === CoworkErrorModelSource.LobsterAIPlan) {
-    return i18nService.t('coworkErrorModelSourceLobsterAIPlan');
+  if (detail.modelSource === CoworkErrorModelSource.WULUPlan) {
+    return i18nService.t('coworkErrorModelSourceWULUPlan');
   }
 
   const qualifiers: string[] = [];

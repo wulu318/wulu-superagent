@@ -2,7 +2,7 @@
 
 ## Change Summary
 
-`lobsterai-server` changes `PUT /api/html-shares/{shareId}` so it updates HTML share content only and refuses to update closed shares.
+`wulu-server` changes `PUT /api/html-shares/{shareId}` so it updates HTML share content only and refuses to update closed shares.
 
 - `PUT /api/html-shares/{shareId}` requires the current share status to be `live`.
 - `PUT /api/html-shares/{shareId}` returns `HTML_SHARE_FORBIDDEN` for `disabled` or `failed` shares before uploading or replacing files.
@@ -43,7 +43,7 @@ Success response is only returned for currently open shares:
   "message": "success",
   "data": {
     "shareId": "shr_xxxxxxxxxxxxxxxx",
-    "url": "https://lobsterai-server.youdao.com/s/shr_xxxxxxxxxxxxxxxx/",
+    "url": "https://wulu-server.youdao.com/s/shr_xxxxxxxxxxxxxxxx/",
     "status": "live",
     "moderationStatus": "pending",
     "updatedAt": "2026-06-02T12:00:00",
@@ -80,7 +80,7 @@ When `includeDisabled=true`, the server returns the latest matching share regard
   "message": "success",
   "data": {
     "shareId": "shr_xxxxxxxxxxxxxxxx",
-    "url": "https://lobsterai-server.youdao.com/s/shr_xxxxxxxxxxxxxxxx/",
+    "url": "https://wulu-server.youdao.com/s/shr_xxxxxxxxxxxxxxxx/",
     "status": "disabled",
     "moderationStatus": "not_required",
     "updatedAt": "2026-06-02T12:00:00",

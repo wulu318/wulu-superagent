@@ -27,7 +27,7 @@ describe('Windows installer hardening contracts', () => {
   test('releases the installer current-directory lock before the update rename', () => {
     const switchOutPath = installerInclude.indexOf('SetOutPath "$PLUGINSDIR"');
     const rename = installerInclude.indexOf(
-      'MoveFileW(w "$lobsterOldInstallOriginalPath", w "$lobsterOldInstallBackupPath")',
+      'MoveFileW(w "$WULUOldInstallOriginalPath", w "$WULUOldInstallBackupPath")',
     );
 
     expect(switchOutPath).toBeGreaterThan(-1);
@@ -72,7 +72,7 @@ describe('Windows installer hardening contracts', () => {
     expect(installerInclude).toContain('Remove-MpPreference -ExclusionPath $$targets');
     expect(installerInclude).toContain('phase=old-install-cleanup-scheduled');
     expect(installerInclude).toContain(
-      '${If} $lobsterOldInstallRenameStatus == "committed"',
+      '${If} $WULUOldInstallRenameStatus == "committed"',
     );
     expect(installerInclude).toContain('target=exact-current-backup');
     expect(installerInclude).not.toContain('target_pattern=$INSTDIR.old');
@@ -105,14 +105,14 @@ describe('Windows installer hardening contracts', () => {
   });
 
   test('rolls a renamed installation back before every controlled failure exit', () => {
-    expect(installerInclude).toContain('Function lobsterRollbackOldInstall');
+    expect(installerInclude).toContain('Function WULURollbackOldInstall');
     expect(installerInclude).toContain('phase=old-install-rollback-start');
     expect(installerInclude).toContain('phase=old-install-rollback-complete');
     expect(installerInclude).toContain('phase=old-install-commit-complete');
     expect(installerInclude).toContain('phase=skill-backup-failed-abort');
     expect(installerInclude).toContain('phase=skill-restore-failed');
     expect(installerInclude).toContain(
-      'StrCmp $lobsterOldInstallRollbackStatus "success"',
+      'StrCmp $WULUOldInstallRollbackStatus "success"',
     );
     expect(installerInclude).toContain('!macro customBeforeInstallerQuit REASON');
     expect(rootInstallerTemplate).toContain('!define MUI_CUSTOMFUNCTION_ABORT');

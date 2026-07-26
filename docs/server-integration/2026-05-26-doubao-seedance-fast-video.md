@@ -2,7 +2,7 @@
 
 ## Change Summary
 
-lobsterai-server 新增并启用视频生成模型 `doubao-seedance-2-0-fast`。服务端继续复用现有媒体生成接口，无新增 endpoint。
+wulu-server 新增并启用视频生成模型 `doubao-seedance-2-0-fast`。服务端继续复用现有媒体生成接口，无新增 endpoint。
 
 服务端会在提交任务前按预估 token 预扣积分；任务成功后，如果火山返回 `usage.completion_tokens`，服务端会按实际 completion tokens 对账，多退少补。任务提交失败、生成失败、取消或超时会退回预扣积分。
 

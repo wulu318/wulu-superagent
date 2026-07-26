@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>LobsterAI</title>
+    <title>伍陆超级智能体</title>
     <style>
       /* Pre-React splash: a static replica of EngineStartupOverlay so the whole
          startup (window shown -> renderer init -> engine starting) is one
@@ -23,7 +23,7 @@
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
       }
       html.dark .splash {
-        background: #1a1d27;
+        background: #000000;
       }
       .splash-gradient {
         position: absolute;
@@ -46,7 +46,7 @@
         position: absolute;
         inset: -8px;
         border-radius: 24px;
-        background: rgba(59, 130, 246, 0.2);
+        background: rgba(255, 215, 0, 0.2);
         filter: blur(24px);
         animation: splash-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
       }
@@ -85,13 +85,13 @@
         width: 100%;
         height: 6px;
         border-radius: 9999px;
-        background: rgba(59, 130, 246, 0.15);
+        background: rgba(255, 215, 0, 0.15);
         overflow: hidden;
       }
       .splash-bar-shimmer {
         position: absolute;
         inset: 0;
-        background: linear-gradient(to right, transparent, #3b82f6, transparent);
+        background: linear-gradient(to right, transparent, #FFD700, transparent);
         animation: splash-shimmer 1.5s infinite;
       }
       .splash-bar-below {
@@ -119,7 +119,7 @@
         font-size: 12px;
         line-height: 16px;
         font-weight: 500;
-        color: #3b82f6;
+        color: #FFD700;
       }
       .splash-tips-label svg {
         width: 14px;
@@ -147,7 +147,7 @@
         width: 4px;
         height: 4px;
         border-radius: 9999px;
-        background: rgba(59, 130, 246, 0.25);
+        background: rgba(255, 215, 0, 0.25);
         border: 0;
         padding: 0;
         margin: 0;
@@ -166,12 +166,12 @@
         right: -2px;
       }
       .splash-dot:hover {
-        background: rgba(59, 130, 246, 0.5);
+        background: rgba(255, 215, 0, 0.5);
       }
       .splash-dot-active,
       .splash-dot-active:hover {
         width: 12px;
-        background: #3b82f6;
+        background: #FFD700;
       }
       @keyframes splash-pulse {
         0%,
@@ -193,15 +193,15 @@
     </style>
     <script>
       // 在页面加载前预设主题，避免闪烁。
-      // 'lobster-theme-appearance' 由 theme-manager.ts 在每次应用主题时写入。
+      // 'Wulu-theme-appearance' 由 theme-manager.ts 在每次应用主题时写入。
       (function () {
         try {
-          var appearance = localStorage.getItem('lobster-theme-appearance');
+          var appearance = localStorage.getItem('Wulu-theme-appearance');
           if (appearance !== 'dark' && appearance !== 'light') {
             appearance = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
           }
           document.documentElement.classList.add(appearance);
-          document.documentElement.style.backgroundColor = appearance === 'dark' ? '#0F1117' : '#F8F9FB';
+          document.documentElement.style.backgroundColor = appearance === 'dark' ? '#000000' : '#F8F9FB';
         } catch (e) {
           console.error('Error applying theme early:', e);
         }
@@ -215,7 +215,7 @@
         <div class="splash-content">
           <div class="splash-logo-wrap">
             <div class="splash-logo-glow"></div>
-            <img class="splash-logo" src="logo.png" alt="LobsterAI" width="72" height="72" draggable="false" />
+            <img class="splash-logo" src="logo.png" alt="WULU" width="72" height="72" draggable="false" />
           </div>
           <h1 class="splash-title" id="splash-title">AI 引擎启动中</h1>
           <p class="splash-subtitle" id="splash-subtitle">加载中...</p>
@@ -236,11 +236,11 @@
     </div>
     <script>
       // 本地化启动屏文案并随机选一条小提示。
-      // 'lobster-language' 由 i18n.ts 在语言确定后写入；首次启动回退到系统语言。
+      // 'Wulu-language' 由 i18n.ts 在语言确定后写入；首次启动回退到系统语言。
       // 文案需与 src/renderer/services/i18n.ts 中的 engineStarting* / loading 保持同步。
       (function () {
         try {
-          var lang = localStorage.getItem('lobster-language');
+          var lang = localStorage.getItem('Wulu-language');
           if (lang !== 'zh' && lang !== 'en') {
             lang = navigator.language === 'zh-CN' ? 'zh' : 'en';
           }
@@ -288,7 +288,7 @@
               dotButtons[j].className = j === idx ? 'splash-dot splash-dot-active' : 'splash-dot';
             }
             try {
-              sessionStorage.setItem('lobster-splash-tip-index', String(idx));
+              sessionStorage.setItem('Wulu-splash-tip-index', String(idx));
             } catch (e) {
               /* storage unavailable */
             }

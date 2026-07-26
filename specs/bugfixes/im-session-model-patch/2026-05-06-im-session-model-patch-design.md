@@ -2,23 +2,23 @@
 
 ## 问题描述
 
-用户在 LobsterAI 的 IM 对话历史中修改模型后，UI 与本地 SQLite 都显示模型已经切换，但实际从 IM 继续对话时，模型仍然是修改前的模型。普通非 IM Cowork 会话不存在这个问题。
+用户在 wulu 的 IM 对话历史中修改模型后，UI 与本地 SQLite 都显示模型已经切换，但实际从 IM 继续对话时，模型仍然是修改前的模型。普通非 IM Cowork 会话不存在这个问题。
 
 实际观察到的状态：
 
 1. `cowork_sessions.model_override` 已更新为用户新选择的模型
 2. OpenClaw 中真实 IM channel 会话仍保留旧模型
-3. OpenClaw 中额外出现了一个 `agent:main:lobsterai:<coworkSessionId>` managed 会话 key，并且新模型被写到了这个错误 key 上
+3. OpenClaw 中额外出现了一个 `agent:main:wulu:<coworkSessionId>` managed 会话 key，并且新模型被写到了这个错误 key 上
 4. IM 后续消息继续使用真实 channel key，例如 `agent:main:openclaw-weixin:<accountId>:direct:<peerId>`，因此仍然走旧模型
 
 ## 核心结论
 
 **根因是 IM channel 会话的真实 OpenClaw `sessionKey` 只存在于运行期内存，没有持久化到 `im_session_mappings`。**
 
-非 IM 会话的真实 key 本来就是 LobsterAI managed key：
+非 IM 会话的真实 key 本来就是 wulu managed key：
 
 ```text
-agent:{agentId}:lobsterai:{coworkSessionId}
+agent:{agentId}:wulu:{coworkSessionId}
 ```
 
 所以 `sessions.patch` fallback 到 managed key 是正确的。
@@ -33,8 +33,8 @@ agent:{agentId}:{channel}:{accountId}:{peerKind}:{peerId}
 
 | 会话类型 | 当前 fallback key | 是否正确 |
 |---|---|---|
-| 普通 Cowork | `agent:main:lobsterai:<sessionId>` | 正确 |
-| IM channel | `agent:main:lobsterai:<sessionId>` | 错误 |
+| 普通 Cowork | `agent:main:wulu:<sessionId>` | 正确 |
+| IM channel | `agent:main:wulu:<sessionId>` | 错误 |
 | IM channel 真实 key | `agent:main:openclaw-weixin:<account>:direct:<peer>` | 应优先使用 |
 
 ---
@@ -129,7 +129,7 @@ Cannot patch IM channel session because the OpenClaw session key is missing.
 
 ### 6. 普通 Cowork 发送前模型一致性校准
 
-体感优化引入 optimistic UI 后，renderer 和 LobsterAI SQLite 会先显示用户选择的新模型，但 OpenClaw `sessions.patch` 仍是异步提交。如果用户在 patch 未完成时继续发送，或者后端仅凭本地 `lastPatchedModelBySession` 缓存认为模型已经提交，就可能出现：
+体感优化引入 optimistic UI 后，renderer 和 wulu SQLite 会先显示用户选择的新模型，但 OpenClaw `sessions.patch` 仍是异步提交。如果用户在 patch 未完成时继续发送，或者后端仅凭本地 `lastPatchedModelBySession` 缓存认为模型已经提交，就可能出现：
 
 1. `cowork_sessions.model_override` 已是新模型
 2. prompt 中注入的 `[Session info]` 也是新模型
@@ -220,7 +220,7 @@ npm run compile:electron
 ## 验收标准
 
 1. 在 IM 对话历史中切换模型后，OpenClaw 的真实 channel session entry 被 patch 到新模型
-2. 不再生成新的 `agent:main:lobsterai:<imCoworkSessionId>` 幽灵会话 key
+2. 不再生成新的 `agent:main:wulu:<imCoworkSessionId>` 幽灵会话 key
 3. 应用重启后，已回填 `openclaw_session_key` 的 IM 会话仍能切换模型
 4. 普通 Cowork 会话模型切换行为不回退
 5. 点击模型后按钮文本和勾选态立即变化，不等待 OpenClaw patch 返回

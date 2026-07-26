@@ -2,7 +2,7 @@
 
 ## Change Summary
 
-`lobsterai-server` adds a user-facing API to toggle an HTML share between open and closed states.
+`wulu-server` adds a user-facing API to toggle an HTML share between open and closed states.
 
 New endpoint:
 
@@ -51,7 +51,7 @@ Success response:
   "message": "success",
   "data": {
     "shareId": "shr_xxxxxxxxxxxxxxxx",
-    "url": "https://lobsterai-server.youdao.com/s/shr_xxxxxxxxxxxxxxxx/",
+    "url": "https://wulu-server.youdao.com/s/shr_xxxxxxxxxxxxxxxx/",
     "status": "live",
     "moderationStatus": "not_required",
     "updatedAt": "2026-06-01T12:00:00",

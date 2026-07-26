@@ -3,9 +3,9 @@
  * Intercepts console.* methods and writes to file + console simultaneously.
  *
  * Log file locations:
- *   macOS:   ~/Library/Logs/LobsterAI/main-YYYY-MM-DD.log
- *   Windows: %USERPROFILE%\AppData\Roaming\LobsterAI\logs\main-YYYY-MM-DD.log
- *   Linux:   ~/.config/LobsterAI/logs/main-YYYY-MM-DD.log
+ *   macOS:   ~/Library/Logs/WULU/main-YYYY-MM-DD.log
+ *   Windows: %USERPROFILE%\AppData\Roaming\WULU\logs\main-YYYY-MM-DD.log
+ *   Linux:   ~/.config/WULU/logs/main-YYYY-MM-DD.log
  *
  * Rotation policy:
  *   - Daily log files (one file per calendar day)
@@ -91,7 +91,7 @@ export function initLogger(): void {
 
   // Log startup marker
   log.info('='.repeat(60));
-  log.info(`LobsterAI started (${process.platform} ${process.arch})`);
+  log.info(`WULU started (${process.platform} ${process.arch})`);
   log.info('='.repeat(60));
 }
 

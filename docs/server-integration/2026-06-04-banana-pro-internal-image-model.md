@@ -2,7 +2,7 @@
 
 ## Change Summary
 
-lobsterai-server 新增内部员工可见图片模型：
+wulu-server 新增内部员工可见图片模型：
 
 - `banana-pro`：MiniMax Gemini 3 Pro Image / Nano Banana Pro，支持文生图和参考图生图。
 

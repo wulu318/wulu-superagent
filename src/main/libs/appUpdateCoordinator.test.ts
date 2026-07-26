@@ -70,7 +70,7 @@ function readyFileStoreKey(source: AppUpdateSource): string {
 
 function seedReadyFile(store: SqliteStore, updatesDir: string, source: AppUpdateSource): string {
   fs.mkdirSync(updatesDir, { recursive: true });
-  const filePath = path.join(updatesDir, `lobsterai-update-${source}-1.exe`);
+  const filePath = path.join(updatesDir, `WULU-update-${source}-1.exe`);
   const bytes = 'installer-bytes';
   fs.writeFileSync(filePath, bytes);
   const fileHash = crypto.createHash('sha256').update(bytes).digest('hex');
@@ -85,7 +85,7 @@ function seedReadyFile(store: SqliteStore, updatesDir: string, source: AppUpdate
         zh: { title: '', content: [] },
         en: { title: '', content: [] },
       },
-      url: `https://updates.example.com/lobsterai-${READY_VERSION}.exe`,
+      url: `https://updates.example.com/WULU-${READY_VERSION}.exe`,
     },
   });
   return filePath;
@@ -103,7 +103,7 @@ describe('AppUpdateCoordinator', () => {
     mocks.installUpdate.mockReset();
     mocks.cancelActiveDownload.mockReset();
 
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'lobsterai-update-test-'));
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'WULU-update-test-'));
     updatesDir = path.join(tmpDir, 'updates');
     mocks.getPath.mockReturnValue(tmpDir);
     mocks.getVersion.mockReturnValue('1.0.0');
@@ -167,9 +167,9 @@ describe('AppUpdateCoordinator', () => {
               ch: { title: '', content: [] },
               en: { title: '', content: [] },
             },
-            macIntel: { url: `https://updates.example.com/lobsterai-${READY_VERSION}.dmg` },
-            macArm: { url: `https://updates.example.com/lobsterai-${READY_VERSION}.dmg` },
-            windowsX64: { url: `https://updates.example.com/lobsterai-${READY_VERSION}.exe` },
+            macIntel: { url: `https://updates.example.com/WULU-${READY_VERSION}.dmg` },
+            macArm: { url: `https://updates.example.com/WULU-${READY_VERSION}.dmg` },
+            windowsX64: { url: `https://updates.example.com/WULU-${READY_VERSION}.exe` },
           },
         },
       }),

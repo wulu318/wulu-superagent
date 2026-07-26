@@ -13,10 +13,10 @@ import { APP_NAME, DB_FILENAME } from '../../appConstants';
 import { SQLITE_BACKUP_DIR_NAME } from '../sqliteBackup/constants';
 
 const CURRENT_ARCHIVE_ROOT = APP_NAME;
-const MANIFEST_FILE_NAME = '.lobsterai-migration.json';
-const PENDING_RESTORE_FILE_NAME = '.lobsterai-data-migration-restore-pending.json';
-const LAST_RESTORE_RESULT_FILE_NAME = '.lobsterai-data-migration-restore-result.json';
-const ARCHIVE_FORMAT = 'lobsterai-data-migration';
+const MANIFEST_FILE_NAME = '.wulu-migration.json';
+const PENDING_RESTORE_FILE_NAME = '.wulu-data-migration-restore-pending.json';
+const LAST_RESTORE_RESULT_FILE_NAME = '.wulu-data-migration-restore-result.json';
+const ARCHIVE_FORMAT = 'wulu-data-migration';
 const ARCHIVE_FORMAT_VERSION = 1;
 const SQLITE_BACKUP_TOP_LEVEL_DIR_NAME = SQLITE_BACKUP_DIR_NAME.split('/')[0] || 'backups';
 const SQLITE_RESTORE_FILE_NAMES = [
@@ -274,10 +274,10 @@ export const formatDataMigrationTimestamp = (date = new Date()): string => (
 );
 
 export const buildDataMigrationBackupFileName = (date = new Date()): string =>
-  `lobsterai-backup-${formatDataMigrationTimestamp(date)}.tar.gz`;
+  `wulu-backup-${formatDataMigrationTimestamp(date)}.tar.gz`;
 
 export const buildDataMigrationRollbackFileName = (date = new Date()): string =>
-  `lobsterai-rollback-${formatDataMigrationTimestamp(date)}.tar.gz`;
+  `wulu-rollback-${formatDataMigrationTimestamp(date)}.tar.gz`;
 
 export const ensureTarGzFileName = (filePath: string): string => {
   const trimmed = filePath.trim();
@@ -1140,7 +1140,7 @@ export const createMigrationArchiveSync = (
   const userDataPath = resolvePath(input.userDataPath);
   const outputPath = resolvePath(input.outputPath);
   const archiveKind = input.archiveKind ?? 'backup';
-  const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'lobsterai-data-migration-'));
+  const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'wulu-data-migration-'));
   const stageParent = path.join(tempRoot, 'stage');
   const stageUserDataRoot = path.join(stageParent, CURRENT_ARCHIVE_ROOT);
 
@@ -1274,7 +1274,7 @@ const inspectArchiveEntry = (
 };
 
 const validateArchiveContentSync = (archivePath: string, root: string): void => {
-  const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'lobsterai-data-migration-inspect-'));
+  const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'wulu-data-migration-inspect-'));
   try {
     tar.extract({
       sync: true,
@@ -1334,7 +1334,7 @@ export const inspectMigrationArchiveSync = (
   });
 
   if (!state.root || state.entryCount <= 0) {
-    throw new Error('Backup archive is empty or missing LobsterAI user data.');
+    throw new Error('Backup archive is empty or missing wulu user data.');
   }
   if (requireSqliteDatabase && !state.hasSqliteDatabase) {
     throw new Error(`Backup archive is missing ${DB_FILENAME}.`);
@@ -1375,7 +1375,7 @@ const extractMigrationArchiveToTempSync = (
     validateSqliteDatabase: false,
     validateManifest: false,
   });
-  const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'lobsterai-data-migration-restore-'));
+  const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'wulu-data-migration-restore-'));
 
   try {
     tar.extract({
@@ -1402,7 +1402,7 @@ const extractMigrationArchiveToTempSync = (
 
     const sourceRoot = path.join(tempRoot, ...info.root.split('/'));
     if (!fs.existsSync(sourceRoot) || !fs.statSync(sourceRoot).isDirectory()) {
-      throw new Error('Backup archive did not extract a valid LobsterAI user data directory.');
+      throw new Error('Backup archive did not extract a valid wulu user data directory.');
     }
     if (options.validateArchiveContent ?? true) {
       validateExtractedArchiveContentSync(sourceRoot);

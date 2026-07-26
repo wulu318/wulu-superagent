@@ -8,7 +8,7 @@
  * Usage:
  *   import { t, setLanguage } from './i18n';
  *   setLanguage('en');
- *   const label = t('trayShowWindow'); // "Open LobsterAI"
+ *   const label = t('trayShowWindow'); // "Open WULU"
  *   const msg = t('imMissingCredentials', { fields: 'appId, appSecret' });
  */
 
@@ -17,10 +17,10 @@ export type LanguageType = 'zh' | 'en';
 const translations: Record<LanguageType, Record<string, string>> = {
   zh: {
     // Tray menu
-    trayShowWindow: '打开 LobsterAI',
+    trayShowWindow: '打开 WULU',
     trayNewTask: '新建任务',
     trayViewCompletedTask: '查看完成的任务',
-    trayCompletedTaskTooltip: 'LobsterAI - {count} 个任务已完成',
+    trayCompletedTaskTooltip: 'WULU - {count} 个任务已完成',
     traySettings: '设置',
     trayQuit: '退出',
     taskCompletionNotificationTitle: '任务已完成',
@@ -63,16 +63,16 @@ const translations: Record<LanguageType, Record<string, string>> = {
     coworkErrorOAuthInvalid: 'OAuth 授权已失效或权限不足，请重新授权后重试。',
     coworkErrorModelAccessDenied: '当前账号无权访问该模型，请切换模型或检查服务商账号权限。',
     coworkErrorQuotaExhausted:
-      '积分额度已用完，请升级套餐后继续使用。[立即升级/充值](https://lobsterai.youdao.com/portal#/pricing)',
+      '积分额度已用完，请升级套餐后继续使用。[立即升级/充值](https://WULU.youdao.com/portal#/pricing)',
     coworkErrorFreeQuotaExhausted:
-      '积分额度已用完，请升级套餐后继续使用。[立即升级/充值](https://lobsterai.youdao.com/portal#/pricing)',
+      '积分额度已用完，请升级套餐后继续使用。[立即升级/充值](https://WULU.youdao.com/portal#/pricing)',
     coworkErrorInsufficientBalance: 'API 余额不足，请充值后重试。',
     coworkErrorInputTooLong: '输入内容过长，超出模型上下文限制。',
     coworkErrorMessageTooLarge:
       '本次消息过大，请减少附件、压缩图片或拆分提交。（单次整体需小于 30MB）',
     coworkErrorCouldNotProcessPdf: '无法处理 PDF 文件。',
     coworkErrorModelNotFound: '请求的模型不存在或不可用。',
-    coworkGatewaySessionSyncTimeout: 'OpenClaw 引擎响应缓慢，消息尚未发送。请等待 1~2 分钟后重新发送；若频繁出现，请检查系统内存与磁盘占用，并将 LobsterAI 加入杀毒软件白名单。',
+    coworkGatewaySessionSyncTimeout: 'OpenClaw 引擎响应缓慢，消息尚未发送。请等待 1~2 分钟后重新发送；若频繁出现，请检查系统内存与磁盘占用，并将 WULU 加入杀毒软件白名单。',
     coworkErrorTranscriptOversized: '该任务的历史记录过大。为保护 AI 引擎，本次消息未发送；请新建任务继续，原任务记录仍会保留。',
     coworkErrorGatewayHeapOutOfMemory: '本地 AI 引擎内存不足并已自动重启。当前任务可能过大，请等待恢复后在新任务中继续。',
     coworkErrorGatewayDisconnected: 'AI 引擎连接中断，请重试。',
@@ -106,13 +106,13 @@ const translations: Record<LanguageType, Record<string, string>> = {
     authPlanStandard: '标准',
 
     // Data migration dialogs
-    dataMigrationBackupDialogTitle: '备份 LobsterAI 数据',
-    dataMigrationRestoreDialogTitle: '导入 LobsterAI 数据备份',
-    dataMigrationBackupArchiveFilter: 'LobsterAI 备份包',
+    dataMigrationBackupDialogTitle: '备份 WULU 数据',
+    dataMigrationRestoreDialogTitle: '导入 WULU 数据备份',
+    dataMigrationBackupArchiveFilter: 'WULU 备份包',
     dataMigrationAllFilesFilter: '所有文件',
     dataMigrationBackupBlockedByActiveWorkloads:
       '当前有正在运行的 Agent 或定时任务，请停止或等待任务完成后再备份。',
-    dataMigrationRestoreProgressTitle: '正在导入 LobsterAI 数据',
+    dataMigrationRestoreProgressTitle: '正在导入 WULU 数据',
     dataMigrationRestoreProgressDesc: '正在恢复备份并校验数据，完成后应用会自动重启。',
     dataMigrationRestoreProgressWarning: '请不要关闭应用或重启电脑，否则可能中断本次数据迁移。',
 
@@ -303,10 +303,10 @@ const translations: Record<LanguageType, Record<string, string>> = {
   },
   en: {
     // Tray menu
-    trayShowWindow: 'Open LobsterAI',
+    trayShowWindow: 'Open WULU',
     trayNewTask: 'New Task',
     trayViewCompletedTask: 'View Completed Task',
-    trayCompletedTaskTooltip: 'LobsterAI - {count} completed task(s)',
+    trayCompletedTaskTooltip: 'WULU - {count} completed task(s)',
     traySettings: 'Settings',
     trayQuit: 'Quit',
     taskCompletionNotificationTitle: 'Task Complete',
@@ -359,16 +359,16 @@ const translations: Record<LanguageType, Record<string, string>> = {
     coworkErrorOAuthInvalid: 'OAuth authorization is invalid or missing required access. Re-authenticate and try again.',
     coworkErrorModelAccessDenied: 'This account is not allowed to access the selected model. Switch models or check provider account permissions.',
     coworkErrorQuotaExhausted:
-      'Your credits have been used up. Upgrade your plan to continue.\n\n[Upgrade or recharge](https://lobsterai.youdao.com/portal#/pricing)',
+      'Your credits have been used up. Upgrade your plan to continue.\n\n[Upgrade or recharge](https://WULU.youdao.com/portal#/pricing)',
     coworkErrorFreeQuotaExhausted:
-      'Your credits have been used up. Upgrade your plan to continue.\n\n[Upgrade or recharge](https://lobsterai.youdao.com/portal#/pricing)',
+      'Your credits have been used up. Upgrade your plan to continue.\n\n[Upgrade or recharge](https://WULU.youdao.com/portal#/pricing)',
     coworkErrorInsufficientBalance: 'Insufficient API balance. Please top up and try again.',
     coworkErrorInputTooLong: 'Input too long, exceeding model context limit.',
     coworkErrorMessageTooLarge:
       'This message is too large. Reduce attachments, compress images, or split it up. (Keep each message under about 30 MB.)',
     coworkErrorCouldNotProcessPdf: 'Unable to process the PDF file.',
     coworkErrorModelNotFound: 'The requested model does not exist or is unavailable.',
-    coworkGatewaySessionSyncTimeout: 'The OpenClaw engine is responding slowly and your message has not been sent. Please wait a minute or two and resend. If this happens frequently, check system memory and disk usage, and add LobsterAI to your antivirus allowlist.',
+    coworkGatewaySessionSyncTimeout: 'The OpenClaw engine is responding slowly and your message has not been sent. Please wait a minute or two and resend. If this happens frequently, check system memory and disk usage, and add WULU to your antivirus allowlist.',
     coworkErrorTranscriptOversized: 'This task history is too large. The message was not sent to protect the AI engine. Continue in a new task; the original task will be preserved.',
     coworkErrorGatewayHeapOutOfMemory: 'The local AI engine ran out of memory and is restarting automatically. This task may be too large; wait for recovery and continue in a new task.',
     coworkErrorGatewayDisconnected: 'AI engine connection lost. Please retry.',
@@ -405,15 +405,15 @@ const translations: Record<LanguageType, Record<string, string>> = {
     authPlanStandard: 'Standard',
 
     // Data migration dialogs
-    dataMigrationBackupDialogTitle: 'Back Up LobsterAI Data',
-    dataMigrationRestoreDialogTitle: 'Import LobsterAI Data Backup',
-    dataMigrationBackupArchiveFilter: 'LobsterAI Backup',
+    dataMigrationBackupDialogTitle: 'Back Up WULU Data',
+    dataMigrationRestoreDialogTitle: 'Import WULU Data Backup',
+    dataMigrationBackupArchiveFilter: 'WULU Backup',
     dataMigrationAllFilesFilter: 'All Files',
     dataMigrationBackupBlockedByActiveWorkloads:
       'An agent or scheduled task is still running. Stop it or wait for it to finish before backing up.',
-    dataMigrationRestoreProgressTitle: 'Importing LobsterAI data',
+    dataMigrationRestoreProgressTitle: 'Importing WULU data',
     dataMigrationRestoreProgressDesc:
-      'Restoring the backup and validating data. LobsterAI will restart automatically when finished.',
+      'Restoring the backup and validating data. WULU will restart automatically when finished.',
     dataMigrationRestoreProgressWarning:
       'Do not close the app or restart the computer, or the migration may be interrupted.',
 

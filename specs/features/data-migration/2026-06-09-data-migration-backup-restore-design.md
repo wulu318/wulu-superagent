@@ -1,14 +1,14 @@
-# LobsterAI 数据备份与跨机器还原设计文档
+# wulu 数据备份与跨机器还原设计文档
 
 ## 1. 概述
 
 ### 1.1 问题/背景
 
-LobsterAI 需要在设置页提供“数据备份”和“数据迁移”能力，用于用户把一台机器上的 LobsterAI 迁移到另一台机器。应用内迁移采用新的归档格式，只支持由 LobsterAI 设置页导出的备份包。
+wulu 需要在设置页提供“数据备份”和“数据迁移”能力，用于用户把一台机器上的 wulu 迁移到另一台机器。应用内迁移采用新的归档格式，只支持由 wulu 设置页导出的备份包。
 
 应用内迁移不能简单采用“强制退出后打包/删除/解压”模型，因为主进程、SQLite、OpenClaw gateway、定时任务和 IM 网关都可能在运行中写入数据。已经出现过以下失败现象：
 
-- 备份包里缺少或包含错误的 `lobsterai.sqlite`，导致多 Agent、历史记录、定时任务、自定义模型 API key、IM 配置没有迁移成功。
+- 备份包里缺少或包含错误的 `wulu.sqlite`，导致多 Agent、历史记录、定时任务、自定义模型 API key、IM 配置没有迁移成功。
 - Windows 上复制 `Network/Cookies`、重命名 `userData` 时遇到 `EBUSY` 或 `EPERM`。
 - 还原阶段过早退出应用，用户中途再次启动导致恢复失败。
 - UI 上显示迁移成功，但实际数据库或 OpenClaw state 没有被目标应用加载。
@@ -19,7 +19,7 @@ LobsterAI 需要在设置页提供“数据备份”和“数据迁移”能力�
 
 1. 在设置页 `Agent 引擎 -> OpenClaw 维护` 中提供可用的备份和导入入口。
 2. 支持 Windows、macOS 和 Linux 之间迁移核心用户数据。
-3. 备份必须包含 LobsterAI 的核心状态：登录态、Agent、会话历史、定时任务、自定义模型、IM 配置、技能、插件/MCP 状态和 OpenClaw state。
+3. 备份必须包含 wulu 的核心状态：登录态、Agent、会话历史、定时任务、自定义模型、IM 配置、技能、插件/MCP 状态和 OpenClaw state。
 4. 导入必须采用整体替换语义，并在替换前生成目标机当前数据的回滚备份。
 5. UI 必须在备份/还原期间显示全局 loading，阻止用户继续操作，并提示关闭应用会中断操作。
 6. 导入期间应用不能提前退出；必须先完成恢复和验证，再自动重启。
@@ -40,12 +40,12 @@ LobsterAI 需要在设置页提供“数据备份”和“数据迁移”能力�
 ### 场景 1: 从旧 Windows 电脑迁移到新 Windows 电脑
 
 **Given** 旧电脑上有多个 Agent，每个 Agent 下有历史记录，自定义模型配置了 API key，IM 机器人已配置，存在定时任务。  
-**When** 用户在旧电脑设置页点击“备份数据”，把生成的 `lobsterai-backup-yyyyMMdd-HHmmss.tar.gz` 拷贝到新电脑，并在新电脑设置页点击“导入备份”。  
+**When** 用户在旧电脑设置页点击“备份数据”，把生成的 `wulu-backup-yyyyMMdd-HHmmss.tar.gz` 拷贝到新电脑，并在新电脑设置页点击“导入备份”。  
 **Then** 新电脑重启后能看到同样的 Agent、历史记录、自定义模型、IM 配置和定时任务。
 
 ### 场景 2: 从 macOS 迁移到 Windows
 
-**Given** macOS 上的 LobsterAI 已使用一段时间，包含 SQLite 数据、OpenClaw state、技能和插件状态。  
+**Given** macOS 上的 wulu 已使用一段时间，包含 SQLite 数据、OpenClaw state、技能和插件状态。  
 **When** 用户在 macOS 备份，在 Windows 上导入。  
 **Then** SQLite 数据和 OpenClaw state 被还原；路径类配置如果指向 macOS 文件路径，应用应保留原值但提示用户自行调整为 Windows 可用路径。
 
@@ -68,16 +68,16 @@ LobsterAI 需要在设置页提供“数据备份”和“数据迁移”能力�
 设置页 `Agent 引擎 -> OpenClaw 维护` 提供“备份数据”按钮。点击后弹出保存文件对话框，默认文件名为：
 
 ```text
-lobsterai-backup-yyyyMMdd-HHmmss.tar.gz
+wulu-backup-yyyyMMdd-HHmmss.tar.gz
 ```
 
-备份期间显示全局 loading，文案说明正在备份 LobsterAI 数据，关闭应用会中断备份。备份成功后展示备份路径、文件大小，并提供“在文件夹中显示”。
+备份期间显示全局 loading，文案说明正在备份 wulu 数据，关闭应用会中断备份。备份成功后展示备份路径、文件大小，并提供“在文件夹中显示”。
 
 ### FR-2: 导入入口
 
 同一位置提供“导入备份”按钮。点击后弹出选择归档对话框，支持 `.tar.gz`、`.tgz`。导入前必须弹出确认弹窗，说明：
 
-- 当前 LobsterAI 数据会被备份包整体替换。
+- 当前 wulu 数据会被备份包整体替换。
 - 应用会先自动生成回滚备份。
 - 导入期间不要关闭应用。
 - 成功后应用会自动重启。
@@ -111,7 +111,7 @@ window.electron.openclaw.dataMigration.getLastRestoreResult(): Promise<LastResto
 新备份包必须包含 manifest 文件：
 
 ```text
-LobsterAI/.lobsterai-migration.json
+wulu/.wulu-migration.json
 ```
 
 manifest 不保存敏感明文，但必须包含足够信息来判断备份是否完整，以及恢复后是否匹配。
@@ -120,7 +120,7 @@ manifest 不保存敏感明文，但必须包含足够信息来判断备份是�
 
 备份成功至少满足：
 
-- staged `lobsterai.sqlite` 来自 SQLite backup API 快照，而不是 live 文件直接复制。
+- staged `wulu.sqlite` 来自 SQLite backup API 快照，而不是 live 文件直接复制。
 - staged SQLite 通过 `PRAGMA quick_check`。
 - manifest 中记录的 SQLite 表、关键表行数、关键内容校验和来自 staged 数据。
 - staged OpenClaw state 与备份时可迁移 live state 摘要一致。
@@ -128,7 +128,7 @@ manifest 不保存敏感明文，但必须包含足够信息来判断备份是�
 
 还原成功至少满足：
 
-- 恢复后的目标 `lobsterai.sqlite` 与归档源 SQLite 的内容摘要一致。
+- 恢复后的目标 `wulu.sqlite` 与归档源 SQLite 的内容摘要一致。
 - 恢复后的目标 OpenClaw state 与归档源 OpenClaw state 的内容摘要一致。
 - 关键表行数和关键配置摘要与 manifest 匹配。
 - 结果 marker 写入成功，应用重启后 UI 能展示恢复结果。
@@ -137,9 +137,9 @@ manifest 不保存敏感明文，但必须包含足够信息来判断备份是�
 
 ### 4.1 必须迁移的数据
 
-#### SQLite: `lobsterai.sqlite`
+#### SQLite: `wulu.sqlite`
 
-SQLite 是 LobsterAI 的主要权威数据源，必须通过 SQLite backup API 生成一致快照后迁移。至少包括：
+SQLite 是 wulu 的主要权威数据源，必须通过 SQLite backup API 生成一致快照后迁移。至少包括：
 
 | 数据类型 | 代表内容 |
 |----------|----------|
@@ -174,7 +174,7 @@ OpenClaw state 是 Agent 引擎运行态的重要来源，至少包括：
 | `SKILLs/` | 用户安装或修改的技能 |
 | `third-party-extensions/` | 用户安装的第三方扩展 |
 
-Electron/Chromium profile 数据不作为迁移主数据集。LobsterAI 登录态、模型配置、API key、IM 配置、Agent 和任务历史必须以 SQLite/OpenClaw state 为准；`Dictionaries/`、`Local Storage/`、`Session Storage/`、`Local State`、`Preferences`、`Shared Dictionary/`、`SharedStorage*` 这类 profile 文件在 Windows 上可能被 Chromium/LevelDB 持有锁，恢复时应保留目标机现有文件并跳过归档中的同名条目，不能因为它们删除失败而回滚核心数据恢复。
+Electron/Chromium profile 数据不作为迁移主数据集。wulu 登录态、模型配置、API key、IM 配置、Agent 和任务历史必须以 SQLite/OpenClaw state 为准；`Dictionaries/`、`Local Storage/`、`Session Storage/`、`Local State`、`Preferences`、`Shared Dictionary/`、`SharedStorage*` 这类 profile 文件在 Windows 上可能被 Chromium/LevelDB 持有锁，恢复时应保留目标机现有文件并跳过归档中的同名条目，不能因为它们删除失败而回滚核心数据恢复。
 
 ### 4.2 默认排除的数据
 
@@ -187,7 +187,7 @@ Electron/Chromium profile 数据不作为迁移主数据集。LobsterAI 登录�
 | `Crashpad/`、`logs/`、`openclaw/logs/`、`openclaw/state/logs/`、`install-timing.log`、`skill-migrate.log` | 诊断和运行日志，不属于用户状态 |
 | `Dictionaries/`、`Local Storage/`、`Session Storage/`、`Local State`、`Preferences`、`Shared Dictionary/`、`SharedStorage*` | Chromium profile/LevelDB 运行态文件，Windows 上容易被锁；核心用户数据必须来自 SQLite/OpenClaw state |
 | `lockfile`、`Singleton*`、`.com.github.Electron.*` | Electron 运行时锁和临时标记 |
-| `Cookies*`、`DIPS*`、`Network/Cookies*` | Windows 上经常被 Chromium 锁定，且 LobsterAI 登录态应以 SQLite token 为准 |
+| `Cookies*`、`DIPS*`、`Network/Cookies*` | Windows 上经常被 Chromium 锁定，且 wulu 登录态应以 SQLite token 为准 |
 | `backups/`、`sqlite-backups/` | 自动备份目录会造成包膨胀和旧数据混淆 |
 | `runtimes/` | 目标机安装包负责提供 runtime |
 | `openclaw/mcp-packages/`、`.compile-cache/`、`bin/` | OpenClaw/MCP 可重建或平台相关的运行时产物 |
@@ -204,17 +204,17 @@ Electron/Chromium profile 数据不作为迁移主数据集。LobsterAI 登录�
 ### 5.1 新格式目录结构
 
 ```text
-lobsterai-backup-20260609-103000.tar.gz
-└── LobsterAI/
-    ├── .lobsterai-migration.json
-    ├── lobsterai.sqlite
+wulu-backup-20260609-103000.tar.gz
+└── wulu/
+    ├── .wulu-migration.json
+    ├── wulu.sqlite
     ├── SKILLs/
     ├── third-party-extensions/
     └── openclaw/
         └── state/
 ```
 
-归档中不应包含 live `lobsterai.sqlite-wal` 和 `lobsterai.sqlite-shm`。如果导入预检发现归档中包含 SQLite sidecar 文件，必须先在 staging 中 checkpoint/合并后再恢复主库。
+归档中不应包含 live `wulu.sqlite-wal` 和 `wulu.sqlite-shm`。如果导入预检发现归档中包含 SQLite sidecar 文件，必须先在 staging 中 checkpoint/合并后再恢复主库。
 
 ### 5.2 manifest 字段
 
@@ -222,7 +222,7 @@ manifest 建议结构如下：
 
 ```json
 {
-  "format": "lobsterai-data-migration",
+  "format": "wulu-data-migration",
   "version": 1,
   "createdAt": "2026-06-09T10:30:00.000Z",
   "source": {
@@ -233,7 +233,7 @@ manifest 建议结构如下：
     "openclawVersion": "x.y.z"
   },
   "archive": {
-    "root": "LobsterAI",
+    "root": "wulu",
     "excluded": ["Cache", "Code Cache", "GPUCache", "logs", "openclaw/logs", "openclaw/state/logs"]
   },
   "sqlite": {
@@ -333,14 +333,14 @@ manifest 的用途是诊断和验收，不是数据库。恢复时仍以归档�
 4. 同时读取 live SQLite 的相同摘要。
 5. 如果 live 摘要与快照摘要不一致，说明快照过程中发生写入或快照不完整，备份失败并提示重试。
 
-staging 目录中的 `lobsterai.sqlite` 必须来自该快照，不能来自 live userData 的直接复制。
+staging 目录中的 `wulu.sqlite` 必须来自该快照，不能来自 live userData 的直接复制。
 
 ### 6.4 文件 staging
 
 1. 创建临时 staging 目录。
 2. 按“必须迁移的数据”和“默认排除的数据”递归复制 `userData`。
-3. 不复制 live `lobsterai.sqlite`、`lobsterai.sqlite-wal`、`lobsterai.sqlite-shm`。
-4. 将 SQLite 快照复制为 `stage/LobsterAI/lobsterai.sqlite`。
+3. 不复制 live `wulu.sqlite`、`wulu.sqlite-wal`、`wulu.sqlite-shm`。
+4. 将 SQLite 快照复制为 `stage/wulu/wulu.sqlite`。
 5. 对 staged SQLite 再次执行 `PRAGMA quick_check`。
 
 ### 6.5 OpenClaw state 一致性检查
@@ -354,7 +354,7 @@ staging 目录中的 `lobsterai.sqlite` 必须来自该快照，不能来自 liv
 
 ### 6.6 写入 manifest 和归档
 
-1. 基于 staged 数据生成 `.lobsterai-migration.json`。
+1. 基于 staged 数据生成 `.wulu-migration.json`。
 2. 使用 `tar` 依赖创建 `.tar.gz`。
 3. 创建完成后重新读取归档做快速 inspection，确认能识别根目录和 manifest。
 4. 返回成功结果，包括路径和大小。
@@ -377,14 +377,14 @@ staging 目录中的 `lobsterai.sqlite` 必须来自该快照，不能来自 liv
 
 破坏性操作前必须完成以下检查：
 
-1. 识别根目录：只接受 `LobsterAI/`。
+1. 识别根目录：只接受 `wulu/`。
 2. 拒绝绝对路径、`..`、空路径、目标根外写入。
 3. 拒绝 symlink、hardlink、device file 等特殊 entry。
 4. 如果存在 manifest，校验 manifest 与归档内容一致。
 5. 如果不存在 manifest，拒绝导入。
-6. staging 提取后必须找到 `lobsterai.sqlite`。
+6. staging 提取后必须找到 `wulu.sqlite`。
 7. 对 staging SQLite 执行 `PRAGMA quick_check`。
-8. 如果 staging 中存在 `lobsterai.sqlite-wal`，先打开 staging 数据库执行 checkpoint，合并 WAL，再删除 sidecar。
+8. 如果 staging 中存在 `wulu.sqlite-wal`，先打开 staging 数据库执行 checkpoint，合并 WAL，再删除 sidecar。
 
 任何一步失败，都必须在删除目标数据前返回错误。
 
@@ -395,7 +395,7 @@ staging 目录中的 `lobsterai.sqlite` 必须来自该快照，不能来自 liv
 1. renderer 显示全局 loading。
 2. 停止接受新的 Cowork、IM、定时任务和设置写入请求。
 3. 释放原业务 BrowserWindow/renderer 进程持有的业务句柄；主进程必须继续运行并保持单实例锁，不能在恢复完成前退出。
-4. 立即打开一个不使用 LobsterAI `userData` 的专用恢复进度窗口，使用非持久化 session/partition，只展示 loading 和安全提示。
+4. 立即打开一个不使用 wulu `userData` 的专用恢复进度窗口，使用非持久化 session/partition，只展示 loading 和安全提示。
 5. 停止或暂停 OpenClaw gateway、定时任务服务、IM gateway。
 6. flush 并关闭 SQLite store。
 7. 停止日志之外的所有可写入 userData 的服务。
@@ -407,7 +407,7 @@ staging 目录中的 `lobsterai.sqlite` 必须来自该快照，不能来自 liv
 恢复前必须把目标机当前可迁移数据打成回滚包：
 
 ```text
-lobsterai-rollback-yyyyMMdd-HHmmss.tar.gz
+wulu-rollback-yyyyMMdd-HHmmss.tar.gz
 ```
 
 回滚包可以使用同一套备份排除列表，但它的目的是恢复目标机现状，不是给用户跨机器迁移。因此可以保留更多本机状态摘要，便于失败后回滚。
@@ -425,8 +425,8 @@ lobsterai-rollback-yyyyMMdd-HHmmss.tar.gz
 3. 从 staging 中复制可迁移数据到目标 userData。
 4. SQLite 使用专门流程：
    - 确认 SQLite store 已关闭。
-   - 删除目标 `lobsterai.sqlite-wal` 和 `lobsterai.sqlite-shm`。
-   - 复制 staging `lobsterai.sqlite` 到目标。
+   - 删除目标 `wulu.sqlite-wal` 和 `wulu.sqlite-shm`。
+   - 复制 staging `wulu.sqlite` 到目标。
    - 不复制 staging sidecar。
    - 重新打开目标 SQLite 执行 `PRAGMA quick_check`。
 5. 对恢复后的 SQLite 执行迁移后修正：
@@ -454,7 +454,7 @@ lobsterai-rollback-yyyyMMdd-HHmmss.tar.gz
 恢复成功后写入一次性结果 marker，例如：
 
 ```text
-userData/.lobsterai-restore-result.json
+userData/.wulu-restore-result.json
 ```
 
 内容包含：
@@ -495,7 +495,7 @@ OpenClaw state 中可能包含平台路径、插件路径、任务工作目录�
 
 ### 8.3 登录态和凭据
 
-LobsterAI 服务登录态应以 SQLite 中的 token 为准，可以跨机器恢复，但 refreshToken 过期时仍需要重新登录。
+wulu 服务登录态应以 SQLite 中的 token 为准，可以跨机器恢复，但 refreshToken 过期时仍需要重新登录。
 
 自定义模型 API key、IM webhook token、MCP token 等本地保存凭据应随 SQLite 或 OpenClaw state 迁移。manifest 只能记录存在性和哈希，不能输出明文。
 
@@ -514,7 +514,7 @@ Windows 对 SQLite、Chromium profile、日志、目录 rename 更敏感。设�
 
 ### 8.5 macOS
 
-macOS 同机重装通常不会删除 `~/Library/Application Support/LobsterAI`，但跨机器迁移仍需本功能。macOS 也存在 WAL-only 数据丢失风险，所以必须使用同样的 SQLite 快照和 checkpoint 验证流程，不能因为 macOS 文件锁较少就直接复制 live 数据库。
+macOS 同机重装通常不会删除 `~/Library/Application Support/wulu`，但跨机器迁移仍需本功能。macOS 也存在 WAL-only 数据丢失风险，所以必须使用同样的 SQLite 快照和 checkpoint 验证流程，不能因为 macOS 文件锁较少就直接复制 live 数据库。
 
 ## 9. 失败模型
 
@@ -525,7 +525,7 @@ macOS 同机重装通常不会删除 `~/Library/Application Support/LobsterAI`�
 | SQLite 快照与 live 摘要不一致 | 备份失败，不生成归档 |
 | staged OpenClaw state 与 live 摘要不一致 | 备份失败，不生成归档 |
 | 归档路径穿越 | 预检失败，拒绝导入 |
-| 归档缺少 `lobsterai.sqlite` | 预检失败，拒绝导入 |
+| 归档缺少 `wulu.sqlite` | 预检失败，拒绝导入 |
 | staging SQLite `quick_check` 失败 | 预检失败，拒绝导入 |
 | 回滚备份失败 | 默认停止恢复 |
 | 替换目标数据失败 | 尝试回滚，显示错误 |
@@ -622,8 +622,8 @@ npm run electron:dev
 
 ## 12. 验收标准
 
-1. 备份包中必须存在 `LobsterAI/lobsterai.sqlite` 和 `LobsterAI/.lobsterai-migration.json`。
-2. 新格式备份包不得包含 `lobsterai.sqlite-wal`、`lobsterai.sqlite-shm`、`backups/`、`sqlite-backups/`、`runtimes/`、Chromium cache、日志和 lock 文件。
+1. 备份包中必须存在 `wulu/wulu.sqlite` 和 `wulu/.wulu-migration.json`。
+2. 新格式备份包不得包含 `wulu.sqlite-wal`、`wulu.sqlite-shm`、`backups/`、`sqlite-backups/`、`runtimes/`、Chromium cache、日志和 lock 文件。
 3. 备份包 manifest 中的 SQLite 摘要能证明自定义模型、Agent、会话、IM、定时任务数据存在。
 4. 导入前如果归档缺少 SQLite，必须失败，不能继续恢复。
 5. 导入前如果归档路径不安全，必须失败，不能写入目标目录。

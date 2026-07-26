@@ -104,7 +104,7 @@ export class McpBridgeServer {
 
   /**
    * Register a callback for media generation tool requests.
-   * The callback should call lobsterai-server and return the result.
+   * The callback should call WULU-server and return the result.
    */
   onMediaGeneration(callback: (request: MediaGenerationRequest) => Promise<MediaGenerationResponse>): void {
     this.onMediaGenerationCallback = callback;
@@ -221,7 +221,7 @@ export class McpBridgeServer {
     }
 
     // Verify secret token (accept any of the known header name for backwards compats)
-    const authHeader = req.headers['x-mcp-bridge-secret'] || req.headers['x-ask-user-secret'] || req.headers['x-lobster-media-secret'];
+    const authHeader = req.headers['x-mcp-bridge-secret'] || req.headers['x-ask-user-secret'] || req.headers['x-Wulu-media-secret'];
     if (authHeader !== this.secret) {
       log('WARN', `Auth rejected for ${req.url}: header=${authHeader ? 'present-but-mismatch' : 'missing'}`);
       res.writeHead(401, { 'Content-Type': 'application/json' });
@@ -274,7 +274,7 @@ export class McpBridgeServer {
 
         this.pendingAskUser.set(requestId, { requestId, resolve, timer });
 
-        // Notify LobsterAI to show the modal
+        // Notify WULU to show the modal
         if (this.onAskUserCallback) {
           this.onAskUserCallback({
             requestId,

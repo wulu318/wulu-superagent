@@ -67,14 +67,14 @@ const DIRS_TO_DELETE = new Set([
 // pruned unless explicitly added here.
 
 const BUNDLED_EXTENSIONS_TO_KEEP = new Set([
-  // --- Providers (LobsterAI may route to these) ---
+  // --- Providers (wulu may route to these) ---
   'anthropic', 'deepseek', 'google', 'kimi-coding', 'minimax', 'moonshot',
   'ollama', 'openai', 'openrouter', 'qianfan', 'qwen', 'stepfun', 'volcengine',
   'xai', 'xiaomi',
   // --- Channels (managed via entries or third-party replacements) ---
   'telegram', 'discord', 'feishu', 'qqbot',
   // --- Core features ---
-  'browser', 'memory-core', 'lobster', 'llm-task', 'zai',
+  'browser', 'memory-core', 'Wulu', 'llm-task', 'zai',
   // --- Media / voice (bundled defaults, may be used by agents) ---
   'image-generation-core', 'media-understanding-core', 'speech-core', 'talk-voice',
   // --- Internal ---

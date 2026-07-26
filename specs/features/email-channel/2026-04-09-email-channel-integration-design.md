@@ -6,7 +6,7 @@
 
 ## Overview
 
-This design integrates the `claw-mail-channel` email plugin (`@clawemail/email` v0.9.0) into LobsterAI using the existing multi-instance IM channel architecture. The integration enables users to manage email conversations through the LobsterAI UI with support for both traditional IMAP/SMTP and secure WebSocket transport modes.
+This design integrates the `claw-mail-channel` email plugin (`@clawemail/email` v0.9.0) into wulu using the existing multi-instance IM channel architecture. The integration enables users to manage email conversations through the wulu UI with support for both traditional IMAP/SMTP and secure WebSocket transport modes.
 
 ## Background
 
@@ -55,7 +55,7 @@ Based on user requirements, the integration will:
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
-│                          LobsterAI UI                                │
+│                          wulu UI                                │
 │  ┌────────────────────────────────────────────────────────────────┐ │
 │  │              EmailSettings.tsx (Renderer)                       │ │
 │  │  • Multi-instance list (add/delete/select)                     │ │
@@ -111,7 +111,7 @@ Based on user requirements, the integration will:
 3. IPC call `im:setConfig` with full `IMGatewayConfig` (including email)
 4. Main process writes to SQLite `im_config` table
 5. `syncOpenClawConfig()` generates `openclaw.json` with `channels.email`
-6. `writeEnvFile()` writes `LOBSTER_EMAIL_*_PASSWORD` / `LOBSTER_EMAIL_*_APIKEY`
+6. `writeEnvFile()` writes `WULU_EMAIL_*_PASSWORD` / `WULU_EMAIL_*_APIKEY`
 7. `restartGateway()` reloads OpenClaw with new config
 8. Email channel plugin starts monitoring accounts
 
@@ -124,7 +124,7 @@ Based on user requirements, the integration will:
 5. `resolveOrCreateSession()` creates local Cowork session with:
    - Title: `邮件:{threadId}` or `Email:{threadId}`
    - AgentId: read from `emailConfig.instances[accountId].agentId`
-6. Session appears in LobsterAI sidebar
+6. Session appears in wulu sidebar
 7. Streaming chat events update message content in real-time
 
 **Status Monitoring Flow:**
@@ -246,7 +246,7 @@ CREATE TABLE IF NOT EXISTS im_config (
           "name": "Work Email",
           "email": "work@example.com",
           "transport": "imap",
-          "password": "${LOBSTER_EMAIL_EMAIL_1_PASSWORD}",
+          "password": "${WULU_EMAIL_EMAIL_1_PASSWORD}",
           "allowFrom": ["boss@example.com", "*.company.com"],
           "replyMode": "complete",
           "replyTo": "sender"
@@ -256,7 +256,7 @@ CREATE TABLE IF NOT EXISTS im_config (
           "name": "Personal Gmail",
           "email": "personal@gmail.com",
           "transport": "ws",
-          "apiKey": "${LOBSTER_EMAIL_EMAIL_2_APIKEY}",
+          "apiKey": "${WULU_EMAIL_EMAIL_2_APIKEY}",
           "a2a": {
             "enabled": true,
             "agentDomains": ["agents.example.com"],
@@ -272,8 +272,8 @@ CREATE TABLE IF NOT EXISTS im_config (
 Environment variables (`.env`):
 
 ```bash
-LOBSTER_EMAIL_EMAIL_1_PASSWORD=my_imap_password
-LOBSTER_EMAIL_EMAIL_2_APIKEY=ck_live_abc123xyz789
+WULU_EMAIL_EMAIL_1_PASSWORD=my_imap_password
+WULU_EMAIL_EMAIL_2_APIKEY=ck_live_abc123xyz789
 ```
 
 ## Component Details
@@ -350,7 +350,7 @@ if (emailConfig?.instances && emailConfig.instances.length > 0) {
       };
 
       if (inst.transport === 'imap') {
-        accountConfig.password = `\${LOBSTER_EMAIL_${envPrefix}_PASSWORD}`;
+        accountConfig.password = `\${WULU_EMAIL_${envPrefix}_PASSWORD}`;
         if (inst.imapHost) accountConfig.imapHost = inst.imapHost;
         if (inst.imapPort) accountConfig.imapPort = inst.imapPort;
         if (inst.smtpHost) accountConfig.smtpHost = inst.smtpHost;
@@ -358,7 +358,7 @@ if (emailConfig?.instances && emailConfig.instances.length > 0) {
       }
 
       if (inst.transport === 'ws') {
-        accountConfig.apiKey = `\${LOBSTER_EMAIL_${envPrefix}_APIKEY}`;
+        accountConfig.apiKey = `\${WULU_EMAIL_${envPrefix}_APIKEY}`;
       }
 
       if (inst.allowFrom?.length) {
@@ -394,7 +394,7 @@ const emailConfig = this.getEmailOpenClawConfig?.();
 if (emailConfig?.instances) {
   for (const inst of emailConfig.instances) {
     if (!inst.enabled || !inst.email) continue;
-    const envPrefix = `LOBSTER_EMAIL_${inst.instanceId.toUpperCase().replace(/-/g, '_')}`;
+    const envPrefix = `WULU_EMAIL_${inst.instanceId.toUpperCase().replace(/-/g, '_')}`;
     if (inst.transport === 'imap' && inst.password) {
       lines.push(`${envPrefix}_PASSWORD=${inst.password}`);
     }
@@ -649,7 +649,7 @@ The UI must dynamically show/hide fields based on `transport`:
 4. System opens default browser to `https://your-clawemail-service.com/get-apikey?email={email}`
 5. User completes verification in browser (e.g., email OTP, OAuth)
 6. Service displays API Key (format: `ck_live_...`)
-7. User copies API Key and pastes into LobsterAI input field
+7. User copies API Key and pastes into wulu input field
 8. User clicks Save
 
 **Technical Implementation:**
@@ -757,7 +757,7 @@ Show consolidated error dialog if validation fails.
 
 - [ ] Send inbound email → verify session appears in sidebar
 - [ ] Session title format: `邮件:{threadId}`
-- [ ] Reply in LobsterAI → verify email sent via SMTP/WebSocket
+- [ ] Reply in wulu → verify email sent via SMTP/WebSocket
 
 **Advanced Options:**
 
@@ -812,7 +812,7 @@ if (parsed.email && !parsed.instances) {
 
 ### Backward Compatibility
 
-No existing LobsterAI features are affected:
+No existing wulu features are affected:
 
 - Email config is additive (new key in `im_config` table)
 - Email platform is new (no conflicts with existing platforms)
@@ -926,14 +926,14 @@ export const DEFAULT_EMAIL_MULTI_INSTANCE_CONFIG: EmailMultiInstanceConfig = {
 
 ### 2. Environment Variable Naming Simplification
 
-**Changed:** `LOBSTER_EMAIL_EMAIL_1_PASSWORD` → `LOBSTER_EMAIL_1_PASSWORD`
+**Changed:** `WULU_EMAIL_EMAIL_1_PASSWORD` → `WULU_EMAIL_1_PASSWORD`
 
 Transformation logic updated to:
 
 ```typescript
-const envPrefix = `LOBSTER_EMAIL_${inst.instanceId.replace(/^email-/, '').toUpperCase()}`;
-// email-1 → LOBSTER_EMAIL_1_PASSWORD
-// email-work → LOBSTER_EMAIL_WORK_PASSWORD
+const envPrefix = `WULU_EMAIL_${inst.instanceId.replace(/^email-/, '').toUpperCase()}`;
+// email-1 → WULU_EMAIL_1_PASSWORD
+// email-work → WULU_EMAIL_WORK_PASSWORD
 ```
 
 ### 3. Session Key Format Standardization
@@ -1181,7 +1181,7 @@ This design has been reviewed, corrected, and approved for implementation.
 ## 实施计划
 
 
-**Goal:** Integrate the `@clawemail/email` OpenClaw plugin into LobsterAI with full UI configuration support for IMAP/SMTP and WebSocket transport modes.
+**Goal:** Integrate the `@clawemail/email` OpenClaw plugin into wulu with full UI configuration support for IMAP/SMTP and WebSocket transport modes.
 
 **Architecture:** Reuse existing IM multi-instance pattern (Feishu/QQ model) with email-specific type extensions, account-level agent binding, and tiered configuration UI (basic + advanced collapsible).
 
@@ -1651,7 +1651,7 @@ if (emailConfig?.instances && emailConfig.instances.length > 0) {
 
       // IMAP/SMTP mode configuration
       if (inst.transport === 'imap') {
-        accountConfig.password = `\${LOBSTER_EMAIL_${envSuffix}_PASSWORD}`;
+        accountConfig.password = `\${WULU_EMAIL_${envSuffix}_PASSWORD}`;
         if (inst.imapHost) accountConfig.imapHost = inst.imapHost;
         if (inst.imapPort) accountConfig.imapPort = inst.imapPort;
         if (inst.smtpHost) accountConfig.smtpHost = inst.smtpHost;
@@ -1660,7 +1660,7 @@ if (emailConfig?.instances && emailConfig.instances.length > 0) {
 
       // WebSocket mode configuration
       if (inst.transport === 'ws') {
-        accountConfig.apiKey = `\${LOBSTER_EMAIL_${envSuffix}_APIKEY}`;
+        accountConfig.apiKey = `\${WULU_EMAIL_${envSuffix}_APIKEY}`;
       }
 
       // Common configuration
@@ -1763,11 +1763,11 @@ if (emailConfig?.instances) {
     const envSuffix = inst.instanceId.replace(/^email-/, '').toUpperCase();
 
     if (inst.transport === 'imap' && inst.password) {
-      lines.push(`LOBSTER_EMAIL_${envSuffix}_PASSWORD=${inst.password}`);
+      lines.push(`WULU_EMAIL_${envSuffix}_PASSWORD=${inst.password}`);
     }
 
     if (inst.transport === 'ws' && inst.apiKey) {
-      lines.push(`LOBSTER_EMAIL_${envSuffix}_APIKEY=${inst.apiKey}`);
+      lines.push(`WULU_EMAIL_${envSuffix}_APIKEY=${inst.apiKey}`);
     }
   }
 }

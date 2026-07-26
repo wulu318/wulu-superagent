@@ -47,7 +47,7 @@ function flushStreamEvents(): Promise<void> {
   return new Promise((resolve) => setImmediate(resolve));
 }
 
-test('extracts LobsterAI monthly quota error from proxy SSE packet', () => {
+test('extracts WULU monthly quota error from proxy SSE packet', () => {
   const packet = [
     'event: error',
     'data: {"type":"error","error":{"type":"proxy_error","message":"本月积分已用完","code":40202}}',
@@ -59,7 +59,7 @@ test('extracts LobsterAI monthly quota error from proxy SSE packet', () => {
   });
 });
 
-test('ignores generic HTTP 402 without LobsterAI quota code or message', () => {
+test('ignores generic HTTP 402 without WULU quota code or message', () => {
   const packet = [
     'event: error',
     'data: {"error":{"message":"Request failed with status 402"}}',

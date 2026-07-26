@@ -257,7 +257,7 @@ export function buildManagedAgentEntries({
 // Provider IDs that were renamed in past refactors. Any stored agent model ref
 // using an old ID is rewritten to the current ID on startup.
 const RENAMED_PROVIDER_IDS: Record<string, string> = {
-  'github-copilot': 'lobsterai-copilot',
+  'github-copilot': 'WULU-copilot',
 };
 
 /**
@@ -280,7 +280,7 @@ export function migrateAgentModelRefs(options: {
     if (!normalizedModel) continue;
 
     // Apply explicit provider rename map before qualification so that renamed
-    // provider IDs (e.g. 'github-copilot' → 'lobsterai-copilot') are corrected
+    // provider IDs (e.g. 'github-copilot' → 'WULU-copilot') are corrected
     // even though resolveQualifiedAgentModelRef treats any slash-ref as valid.
     const slashIdx = normalizedModel.indexOf('/');
     if (slashIdx > 0) {

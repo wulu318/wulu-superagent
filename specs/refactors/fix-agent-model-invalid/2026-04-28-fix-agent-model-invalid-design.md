@@ -123,7 +123,7 @@
 **修改文件**: `openclawRuntimeAdapter.ts`
 
 - `startTurn` 时，若 session 有 modelOverride，跳过 normalization，原样发送给 gateway
-- 解决 `lobsterai-server/qwen3.5-plus` 被错误改写为 `qwen-portal/qwen3.5-plus` 的问题
+- 解决 `wulu-server/qwen3.5-plus` 被错误改写为 `qwen-portal/qwen3.5-plus` 的问题
 
 ### 3.6 Provider ID fallback
 
@@ -215,7 +215,7 @@ Header 和 Input 的模型选择器改为只更新 Redux 内存态。
 | Session.modelOverride 失效 → 报错 | 构造无效 override → 红字 + 禁用发送 |
 | Session 模型独立性 | session A 用 X，session B 用 Y → 互不影响 |
 | Home 页选模型不触发 sync | 选模型后日志无 `syncOpenClawConfig` |
-| Server 模型不被 normalize 改写 | 使用 lobsterai-server 模型 → 原始引用不变 |
+| Server 模型不被 normalize 改写 | 使用 wulu-server 模型 → 原始引用不变 |
 | 重启一致性 | 重启后各 session 保持 modelOverride |
 
 ---

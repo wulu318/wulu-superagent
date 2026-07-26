@@ -21,8 +21,8 @@ const MAX_CLIENT_TEXT_ASSET_FILE_BYTES = 10 * 1024 * 1024;
 const MAX_CLIENT_TEXT_TOTAL_ASSET_BYTES = 50 * 1024 * 1024;
 const MAX_CLIENT_TEXT_ASSET_COUNT = 100;
 const MAX_REMOTE_REDIRECTS = 3;
-const MARKDOWN_ASSET_PREFIX = '_lobster_assets/';
-const MARKDOWN_MANIFEST_FILE = '_lobster_share_manifest.json';
+const MARKDOWN_ASSET_PREFIX = '_WULU_assets/';
+const MARKDOWN_MANIFEST_FILE = '_WULU_share_manifest.json';
 
 const IMAGE_EXTENSIONS = new Set(['png', 'jpg', 'jpeg', 'gif', 'webp']);
 const MARKDOWN_IMAGE_EXTENSIONS = new Set(['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg']);
@@ -740,7 +740,7 @@ function matchesDocumentMagic(extension: string, bytes: Buffer): boolean {
 }
 
 async function writeSingleFileZip(file: LoadedArtifactFile): Promise<{ archivePath: string; sourceSha256: string }> {
-  const tempDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'lobster-artifact-share-'));
+  const tempDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'Wulu-artifact-share-'));
   try {
     const archivePath = path.join(tempDir, 'share.zip');
     const sourcePath = path.join(tempDir, file.fileName);
@@ -800,7 +800,7 @@ async function writeMarkdownZip(file: LoadedArtifactFile): Promise<{
     omittedAssets,
   };
 
-  const tempDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'lobster-artifact-share-'));
+  const tempDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'Wulu-artifact-share-'));
   try {
     const archivePath = path.join(tempDir, 'share.zip');
     const zipFile = new yazl.ZipFile();

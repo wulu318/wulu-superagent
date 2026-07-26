@@ -7,7 +7,7 @@ import {
 
 test('infer: managed key without IM channel -> cowork origin + ui_session binding', () => {
   const result = inferOriginAndBinding(
-    makeTask({ sessionKey: 'agent:main:lobsterai:sess-001', delivery: { mode: DeliveryMode.None } })
+    makeTask({ sessionKey: 'agent:main:WULU:sess-001', delivery: { mode: DeliveryMode.None } })
   );
   expect(result.origin).toEqual({ kind: OriginKind.Cowork, sessionId: 'sess-001' });
   expect(result.binding).toEqual({ kind: BindingKind.UISession, sessionId: 'sess-001' });
@@ -15,7 +15,7 @@ test('infer: managed key without IM channel -> cowork origin + ui_session bindin
 
 test('infer: managed key with IM announce channel -> im origin + im_session binding', () => {
   const result = inferOriginAndBinding(
-    makeTask({ sessionKey: 'agent:main:lobsterai:sess-002', delivery: { mode: DeliveryMode.Announce, channel: 'telegram' } })
+    makeTask({ sessionKey: 'agent:main:WULU:sess-002', delivery: { mode: DeliveryMode.Announce, channel: 'telegram' } })
   );
   expect(result.origin.kind).toBe(OriginKind.IM);
   expect((result.origin as any).platform).toBe('telegram');
@@ -26,7 +26,7 @@ test('infer: managed key with IM announce channel -> im origin + im_session bind
 
 test('infer: non-main agentId managed key -> cowork origin', () => {
   const result = inferOriginAndBinding(
-    makeTask({ sessionKey: 'agent:secondary:lobsterai:sess-003', delivery: { mode: DeliveryMode.None } })
+    makeTask({ sessionKey: 'agent:secondary:WULU:sess-003', delivery: { mode: DeliveryMode.None } })
   );
   expect(result.origin).toEqual({ kind: OriginKind.Cowork, sessionId: 'sess-003' });
   expect(result.binding).toEqual({ kind: BindingKind.UISession, sessionId: 'sess-003' });
@@ -34,7 +34,7 @@ test('infer: non-main agentId managed key -> cowork origin', () => {
 
 test('infer: managed key with channel=last -> cowork origin (last is not an IM platform)', () => {
   const result = inferOriginAndBinding(
-    makeTask({ sessionKey: 'agent:main:lobsterai:sess-004', delivery: { mode: DeliveryMode.Announce, channel: DeliveryChannel.Last } })
+    makeTask({ sessionKey: 'agent:main:WULU:sess-004', delivery: { mode: DeliveryMode.Announce, channel: DeliveryChannel.Last } })
   );
   expect(result.origin.kind).toBe(OriginKind.Cowork);
   expect(result.binding.kind).toBe(BindingKind.UISession);
@@ -99,14 +99,14 @@ test('infer: empty string sessionKey -> manual origin', () => {
 
 test('infer: sessionKey with whitespace is trimmed before parsing', () => {
   const result = inferOriginAndBinding(
-    makeTask({ sessionKey: '  agent:main:lobsterai:sess-trimmed  ' })
+    makeTask({ sessionKey: '  agent:main:WULU:sess-trimmed  ' })
   );
   expect(result.origin.kind).toBe(OriginKind.Cowork);
   expect((result.origin as any).sessionId).toBe('sess-trimmed');
 });
 
 test('infer: pure function - same input, same output', () => {
-  const task = makeTask({ sessionKey: 'agent:main:lobsterai:sess-stable' });
+  const task = makeTask({ sessionKey: 'agent:main:WULU:sess-stable' });
   const r1 = inferOriginAndBinding(task);
   const r2 = inferOriginAndBinding(task);
   expect(r1).toEqual(r2);

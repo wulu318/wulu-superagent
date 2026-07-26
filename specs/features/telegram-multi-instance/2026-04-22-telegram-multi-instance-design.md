@@ -78,14 +78,14 @@ Change Telegram section from flat config to multi-account dict:
 
 ```typescript
 // Before:
-managedConfig.channels.telegram = { enabled: true, botToken: '${LOBSTER_TG_BOT_TOKEN}', ... };
+managedConfig.channels.telegram = { enabled: true, botToken: '${WULU_TG_BOT_TOKEN}', ... };
 
 // After:
 const accounts: Record<string, unknown> = {};
 for (let idx = 0; idx < enabledTelegramInstances.length; idx++) {
   const inst = enabledTelegramInstances[idx];
-  const tokenVar = idx === 0 ? 'LOBSTER_TG_BOT_TOKEN' : `LOBSTER_TG_BOT_TOKEN_${idx}`;
-  const webhookSecretVar = idx === 0 ? 'LOBSTER_TG_WEBHOOK_SECRET' : `LOBSTER_TG_WEBHOOK_SECRET_${idx}`;
+  const tokenVar = idx === 0 ? 'WULU_TG_BOT_TOKEN' : `WULU_TG_BOT_TOKEN_${idx}`;
+  const webhookSecretVar = idx === 0 ? 'WULU_TG_WEBHOOK_SECRET' : `WULU_TG_WEBHOOK_SECRET_${idx}`;
   accounts[inst.instanceId.slice(0, 8)] = {
     enabled: true,
     botToken: `\${${tokenVar}}`,
@@ -97,8 +97,8 @@ managedConfig.channels.telegram = { enabled: true, accounts };
 ```
 
 Environment variables:
-- Bot tokens: `LOBSTER_TG_BOT_TOKEN`, `LOBSTER_TG_BOT_TOKEN_1`, ..., `LOBSTER_TG_BOT_TOKEN_N`
-- Webhook secrets: `LOBSTER_TG_WEBHOOK_SECRET`, `LOBSTER_TG_WEBHOOK_SECRET_1`, ..., `LOBSTER_TG_WEBHOOK_SECRET_N`
+- Bot tokens: `WULU_TG_BOT_TOKEN`, `WULU_TG_BOT_TOKEN_1`, ..., `WULU_TG_BOT_TOKEN_N`
+- Webhook secrets: `WULU_TG_WEBHOOK_SECRET`, `WULU_TG_WEBHOOK_SECRET_1`, ..., `WULU_TG_WEBHOOK_SECRET_N`
 
 Add `'telegram'` to `MULTI_INSTANCE_CONFIG_KEYS` set.
 

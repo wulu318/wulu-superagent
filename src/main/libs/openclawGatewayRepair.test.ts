@@ -13,7 +13,7 @@ import {
 const tempDirs: string[] = [];
 
 const makeTempDir = (): string => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'lobsterai-openclaw-repair-'));
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'WULU-openclaw-repair-'));
   tempDirs.push(dir);
   return dir;
 };

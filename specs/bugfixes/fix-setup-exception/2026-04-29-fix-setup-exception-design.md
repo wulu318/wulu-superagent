@@ -22,7 +22,7 @@ Branch `liuzhq/setup-exception-fix` 已将 renderer init 超时从 5s 提高到 
 
 ## 现象与日志分析
 
-**日志来源：** `release/lobsterai-logs-20260426-021837/main-2026-04-28.log`（Windows 用户 fudong，版本 2026.4.28）
+**日志来源：** `release/wulu-logs-20260426-021837/main-2026-04-28.log`（Windows 用户 fudong，版本 2026.4.28）
 
 ### 关键发现
 

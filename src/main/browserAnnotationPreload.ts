@@ -291,7 +291,7 @@ function start(envelope: BrowserAnnotationGuestEnvelope): void {
 
   const labels = envelope.labels || {};
   const root = document.createElement('div');
-  root.dataset.lobsterBrowserAnnotations = 'true';
+  root.dataset.WULUBrowserAnnotations = 'true';
   root.style.cssText = 'position:fixed;inset:0;z-index:2147483647;pointer-events:none;';
   const shadow = root.attachShadow({ mode: 'closed' });
   const style = document.createElement('style');

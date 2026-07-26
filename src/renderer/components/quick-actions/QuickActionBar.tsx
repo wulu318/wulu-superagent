@@ -41,9 +41,9 @@ const QuickActionBar: React.FC<QuickActionBarProps> = ({ actions, selectedAction
             type="button"
             aria-pressed={isSelected}
             onClick={() => onActionSelect(action.id)}
-            className={`group flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-[length:var(--lobster-text-sidebarCompact)] font-normal leading-5 transition-all duration-200 ease-out active:translate-y-0 active:scale-[0.97] ${
+            className={`group flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-[length:var(--Wulu-text-sidebarCompact)] font-normal leading-5 transition-all duration-200 ease-out active:translate-y-0 active:scale-[0.97] ${
               isSelected
-                ? 'border-[color-mix(in_srgb,var(--lobster-primary)_50%,transparent)] bg-primary-muted text-primary'
+                ? 'border-[color-mix(in_srgb,var(--Wulu-primary)_50%,transparent)] bg-primary-muted text-primary'
                 : 'border-border-subtle bg-surface text-secondary hover:-translate-y-px hover:border-primary/30 hover:bg-surface-raised hover:text-foreground hover:shadow-subtle'
             }`}
           >

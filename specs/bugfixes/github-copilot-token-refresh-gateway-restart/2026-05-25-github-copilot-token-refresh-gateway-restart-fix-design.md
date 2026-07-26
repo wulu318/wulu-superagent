@@ -4,9 +4,9 @@
 
 ### 1.1 问题
 
-用户未主动修改 OpenClaw、IM 或模型配置时，GitHub Copilot 的后台 token 刷新会引起 OpenClaw Gateway 硬重启。表现为 Gateway 收到 `SIGTERM`，随后 LobsterAI 主进程重新 fork gateway。
+用户未主动修改 OpenClaw、IM 或模型配置时，GitHub Copilot 的后台 token 刷新会引起 OpenClaw Gateway 硬重启。表现为 Gateway 收到 `SIGTERM`，随后 wulu 主进程重新 fork gateway。
 
-从日志看，本次重启不是 Gateway 崩溃，而是 LobsterAI 主进程主动执行：
+从日志看，本次重启不是 Gateway 崩溃，而是 wulu 主进程主动执行：
 
 ```text
 [CopilotTokenManager] refreshing Copilot API token...
@@ -31,7 +31,7 @@ GitHub Copilot 的 token 生命周期被混入了持久配置生命周期：
 4. main 进程的 `store:set app_config` 看到 provider secret 变化，将其分类为需要 Gateway restart。
 5. `syncOpenClawConfig()` 即使检测到 OpenClaw config/env 没变化，也因为调用方传入 `restartGatewayIfRunning: true` 执行硬重启。
 
-关键边界是：Copilot API token 是短期运行时凭据，约 30 分钟刷新一次；它不应作为长期配置写入 `app_config`。OpenClaw Gateway 侧当前通过本地兼容代理访问 Copilot，配置里使用稳定的 `LOBSTER_PROXY_TOKEN`，并不依赖 `app_config.providers.github-copilot.apiKey` 中的短期 token。
+关键边界是：Copilot API token 是短期运行时凭据，约 30 分钟刷新一次；它不应作为长期配置写入 `app_config`。OpenClaw Gateway 侧当前通过本地兼容代理访问 Copilot，配置里使用稳定的 `WULU_PROXY_TOKEN`，并不依赖 `app_config.providers.github-copilot.apiKey` 中的短期 token。
 
 ### 1.3 范围
 
@@ -94,9 +94,9 @@ app_config.providers.github-copilot.apiKey
 OpenClaw config 中 GitHub Copilot provider 应继续使用本地兼容代理与稳定 token：
 
 ```text
-provider: github-copilot / lobsterai-copilot
+provider: github-copilot / wulu-copilot
 baseUrl: local proxy /v1/copilot
-apiKey: ${LOBSTER_PROXY_TOKEN}
+apiKey: ${WULU_PROXY_TOKEN}
 ```
 
 Gateway 不应因为 Copilot API token 轮换而重启。真正请求 Copilot 时，由本地 proxy 从 `CopilotTokenManager` 获取最新 token。
@@ -178,7 +178,7 @@ GitHub Copilot provider 的持久配置应尽量只保存稳定信息：
 `openclawConfigSync.ts` 中 GitHub Copilot provider 现有方向是合理的：
 
 - `resolveRuntimeBaseUrl()` 指向本地 OpenAI-compatible proxy。
-- `resolveApiKey()` 使用 `${LOBSTER_PROXY_TOKEN}`。
+- `resolveApiKey()` 使用 `${WULU_PROXY_TOKEN}`。
 
 因此本次不需要让 OpenClaw config 直接感知 Copilot API token。
 
@@ -242,7 +242,7 @@ GitHub Copilot provider 的持久配置应尽量只保存稳定信息：
 2. GitHub Copilot 请求在 token refresh 后仍能成功使用新 token。
 3. GitHub Copilot 401/403 按需刷新仍可重试请求。
 4. 设置页首次登录 GitHub Copilot、退出登录、启停 provider 的行为不回退。
-5. OpenClaw Gateway 的 GitHub Copilot provider 仍使用本地 proxy 与 `${LOBSTER_PROXY_TOKEN}`。
+5. OpenClaw Gateway 的 GitHub Copilot provider 仍使用本地 proxy 与 `${WULU_PROXY_TOKEN}`。
 6. 本次改动不影响 OpenAI Codex OAuth 和 MiniMax OAuth 现有流程。
 
 ## 8. 验证计划
@@ -250,7 +250,7 @@ GitHub Copilot provider 的持久配置应尽量只保存稳定信息：
 ### 单元测试
 
 - 覆盖 `github-copilot:token-updated` 后不调用 `configService.updateConfig()` 的 renderer 行为，或覆盖等价的 runtime token overlay 行为。
-- 覆盖 Copilot provider 的 OpenClaw config 仍输出 proxy base URL 与 `${LOBSTER_PROXY_TOKEN}`。
+- 覆盖 Copilot provider 的 OpenClaw config 仍输出 proxy base URL 与 `${WULU_PROXY_TOKEN}`。
 
 ### 手动验证
 

@@ -10,7 +10,7 @@ const tempRoots: string[] = [];
 const archiveRoots: string[] = [];
 
 async function createTempRoot(): Promise<string> {
-  const root = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'lobster-html-share-packager-test-'));
+  const root = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'Wulu-html-share-packager-test-'));
   tempRoots.push(root);
   return root;
 }

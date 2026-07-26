@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
-import dreamingLobsterSrc from '../../assets/dreaming-lobster.png';
+import dreamingWULUSrc from '../../assets/dreaming-Wulu.png';
 import { i18nService } from '../../services/i18n';
 import type { DreamDiaryData, DreamingEntry, DreamingPhaseInfo, DreamingStatusData } from '../../types/cowork';
 
@@ -190,7 +190,7 @@ function DreamingMascot() {
   return (
     <div className="dreaming-mascot" aria-label={i18nService.t('coworkDreamingHeaderTitle')}>
       <div className="dreaming-mascot-glow" aria-hidden="true" />
-      <img className="dreaming-mascot-image" src={dreamingLobsterSrc} alt="" draggable={false} />
+      <img className="dreaming-mascot-image" src={dreamingWULUSrc} alt="" draggable={false} />
       <span className="dreaming-z dreaming-z-one" aria-hidden="true">z</span>
       <span className="dreaming-z dreaming-z-two" aria-hidden="true">Z</span>
       <span className="dreaming-z dreaming-z-three" aria-hidden="true">Z</span>

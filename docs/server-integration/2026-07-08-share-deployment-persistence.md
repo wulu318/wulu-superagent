@@ -49,7 +49,7 @@ When `persistence_enabled=true`, the veFaaS `CreateFunction` request:
 - Enables `VpcConfig` with configured VPC, subnet, and security group IDs.
 - Adds `NasStorage.EnableNas=true` and one `NasConfigs` item. The NAS remote path is mounted from `/`; each deployment then writes under `persistence.remote-root/{shareId}` inside the mounted directory.
 - Sets `MaxConcurrency=10`, the minimum allowed value for veFaaS non-exclusive web functions.
-- Injects `LOBSTER_PERSISTENCE=filesystem`, `LOBSTER_DATA_DIR`, `LOBSTER_PERSISTENCE_REMOTE_ROOT`, `LOBSTER_SHARE_ID`, and `LOBSTER_DEPLOYMENT_ID`.
+- Injects `WULU_PERSISTENCE=filesystem`, `WULU_DATA_DIR`, `WULU_PERSISTENCE_REMOTE_ROOT`, `WULU_SHARE_ID`, and `WULU_DEPLOYMENT_ID`.
 
 Relevant server properties:
 
@@ -59,7 +59,7 @@ share-deployment:
     enabled: true
     provider: filesystem
     mount-path: /data
-    remote-root: /lobster-share-data/{env}/shares
+    remote-root: /Wulu-share-data/{env}/shares
     default-quota-bytes: 104857600
     max-bindings: 8
   volcengine:
@@ -78,15 +78,15 @@ share-deployment:
 
 The checked-in profiles separate data roots:
 
-- `local`: `/lobster-share-data/dev/shares`
-- `test`: `/lobster-share-data/test/shares`
-- `prod`: `/lobster-share-data/prod/shares`
+- `local`: `/Wulu-share-data/dev/shares`
+- `test`: `/Wulu-share-data/test/shares`
+- `prod`: `/Wulu-share-data/prod/shares`
 
 The checked-in profiles use subnet `subnet-1c0ddemli7ny85e8j70q0nhd8` by default. Override `SHARE_DEPLOYMENT_VOLCENGINE_SUBNET_ID` if a target environment moves to a different subnet.
 
 ## Runtime Data Handling
 
-The generated `run.sh` copies the immutable code package to `/tmp/lobster-share-runtime-{deploymentId}` as before. It mounts NAS at `/data`, derives the actual data root from `LOBSTER_PERSISTENCE_REMOTE_ROOT`, for example `/data/lobster-share-data/test/shares/{shareId}`, and for each persistence binding it then:
+The generated `run.sh` copies the immutable code package to `/tmp/Wulu-share-runtime-{deploymentId}` as before. It mounts NAS at `/data`, derives the actual data root from `WULU_PERSISTENCE_REMOTE_ROOT`, for example `/data/Wulu-share-data/test/shares/{shareId}`, and for each persistence binding it then:
 
 1. Creates the NAS-mounted data directory.
 2. Copies the packaged seed file or directory only if the NAS target does not exist.
@@ -110,7 +110,7 @@ The server includes gated Volcengine tests:
 
 - `SHARE_DEPLOYMENT_VOLCENGINE_API_TEST=true` runs a real `ListFunctions` API smoke test.
 - `SHARE_DEPLOYMENT_PERSISTENCE_CLOUD_INTEGRATION_TEST=true` creates a minimal persistent veFaaS function with NAS/VPC, verifies HTTP access, and deletes it unless `SHARE_DEPLOYMENT_CLOUD_TEST_KEEP_FUNCTION=true`.
-- `SHARE_DEPLOYMENT_BROTATO_PERSISTENCE_CLOUD_TEST=true` packages `/Users/admin/lobsterai/project/brotato-clone`, uploads through TOS by default, creates a persistent veFaaS function, writes a leaderboard entry, redeploys a second function with the same share data root, and verifies the second function can read the persisted leaderboard from NAS.
+- `SHARE_DEPLOYMENT_BROTATO_PERSISTENCE_CLOUD_TEST=true` packages `/Users/admin/wulu/project/brotato-clone`, uploads through TOS by default, creates a persistent veFaaS function, writes a leaderboard entry, redeploys a second function with the same share data root, and verifies the second function can read the persisted leaderboard from NAS.
 
 Credentials must be provided through environment variables, not checked into code:
 
@@ -131,12 +131,12 @@ Recommended local commands:
 # Real Volcengine OpenAPI smoke test. No cloud resource is created.
 SHARE_DEPLOYMENT_VOLCENGINE_API_TEST=true \
 SHARE_DEPLOYMENT_VOLCENGINE_CREDENTIAL_JSON='{"accessKeyId":"...","secretAccessKey":"..."}' \
-./gradlew test --tests com.youdao.lobsterai.service.sharedeployment.VolcengineVefaasCloudIntegrationTest.listFunctionsThroughVolcengineOpenApiClient --rerun-tasks
+./gradlew test --tests com.youdao.wulu.service.sharedeployment.VolcengineVefaasCloudIntegrationTest.listFunctionsThroughVolcengineOpenApiClient --rerun-tasks
 
 # End-to-end NAS functional test with brotato-clone.
 SHARE_DEPLOYMENT_BROTATO_PERSISTENCE_CLOUD_TEST=true \
 SHARE_DEPLOYMENT_VOLCENGINE_CREDENTIAL_JSON='{"accessKeyId":"...","secretAccessKey":"..."}' \
-./gradlew test --tests com.youdao.lobsterai.service.sharedeployment.VolcengineVefaasCloudIntegrationTest.deployBrotatoProjectWithNasPersistenceAndRedeployKeepsLeaderboard --rerun-tasks
+./gradlew test --tests com.youdao.wulu.service.sharedeployment.VolcengineVefaasCloudIntegrationTest.deployBrotatoProjectWithNasPersistenceAndRedeployKeepsLeaderboard --rerun-tasks
 ```
 
 Use TOS upload for the brotato test unless the package is known to be small enough for direct zip JSON upload. A 6 MiB zip becomes roughly 8 MiB after base64 encoding and may hit OpenAPI request parsing limits.

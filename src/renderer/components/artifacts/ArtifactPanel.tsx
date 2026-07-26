@@ -1556,7 +1556,7 @@ const ArtifactPanel: React.FC<ArtifactPanelProps> = ({
   const handleOpenInBrowser = useCallback(() => {
     if (!selectedArtifact) return;
     reportSelectedArtifactAction('open_in_browser', {
-      openTarget: selectedArtifact.type === ArtifactTypeValue.Html ? 'lobster_browser' : 'external_browser',
+      openTarget: selectedArtifact.type === ArtifactTypeValue.Html ? 'WULU_browser' : 'external_browser',
     });
 
     if (
@@ -5471,12 +5471,12 @@ export function buildBrowserAnnotationScript(labels: BrowserAnnotationLabels): s
   return `
 (() => {
   const labels = ${JSON.stringify(labels)};
-  if (window.__lobsterAnnotationCleanup) {
-    window.__lobsterAnnotationCleanup();
+  if (window.__WULUAnnotationCleanup) {
+    window.__WULUAnnotationCleanup();
   }
 
   const overlayRoot = document.createElement('div');
-  overlayRoot.setAttribute('data-lobster-annotation-ui', 'true');
+  overlayRoot.setAttribute('data-Wulu-annotation-ui', 'true');
   overlayRoot.style.cssText = 'position:fixed;inset:0;z-index:2147483647;pointer-events:none;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;';
 
   const highlight = document.createElement('div');
@@ -5486,7 +5486,7 @@ export function buildBrowserAnnotationScript(labels: BrowserAnnotationLabels): s
   tooltip.style.cssText = 'position:fixed;display:none;max-width:260px;border-radius:8px;background:rgba(18,18,22,0.94);color:#fff;padding:8px 10px;font-size:12px;line-height:1.4;box-shadow:0 8px 22px rgba(0,0,0,0.28);pointer-events:none;';
 
   const composer = document.createElement('div');
-  composer.setAttribute('data-lobster-annotation-ui', 'true');
+  composer.setAttribute('data-Wulu-annotation-ui', 'true');
   composer.style.cssText = 'position:fixed;display:none;min-width:300px;max-width:380px;border-radius:16px;background:rgba(22,22,24,0.96);color:#fff;padding:6px 7px;box-shadow:0 12px 32px rgba(0,0,0,0.28);pointer-events:auto;gap:6px;align-items:center;';
 
   const textarea = document.createElement('textarea');
@@ -5518,7 +5518,7 @@ export function buildBrowserAnnotationScript(labels: BrowserAnnotationLabels): s
     document.removeEventListener('click', handleClick, true);
     document.removeEventListener('keydown', handleKeyDown, true);
     overlayRoot.remove();
-    delete window.__lobsterAnnotationCleanup;
+    delete window.__WULUAnnotationCleanup;
   };
 
   const finish = (result) => {
@@ -5527,7 +5527,7 @@ export function buildBrowserAnnotationScript(labels: BrowserAnnotationLabels): s
     resolvePromise(result);
   };
 
-  const isAnnotationUi = (target) => target?.closest?.('[data-lobster-annotation-ui="true"]');
+  const isAnnotationUi = (target) => target?.closest?.('[data-Wulu-annotation-ui="true"]');
   const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
   const cleanText = (value) => (value || '').replace(/\\s+/g, ' ').trim().slice(0, 120);
   const formatFont = (value) => cleanText(value).split(',')[0].replace(/["']/g, '').slice(0, 42);
@@ -5662,7 +5662,7 @@ export function buildBrowserAnnotationScript(labels: BrowserAnnotationLabels): s
   document.addEventListener('mousemove', handleMouseMove, true);
   document.addEventListener('click', handleClick, true);
   document.addEventListener('keydown', handleKeyDown, true);
-  window.__lobsterAnnotationCleanup = cleanup;
+  window.__WULUAnnotationCleanup = cleanup;
 
   return new Promise((resolve) => {
     resolvePromise = resolve;

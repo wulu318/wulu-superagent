@@ -431,9 +431,9 @@ const buildRailItems = (
       messageId: primaryMessageId,
       turnIndex: index,
       absoluteIndex: messageOffsetById.get(primaryMessageId) ?? items.length,
-      label: turn.userMessage ? getRailLabel(userContent, `Turn ${index + 1}`) : 'LobsterAI',
+      label: turn.userMessage ? getRailLabel(userContent, `Turn ${index + 1}`) : 'WULU',
       summary: assistantContent
-        ? getRailLabel(assistantContent, 'LobsterAI', COWORK_RAIL_TOOLTIP_PREVIEW_MAX_LENGTH)
+        ? getRailLabel(assistantContent, 'WULU', COWORK_RAIL_TOOLTIP_PREVIEW_MAX_LENGTH)
         : '',
       contentLen: userContent.length + assistantContent.length,
       isUser: false,
@@ -501,7 +501,7 @@ const buildRailItemsFromIndex = (
       messageId: current.messageId,
       turnIndex: loadedTurnIndex,
       absoluteIndex: current.messageOffset,
-      label: 'LobsterAI',
+      label: 'WULU',
       summary: current.preview,
       contentLen: current.contentLen,
       isUser: false,
@@ -990,7 +990,7 @@ const composeExportCanvas = async (
 
   ctx.fillStyle = brandColor;
   ctx.font = `600 ${brandFontSize}px ${fontStack}`;
-  ctx.fillText('LobsterAI — 全场景个人助理 Agent', textX, footerCenterY - taglineFontSize / 2 - 2);
+  ctx.fillText('WULU — 全场景个人助理 Agent', textX, footerCenterY - taglineFontSize / 2 - 2);
 
   ctx.fillStyle = subtitleColor;
   ctx.font = `400 ${taglineFontSize}px ${fontStack}`;
@@ -2416,11 +2416,11 @@ const CoworkSessionDetail: React.FC<CoworkSessionDetailProps> = ({
   const handleOpenHtmlFileInBrowser = useCallback(async (artifact: Artifact) => {
     if (!sessionId || artifact.type !== ArtifactTypeValue.Html || !artifact.filePath) return;
     reportArtifactPreviewAction({
-      actionType: 'open_lobster_browser',
+      actionType: 'open_WULU_browser',
       source: 'artifact_panel',
       artifact,
       params: {
-        openTarget: 'lobster_browser',
+        openTarget: 'WULU_browser',
       },
     });
 
@@ -2504,7 +2504,7 @@ const CoworkSessionDetail: React.FC<CoworkSessionDetailProps> = ({
       source: 'artifact_panel',
       artifact,
       params: {
-        openTarget: 'lobster_browser',
+        openTarget: 'WULU_browser',
       },
     });
     handleOpenArtifactBrowserTab();

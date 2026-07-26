@@ -18,7 +18,7 @@ import { SkinWorkflowRegistry } from './skinWorkflowRegistry';
 
 const timestamp = '2026-07-16T10:00:00.000Z';
 const sessionId = 'session-one';
-const sessionKey = 'agent:main:lobsterai:session-one';
+const sessionKey = 'agent:main:WULU:session-one';
 const context = { sessionKey, toolCallId: 'tool-call-one' };
 
 const installedKit: InstalledKitRecord = {
@@ -94,7 +94,7 @@ describe('skin media bridge', () => {
   test('requires a draft, allows generation retries, and leaves slot order to the store', async () => {
     const { bridge, store } = createHarness();
 
-    expect(await bridge.preflightLobsterImageGeneration(
+    expect(await bridge.preflightWULUImageGeneration(
       sessionId,
       { mode: MediaSelectionMode.Image },
     )).toMatchObject({
@@ -108,11 +108,11 @@ describe('skin media bridge', () => {
     });
     expect(createResult.isError).not.toBe(true);
 
-    expect(await bridge.preflightLobsterImageGeneration(
+    expect(await bridge.preflightWULUImageGeneration(
       sessionId,
       { mode: MediaSelectionMode.Image },
     )).toBeNull();
-    expect(await bridge.preflightLobsterImageGeneration(
+    expect(await bridge.preflightWULUImageGeneration(
       sessionId,
       { mode: MediaSelectionMode.Image },
     )).toBeNull();
@@ -126,7 +126,7 @@ describe('skin media bridge', () => {
       },
       context,
     });
-    expect(await bridge.preflightLobsterImageGeneration(
+    expect(await bridge.preflightWULUImageGeneration(
       sessionId,
       { mode: MediaSelectionMode.Image },
     )).toBeNull();

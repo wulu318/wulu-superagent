@@ -1,6 +1,6 @@
 # Artifacts 预览系统设计文档（2026-05-19）
 
-本文档记录 LobsterAI 当前 Artifacts 功能的实现现状，重点覆盖 Cowork 会话中的文件预览、本地 Web 服务预览、浏览器标注和自动刷新链路。旧版设计文档见 `2026-05-07-artifacts-preview-design.md`，本文以当前代码为准。
+本文档记录 wulu 当前 Artifacts 功能的实现现状，重点覆盖 Cowork 会话中的文件预览、本地 Web 服务预览、浏览器标注和自动刷新链路。旧版设计文档见 `2026-05-07-artifacts-preview-design.md`，本文以当前代码为准。
 
 ---
 
@@ -277,7 +277,7 @@ PPTX 当前走 `LegacyPptxSubRenderer`：
 WebView 使用固定 partition：
 
 ```typescript
-persist:lobster-artifact-browser
+persist:Wulu-artifact-browser
 ```
 
 主进程在 `will-attach-webview` 中强制：

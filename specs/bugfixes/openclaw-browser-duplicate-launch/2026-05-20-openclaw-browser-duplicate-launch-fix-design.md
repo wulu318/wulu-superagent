@@ -4,7 +4,7 @@
 
 ### 1.1 问题
 
-用户在 Cowork 任务中调用 browser 工具时，LobsterAI 已经启动了一个独立的托管 Chrome profile：`openclaw`。这个托管浏览器启动后会先显示一个空白 tab，随后 browser 工具通过 CDP 打开真实目标页面。
+用户在 Cowork 任务中调用 browser 工具时，wulu 已经启动了一个独立的托管 Chrome profile：`openclaw`。这个托管浏览器启动后会先显示一个空白 tab，随后 browser 工具通过 CDP 打开真实目标页面。
 
 实际观察到的异常是：同一次任务过程中，已经存在 `openclaw` 托管 Chrome 后，又额外出现一个新的空白 Chrome tab/window。用户主观上容易感觉它发生在任务结束后，或者像是另一个 `dev` / `user` Chrome 被单独打开。
 
@@ -21,15 +21,15 @@
 
 日志批次：
 
-- `main-2026-05-20.log` from `lobsterai-logs-20260520-233649`
-- `openclaw-2026-05-20.log` from `lobsterai-logs-20260520-233649`
-- `gateway-2026-05-20.log` from `lobsterai-logs-20260520-233649`
+- `main-2026-05-20.log` from `wulu-logs-20260520-233649`
+- `openclaw-2026-05-20.log` from `wulu-logs-20260520-233649`
+- `gateway-2026-05-20.log` from `wulu-logs-20260520-233649`
 
 任务标识：
 
 ```text
 runId=0a55a1b0-b895-4a0f-beb3-c30467a60280
-sessionKey=agent:main:lobsterai:f90336eb-3ebc-4045-9eeb-b823a3e81e48
+sessionKey=agent:main:wulu:f90336eb-3ebc-4045-9eeb-b823a3e81e48
 ```
 
 第一次托管 Chrome 启动正常：
@@ -120,7 +120,7 @@ current logic => launch a second managed Chrome
 
 **Given** OpenClaw gateway 正在运行，`openclaw` managed Chrome 未启动  
 **When** Agent 第一次调用 browser 工具  
-**Then** LobsterAI 可以启动一个 `openclaw` managed Chrome，并通过 CDP 打开目标页面。
+**Then** wulu 可以启动一个 `openclaw` managed Chrome，并通过 CDP 打开目标页面。
 
 ### 场景 B: 托管 Chrome 已启动但 CDP 短暂不可达
 
@@ -208,7 +208,7 @@ current logic => launch a second managed Chrome
 涉及位置：
 
 - OpenClaw 源码：`extensions/browser/src/browser/server-context.availability.ts`
-- LobsterAI 补丁：`scripts/patches/v2026.4.14/openclaw-browser-duplicate-launch.patch`
+- wulu 补丁：`scripts/patches/v2026.4.14/openclaw-browser-duplicate-launch.patch`
 - 打包后验证：`vendor/openclaw-runtime/<target>/dist/server-context-*.js`
 
 当前逻辑可以抽象为：
@@ -333,7 +333,7 @@ running.proc.on('exit', async (code, signal) => {
 
 ### 4.5 补丁落点
 
-由于 LobsterAI 通过 `scripts/apply-openclaw-patches.cjs` 对 pinned OpenClaw 版本应用补丁，修复不应只修改 `vendor/openclaw-runtime/*/dist`。
+由于 wulu 通过 `scripts/apply-openclaw-patches.cjs` 对 pinned OpenClaw 版本应用补丁，修复不应只修改 `vendor/openclaw-runtime/*/dist`。
 
 推荐实施顺序：
 
@@ -404,4 +404,4 @@ running.proc.on('exit', async (code, signal) => {
 
 1. 将 browser availability 的关键诊断整理为开发者诊断入口，而不是长期散落在 info 日志中。
 2. 评估是否关闭启动后遗留的未使用 `about:blank` tab。
-3. 将 OpenClaw browser 侧修复向上游同步，减少 LobsterAI 长期维护补丁的成本。
+3. 将 OpenClaw browser 侧修复向上游同步，减少 wulu 长期维护补丁的成本。

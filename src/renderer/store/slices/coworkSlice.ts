@@ -189,7 +189,7 @@ const buildRailIndexItemFromMessage = (
     timestamp: message.timestamp,
     preview: getCoworkRailPreview(
       message.content,
-      message.type === 'user' ? `Turn ${fallbackLabelIndex + 1}` : 'LobsterAI',
+      message.type === 'user' ? `Turn ${fallbackLabelIndex + 1}` : 'WULU',
       COWORK_RAIL_TOOLTIP_PREVIEW_MAX_LENGTH,
     ),
     contentLen: message.content.length,
@@ -249,8 +249,8 @@ const upsertRailIndexItem = (
 };
 
 const MediaGenerationToolName = {
-  Image: 'lobsterai_image_generate',
-  Video: 'lobsterai_video_generate',
+  Image: 'WULU_image_generate',
+  Video: 'WULU_video_generate',
 } as const;
 
 const MediaGenerationActionName = {

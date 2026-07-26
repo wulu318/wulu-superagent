@@ -2,7 +2,7 @@
 
 ## Change Summary
 
-lobsterai-server adds Aliyun Bailian `kling/kling-v3-video-generation` through the existing video media endpoints. The server submits DashScope async tasks, polls `/api/v1/tasks/{task_id}`, and reconciles final credits from upstream `usage.duration`, `usage.SR`, and `usage.audio`.
+wulu-server adds Aliyun Bailian `kling/kling-v3-video-generation` through the existing video media endpoints. The server submits DashScope async tasks, polls `/api/v1/tasks/{task_id}`, and reconciles final credits from upstream `usage.duration`, `usage.SR`, and `usage.audio`.
 
 Pricing is pre-deducted before task creation. Long duration or audio-enabled requests are charged against the full estimated cost first, so users with insufficient remaining credits receive `MEDIA_QUOTA_EXHAUSTED` before the upstream task is submitted.
 

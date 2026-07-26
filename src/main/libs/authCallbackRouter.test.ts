@@ -25,7 +25,7 @@ describe('AuthCallbackRouter', () => {
     const router = new AuthCallbackRouter({ getTarget: () => target });
 
     expect(router.markListenerReadyAndConsumePending()).toBeNull();
-    router.handleDeepLink('lobsterai://auth/callback?code=ready-code');
+    router.handleDeepLink('WULU://auth/callback?code=ready-code');
 
     expect(sent).toEqual([
       { channel: AuthIpcChannel.Callback, payload: { code: 'ready-code' } },
@@ -36,7 +36,7 @@ describe('AuthCallbackRouter', () => {
     const { target, sent } = createTarget();
     const router = new AuthCallbackRouter({ getTarget: () => target });
 
-    router.handleDeepLink('lobsterai://auth/callback?code=pending-code');
+    router.handleDeepLink('WULU://auth/callback?code=pending-code');
 
     expect(sent).toEqual([]);
     expect(router.markListenerReadyAndConsumePending()).toBe('pending-code');
@@ -71,7 +71,7 @@ describe('AuthCallbackRouter', () => {
 
     router.markListenerReadyAndConsumePending();
     router.handleNavigationStarted({ isMainFrame: false, isInPlace: false });
-    router.handleDeepLink('lobsterai://auth/callback?code=iframe-code');
+    router.handleDeepLink('WULU://auth/callback?code=iframe-code');
 
     expect(sent).toEqual([
       { channel: AuthIpcChannel.Callback, payload: { code: 'iframe-code' } },
@@ -84,7 +84,7 @@ describe('AuthCallbackRouter', () => {
 
     router.markListenerReadyAndConsumePending();
     router.handleNavigationStarted({ isMainFrame: true, isInPlace: false });
-    router.handleDeepLink('lobsterai://auth/callback?code=reload-code');
+    router.handleDeepLink('WULU://auth/callback?code=reload-code');
 
     expect(sent).toEqual([]);
     expect(router.markListenerReadyAndConsumePending()).toBe('reload-code');

@@ -24,7 +24,7 @@ export interface ResolvedStdioCommand {
 /**
  * Get the packaged npm bin directory path.
  * This is a lightweight alternative to getEnhancedEnv() — it only computes
- * the LOBSTERAI_NPM_BIN_DIR path without resolving API config or proxy settings.
+ * the WULU_NPM_BIN_DIR path without resolving API config or proxy settings.
  */
 function getPackagedNpmBinDir(): string | undefined {
   if (!app.isPackaged) return undefined;
@@ -154,8 +154,8 @@ export async function resolveStdioCommand(server: McpServerRecord): Promise<Reso
 
   // Resolve node/npx/npm commands on Windows (both dev and packaged mode).
   // The MCP SDK's StdioClientTransport only inherits a limited set of env vars
-  // (PATH, APPDATA, TEMP, etc.) — our node shims in PATH need LOBSTERAI_ELECTRON_PATH
-  // and LOBSTERAI_NPM_BIN_DIR which won't be inherited. Pre-resolving to absolute
+  // (PATH, APPDATA, TEMP, etc.) — our node shims in PATH need WULU_ELECTRON_PATH
+  // and WULU_NPM_BIN_DIR which won't be inherited. Pre-resolving to absolute
   // paths avoids depending on shims entirely.
   if (process.platform === 'win32' && effectiveCommand) {
     const normalized = effectiveCommand.trim().toLowerCase();
@@ -205,7 +205,7 @@ export async function resolveStdioCommand(server: McpServerRecord): Promise<Reso
         const withElectronNodeEnv = (base: Record<string, string> | undefined): Record<string, string> => ({
           ...(base || {}),
           ELECTRON_RUN_AS_NODE: '1',
-          LOBSTERAI_ELECTRON_PATH: electronNodeRuntimePath,
+          WULU_ELECTRON_PATH: electronNodeRuntimePath,
         });
 
         if (nodeCommandType === 'node') {
@@ -246,7 +246,7 @@ export async function resolveStdioCommand(server: McpServerRecord): Promise<Reso
       stdioEnv = {
         ...(stdioEnv || {}),
         ELECTRON_RUN_AS_NODE: '1',
-        LOBSTERAI_ELECTRON_PATH: electronNodeRuntimePath,
+        WULU_ELECTRON_PATH: electronNodeRuntimePath,
       };
       log('INFO', `"${server.name}": rewrote macOS command → Electron helper`);
     }

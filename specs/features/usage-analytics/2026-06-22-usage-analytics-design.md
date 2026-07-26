@@ -1,10 +1,10 @@
-# LobsterAI 产品使用日志上报设计文档
+# wulu 产品使用日志上报设计文档
 
 ## 1. 概述
 
 ### 1.1 问题/背景
 
-LobsterAI 需要增加产品使用日志上报能力，帮助项目维护者了解应用安装、核心功能入口和关键交互的使用情况，为功能优化、兼容性改进和开发优先级提供数据依据。
+wulu 需要增加产品使用日志上报能力，帮助项目维护者了解应用安装、核心功能入口和关键交互的使用情况，为功能优化、兼容性改进和开发优先级提供数据依据。
 
 当前关注的数据包括用户选择和使用的技能、MCP、专家套件、模型来源与模型类型、设置项、Agent、定时任务、会话输入框、消息交互、artifact/浏览器预览以及其他核心功能的使用情况。具体事件名称、触发时机和业务参数已在本文 2.4 中维护，后续新增事件继续按同一规范补充。
 
@@ -59,7 +59,7 @@ export const LogReporterEndpoint = {
 } as const;
 
 export const LogReporterProduct = {
-  LobsterAI: 'wisdom',
+  wulu: 'wisdom',
 } as const;
 
 export const LogReporterCategory = {
@@ -67,11 +67,11 @@ export const LogReporterCategory = {
 } as const;
 
 export const LogReporterActionPrefix = {
-  LobsterAI: 'lobsterai_',
+  wulu: 'wulu_',
 } as const;
 ```
 
-所有 `action` 必须以 `lobsterai_` 开头。日志模块会拒绝发送不符合该命名规则的事件，避免不同业务模块产生无法统一检索的事件名称。
+所有 `action` 必须以 `wulu_` 开头。日志模块会拒绝发送不符合该命名规则的事件，避免不同业务模块产生无法统一检索的事件名称。
 
 ### 2.3 参数构建
 
@@ -81,7 +81,7 @@ export const LogReporterActionPrefix = {
 |------|------|------|
 | `_npid` | 通用配置 | 产品 ID，当前为 `wisdom` |
 | `_ncat` | 通用配置 | 日志分类，当前为 `actions` |
-| `action` | 业务调用方 | 事件名称，不能为空且必须以 `lobsterai_` 开头 |
+| `action` | 业务调用方 | 事件名称，不能为空且必须以 `wulu_` 开头 |
 | `app_version` | Electron 应用信息 | 当前应用版本；首次上报前异步读取并缓存，读取失败时为空字符串 |
 | `os_platform` | Preload 暴露的运行环境 | 当前系统平台，例如 `darwin`、`win32`、`linux` |
 | `os_arch` | Preload 暴露的运行环境 | 当前系统架构，例如 `arm64`、`x64` |
@@ -98,9 +98,9 @@ export const LogReporterActionPrefix = {
 
 ### 2.4 事件定义
 
-所有事件名称通过 `action` 字段上报，命名统一使用 `lobsterai_` 前缀。已实现和规划中的事件不上传 API Key、MCP env/header、文件路径、对话内容或本地日志内容。涉及自定义技能、MCP、专家套件和模型时，当前仅上报 ID、名称、来源、类型和数量等结构化信息。
+所有事件名称通过 `action` 字段上报，命名统一使用 `wulu_` 前缀。已实现和规划中的事件不上传 API Key、MCP env/header、文件路径、对话内容或本地日志内容。涉及自定义技能、MCP、专家套件和模型时，当前仅上报 ID、名称、来源、类型和数量等结构化信息。
 
-#### 2.4.1 `lobsterai_plan_mode_enabled`
+#### 2.4.1 `wulu_plan_mode_enabled`
 
 - 状态：已实现。
 - 触发时机：用户在输入框工具菜单中主动开启计划模式。关闭计划模式不发送。
@@ -108,7 +108,7 @@ export const LogReporterActionPrefix = {
 - 业务参数：
   - `entry`：string，触发入口。当前固定为 `prompt_tools_menu`，表示用户从输入框工具菜单开启计划模式。
 
-#### 2.4.2 `lobsterai_app_started`
+#### 2.4.2 `wulu_app_started`
 
 - 状态：已实现。
 - 触发时机：Renderer 初始化完成并进入 shell ready 后发送一次。
@@ -117,7 +117,7 @@ export const LogReporterActionPrefix = {
   - `providerModelCount`：number，Renderer 初始化阶段加载到的用户自配模型数量，用于观察本地模型配置覆盖情况。
   - `hasLoggedInUser`：boolean，启动完成时本地 Redux 登录态中是否存在用户 `yid`。该字段只表示启动时登录态快照，不替代通用参数 `is_logged_in`。
 
-#### 2.4.3 `lobsterai_skill_enabled`
+#### 2.4.3 `wulu_skill_enabled`
 
 - 状态：已实现。
 - 触发时机：用户成功启用技能时发送。关闭技能不发送，启用失败不发送。
@@ -130,7 +130,7 @@ export const LogReporterActionPrefix = {
   - `isOfficial`：boolean，是否为官方技能。
   - `version`：string，技能版本；缺失时不发送。
 
-#### 2.4.4 `lobsterai_mcp_enabled`
+#### 2.4.4 `wulu_mcp_enabled`
 
 - 状态：已实现。
 - 触发时机：用户成功启用 MCP 服务时发送。关闭 MCP 不发送，启用失败不发送。
@@ -144,7 +144,7 @@ export const LogReporterActionPrefix = {
   - `isBuiltIn`：boolean，是否为内置 MCP。
 - 隐私边界：不上传 MCP `command`、`args`、`env`、`url`、`headers` 等配置内容。
 
-#### 2.4.5 `lobsterai_expert_kit_selected`
+#### 2.4.5 `wulu_expert_kit_selected`
 
 - 状态：已实现。
 - 触发时机：用户在输入框专家套件菜单中选择套件时发送。取消选择不发送。
@@ -152,13 +152,13 @@ export const LogReporterActionPrefix = {
 - 业务参数：
   - `kitId`：string，被选择专家套件的稳定 ID。
   - `kitName`：string，专家套件展示名称；无法从市场元数据解析时不发送。
-  - `kitSource`：string，专家套件来源分类。当前取值为 `lobsterai-kits` 或 `installed`。
+  - `kitSource`：string，专家套件来源分类。当前取值为 `wulu-kits` 或 `installed`。
   - `isInstalled`：boolean，当前本地是否已安装该专家套件。
   - `skillCount`：number，该专家套件关联的技能数量；无法解析时不发送。
   - `mcpServerCount`：number，该专家套件关联的 MCP 服务数量；无法解析时不发送。
   - `connectorCount`：number，该专家套件关联的连接器数量；无法解析时不发送。
 
-#### 2.4.5.1 `lobsterai_expert_kit_action`
+#### 2.4.5.1 `wulu_expert_kit_action`
 
 - 状态：已实现。
 - 触发时机：用户在「专家套件」页面搜索、清空搜索、打开详情、返回列表、安装、卸载、打开卸载确认、取消卸载确认、点击「试着问问」、因未安装打开安装提示，以及安装后继续提问时发送。
@@ -168,7 +168,7 @@ export const LogReporterActionPrefix = {
   - `actionType`：string，动作类型。当前取值包括 `search`、`clear_search`、`open_detail`、`back_to_list`、`install_submit`、`install_success`、`install_failed`、`uninstall_confirm_open`、`uninstall_confirm_cancel`、`uninstall_submit`、`uninstall_success`、`uninstall_failed`、`try_asking`、`install_prompt_open`、`install_prompt_cancel`、`install_and_try_submit`。
   - `kitId`：string，专家套件稳定 ID。
   - `kitName`：string，专家套件展示名称。
-  - `kitSource`：string，专家套件来源分类。当前取值为 `lobsterai-kits` 或 `installed`。
+  - `kitSource`：string，专家套件来源分类。当前取值为 `wulu-kits` 或 `installed`。
   - `isInstalled`：boolean，当前本地是否已安装该专家套件。
   - `version`：string，市场版本。
   - `installedVersion`：string，本地已安装版本。
@@ -189,7 +189,7 @@ export const LogReporterActionPrefix = {
   - 不上传套件 bundle URL、示例提问完整文本、安装错误详情或本地路径。
   - 会上传专家套件 ID/名称、关联技能 ID/名称、版本和能力数量，用于分析用户对不同能力包的兴趣与转化。
 
-#### 2.4.5.2 `lobsterai_skill_action`
+#### 2.4.5.2 `wulu_skill_action`
 
 - 状态：已实现。
 - 触发时机：用户在「技能」页面切换 tab、搜索、清空搜索、切换市场标签、打开添加菜单、上传 zip/folder、打开远程导入、提交远程导入、创建技能入口、启用/关闭技能、市场安装、升级、全部升级、删除确认、删除结果、安全审计弹窗和审计操作时发送。
@@ -225,7 +225,7 @@ export const LogReporterActionPrefix = {
   - 不上传 `SKILL.md` 正文、prompt、`skillPath`、zip/folder 本地路径、远程导入 URL 原文、安全审计 findings 详情或错误详情。
   - 会上传技能 ID/名称、市场标签、版本、来源、安全风险等级和发现数量，用于分析技能安装转化、升级转化和安全审计影响。
 
-#### 2.4.5.3 `lobsterai_mcp_action`
+#### 2.4.5.3 `wulu_mcp_action`
 
 - 状态：已实现。
 - 触发时机：用户在「MCP」页面切换 tab、搜索、清空搜索、切换市场分类、打开市场安装表单、打开自定义新增表单、打开编辑表单、保存表单、启用/关闭、删除确认、删除结果和重试 launch resolution 时发送。
@@ -268,7 +268,7 @@ export const LogReporterActionPrefix = {
   - 不上传 MCP `command` 完整内容、`args` 内容、`env` 值、`headers` 值、`url`、`installDir`、`sourceFingerprint`、launch error 详情或本地路径。
   - 会上传 registry/category/transport/package/launch 状态和 key 数量，用于分析 MCP 安装配置阻塞点和启动失败类型。
 
-#### 2.4.6 `lobsterai_model_selected`
+#### 2.4.6 `wulu_model_selected`
 
 - 状态：已实现。
 - 触发时机：用户成功切换当前会话模型，或成功保存 Agent 模型选择后发送。切换/保存失败不发送。
@@ -286,7 +286,7 @@ export const LogReporterActionPrefix = {
   - `isServerModel`：boolean，是否为服务端套餐模型。
 - 隐私边界：不上传 provider API Key、base URL、鉴权类型或其他模型凭证配置。
 
-#### 2.4.7 `lobsterai_general_setting_changed`
+#### 2.4.7 `wulu_general_setting_changed`
 
 - 状态：已实现。
 - 触发时机：用户在「设置 -> 通用」修改设置并成功生效后发送。未保存、保存失败或系统 API 调用失败不发送。
@@ -302,10 +302,10 @@ export const LogReporterActionPrefix = {
   - `source`：string，触发来源。当前固定为 `settings_general`。
 - 暂不记录：快捷键具体组合、代理地址、API Key、base URL、文件路径等可能包含用户偏好或敏感信息的内容。
 
-#### 2.4.8 `lobsterai_usage_analytics_enabled`
+#### 2.4.8 `wulu_usage_analytics_enabled`
 
 - 状态：已实现。
-- 触发时机：用户在「设置 -> 通用」中将「帮助改进 LobsterAI」从关闭重新开启，并成功保存后发送。
+- 触发时机：用户在「设置 -> 通用」中将「帮助改进 wulu」从关闭重新开启，并成功保存后发送。
 - 事件含义：统计用户主动重新开启基础使用统计的情况。
 - 业务参数：
   - `source`：string，触发来源。当前固定为 `settings_general`。
@@ -313,7 +313,7 @@ export const LogReporterActionPrefix = {
   - 用户将 `usageAnalyticsEnabled` 从开启改为关闭时不发送任何日志请求。
   - 重新开启事件只在保存成功后发送，不在用户点击但未保存时发送。
 
-#### 2.4.9 `lobsterai_appearance_setting_changed`
+#### 2.4.9 `wulu_appearance_setting_changed`
 
 - 状态：已实现。
 - 触发时机：用户在「设置 -> 外观」修改设置并保存成功后，根据保存前后的 diff 逐项发送。未保存或保存失败不发送。
@@ -325,7 +325,7 @@ export const LogReporterActionPrefix = {
   - `source`：string，触发来源。当前固定为 `settings_appearance`。
 - 隐私边界：不上传主题 token、颜色值、CSS 变量或其它样式细节。
 
-#### 2.4.10 `lobsterai_agent_engine_setting_changed`
+#### 2.4.10 `wulu_agent_engine_setting_changed`
 
 - 状态：已实现。
 - 触发时机：用户在「设置 -> Agent 引擎」相关配置保存成功后，根据保存前后的 diff 逐项发送。未保存或保存失败不发送。
@@ -336,9 +336,9 @@ export const LogReporterActionPrefix = {
   - `previousValue`：string，变更前的基础值；无法可靠获取时不发送。
   - `source`：string，触发来源。当前固定为 `settings_agent_engine`。
 - 暂不记录：OpenClaw gateway URL、本地 runtime 路径、配置文件路径、工作区路径、token、key 或 env。
-- 说明：`skipMissedJobs` 当前归入「设置 -> 通用」的 `lobsterai_general_setting_changed`，避免同一次保存重复上报。
+- 说明：`skipMissedJobs` 当前归入「设置 -> 通用」的 `wulu_general_setting_changed`，避免同一次保存重复上报。
 
-#### 2.4.11 `lobsterai_agent_engine_maintenance_action`
+#### 2.4.11 `wulu_agent_engine_maintenance_action`
 
 - 状态：已实现。
 - 触发时机：用户在「设置 -> Agent 引擎」主动执行维护动作，并且动作完成后发送。用户取消文件选择等未完成动作不发送。
@@ -351,7 +351,7 @@ export const LogReporterActionPrefix = {
   - `source`：string，触发来源。当前固定为 `settings_agent_engine`。
 - 隐私边界：不上传备份文件路径、导入文件路径、OpenClaw gateway URL、错误详情文本或本地配置内容。
 
-#### 2.4.12 `lobsterai_custom_model_settings_saved`
+#### 2.4.12 `wulu_custom_model_settings_saved`
 
 - 状态：已实现。
 - 触发时机：用户在「设置 -> 自定义模型」修改 provider 或模型配置，并成功保存后发送；删除自定义 provider 这类即时持久化动作在确认删除且持久化成功后发送。未保存、保存失败或仅切换 provider tab 不发送。
@@ -375,9 +375,9 @@ export const LogReporterActionPrefix = {
   - 不上传 API Key、OAuth token、base URL、provider displayName、模型名称、模型 ID、customParams、导入/导出文件名或本地路径。
   - `model_config` 只表示模型配置摘要发生变化；用于本地 diff 的模型名称、模型 ID、上下文长度、能力开关和 customParams 不会作为日志参数上传。
   - 不上传具体自定义 provider 编号列表，只上传数量和是否启用等摘要字段。
-  - `modelCount` 仅用于统计配置规模，不表达用户是否实际使用某个模型；实际选择模型仍以 `lobsterai_model_selected` 为准。
+  - `modelCount` 仅用于统计配置规模，不表达用户是否实际使用某个模型；实际选择模型仍以 `wulu_model_selected` 为准。
 
-#### 2.4.13 `lobsterai_custom_model_connection_tested`
+#### 2.4.13 `wulu_custom_model_connection_tested`
 
 - 状态：已实现。
 - 触发时机：用户在「设置 -> 自定义模型」点击测试连接，并得到测试结果后发送。缺少 API Key、缺少模型导致测试无法发起时也发送失败分类；用户未点击测试不发送。
@@ -394,7 +394,7 @@ export const LogReporterActionPrefix = {
   - 不上传测试请求 URL、API Key、请求头、请求体、模型名称、模型 ID 或服务端错误详情。
   - 不上传完整错误 message，因为供应商错误内容可能包含地址、账号、token 片段或其他敏感信息。
 
-#### 2.4.14 `lobsterai_im_settings_saved`
+#### 2.4.14 `wulu_im_settings_saved`
 
 - 状态：已实现。
 - 触发时机：用户在「设置 -> IM 机器人」保存平台配置成功后发送；微信扫码登录成功并持久化配置后、企业微信快速配置成功并持久化配置后，也按该事件发送。保存失败不发送。
@@ -416,10 +416,10 @@ export const LogReporterActionPrefix = {
   - 不上传 bot token、app secret、secret、webhook URL、邮箱地址、allowFrom、群 ID、会话 ID、用户 ID、账号 ID、bot username、实例名称或错误详情。
   - `credential_state` 只表示凭证配置状态发生变化，不上传任何凭证内容。
 
-#### 2.4.15 `lobsterai_im_gateway_toggled`
+#### 2.4.15 `wulu_im_gateway_toggled`
 
 - 状态：已实现。
-- 触发时机：用户在「设置 -> IM 机器人」启动或停止单实例平台网关并得到结果后发送。多实例平台的实例启停不发送本事件，统一走 `lobsterai_im_instance_changed`。
+- 触发时机：用户在「设置 -> IM 机器人」启动或停止单实例平台网关并得到结果后发送。多实例平台的实例启停不发送本事件，统一走 `wulu_im_instance_changed`。
 - 事件含义：统计单实例 IM 网关启停使用情况和失败率。
 - 业务参数：
   - `source`：string，触发来源。当前固定为 `settings_im`。
@@ -430,7 +430,7 @@ export const LogReporterActionPrefix = {
   - `failureReason`：string，失败分类；无法识别时为 `unknown`。仅失败时发送。
 - 隐私边界：不上传网关错误详情、账号信息、token、secret、会话 ID 或本地日志内容。
 
-#### 2.4.16 `lobsterai_im_connection_tested`
+#### 2.4.16 `wulu_im_connection_tested`
 
 - 状态：已实现。
 - 触发时机：用户在「设置 -> IM 机器人」点击连接测试，并得到测试结果或发生测试异常后发送。
@@ -445,7 +445,7 @@ export const LogReporterActionPrefix = {
   - `warningCheckCount`：number，警告测试项数量；无法获取时不发送。
 - 隐私边界：不上传测试项 message、网关 URL、账号、会话、群信息、token、secret、请求内容或错误详情。
 
-#### 2.4.17 `lobsterai_im_instance_changed`
+#### 2.4.17 `wulu_im_instance_changed`
 
 - 状态：已实现。
 - 触发时机：用户在「设置 -> IM 机器人」对多实例平台新增、删除、启用或停用实例，并且操作成功后发送。
@@ -458,7 +458,7 @@ export const LogReporterActionPrefix = {
   - `enabledInstanceCount`：number，操作后的启用实例数量。
 - 隐私边界：不上传 instanceId、instanceName、账号、邮箱、token、secret、URL 或其它实例配置内容。
 
-#### 2.4.18 `lobsterai_browser_setting_changed`
+#### 2.4.18 `wulu_browser_setting_changed`
 
 - 状态：已实现。
 - 触发时机：用户在「设置 -> 浏览器」修改配置并保存成功后，根据保存前后的 diff 发送。未保存、保存失败或配置无变化不发送。
@@ -473,7 +473,7 @@ export const LogReporterActionPrefix = {
   - 不上传具体 hostname、URL、CDP URL、浏览器可执行路径、extraArgs、代理地址、测试页面、浏览历史或网页内容。
   - `blockedHostnameCount` 只用于观察配置规模，不表达用户访问或屏蔽了哪些具体站点。
 
-#### 2.4.19 `lobsterai_email_skill_settings_saved`
+#### 2.4.19 `wulu_email_skill_settings_saved`
 
 - 状态：已实现。
 - 触发时机：用户在「设置 -> 邮箱」修改 `imap-smtp-email` 技能配置，并且自动保存成功后发送。保存失败或配置无变化不发送。
@@ -498,7 +498,7 @@ export const LogReporterActionPrefix = {
   - 不上传邮箱地址、密码/授权码、IMAP/SMTP host、端口、mailbox 名称或任何邮件内容。
   - `provider` 只表达预置服务商分类；无法识别时统一为 `custom` 或空字符串。
 
-#### 2.4.20 `lobsterai_email_skill_connection_tested`
+#### 2.4.20 `wulu_email_skill_connection_tested`
 
 - 状态：已实现。
 - 触发时机：用户在「设置 -> 邮箱」点击连接测试，并得到测试结果或测试失败后发送。用户未点击测试不发送。
@@ -519,7 +519,7 @@ export const LogReporterActionPrefix = {
   - 不上传邮箱地址、密码/授权码、IMAP/SMTP host、端口、测试错误详情、测试项 message 或 AI 诊断 prompt。
   - 失败只通过 `result=fail` 和测试项级别表达，不上传原始异常文本。
 
-#### 2.4.21 `lobsterai_memory_setting_changed`
+#### 2.4.21 `wulu_memory_setting_changed`
 
 - 状态：已实现。
 - 触发时机：用户在「设置 -> 记忆」修改记忆或 Embedding 相关配置，并且设置页保存成功后发送。未保存、保存失败或配置无变化不发送。
@@ -542,7 +542,7 @@ export const LogReporterActionPrefix = {
   - 不上传记忆条目内容、搜索词、Embedding 模型名称、远程 Base URL、API Key、本地模型路径或文件路径。
   - `embedding_model`、`embedding_base_url` 和 `embedding_api_key` 只表示对应字段发生变化，不上传实际值。
 
-#### 2.4.22 `lobsterai_memory_entry_changed`
+#### 2.4.22 `wulu_memory_entry_changed`
 
 - 状态：已实现。
 - 触发时机：用户在「设置 -> 记忆」手动新增、编辑或删除记忆条目，并且操作成功后发送。操作失败不发送。
@@ -555,7 +555,7 @@ export const LogReporterActionPrefix = {
   - 不上传记忆条目正文、条目 ID、搜索词、来源信息、创建/更新时间或删除原因。
   - 不记录用户打开编辑弹窗、输入草稿或搜索列表的行为，只记录持久化成功后的 CRUD 操作。
 
-#### 2.4.23 `lobsterai_dreaming_setting_changed`
+#### 2.4.23 `wulu_dreaming_setting_changed`
 
 - 状态：已实现。
 - 触发时机：用户在「设置 -> 梦境」修改 Dreaming 配置，并且设置页保存成功后发送。未保存、保存失败或配置无变化不发送。
@@ -567,7 +567,7 @@ export const LogReporterActionPrefix = {
   - `frequencyType`：string，保存后的频率类型。当前取值为 `preset` 或 `custom`。
 - 隐私边界：不上传自定义 cron 表达式、时区、Dream Diary 内容、记忆内容或模型名称。
 
-#### 2.4.24 `lobsterai_plugin_settings_saved`
+#### 2.4.24 `wulu_plugin_settings_saved`
 
 - 状态：已实现。
 - 触发时机：用户在「设置 -> 插件」修改插件启用状态或插件配置，并且设置页保存成功后发送。未保存、保存失败或无插件变更不发送。
@@ -581,7 +581,7 @@ export const LogReporterActionPrefix = {
   - `changedKeys`：string，本次变化类型的去重列表，使用逗号分隔。当前取值包括 `toggle`、`config`。
 - 隐私边界：不上传插件 ID、插件配置、token、API Key、URL、本地路径、env 或 header。
 
-#### 2.4.25 `lobsterai_plugin_action`
+#### 2.4.25 `wulu_plugin_action`
 
 - 状态：已实现。
 - 触发时机：用户在「设置 -> 插件」执行安装、卸载、更新、检测本地插件或检查更新等动作，并得到结果后发送。
@@ -597,7 +597,7 @@ export const LogReporterActionPrefix = {
   - `detectedCount`：number，检测或同步本地插件时发现/同步的插件数量；仅对应动作成功时发送。
 - 隐私边界：不上传插件 ID、安装 spec、registry URL、版本号、Git URL、本地路径、安装日志、更新日志或错误详情。
 
-#### 2.4.26 `lobsterai_shortcut_setting_changed`
+#### 2.4.26 `wulu_shortcut_setting_changed`
 
 - 状态：已实现。
 - 触发时机：用户在「设置 -> 快捷键」修改快捷键并保存成功后发送。未保存、保存失败或快捷键无变化不发送。
@@ -610,7 +610,7 @@ export const LogReporterActionPrefix = {
   - `resetToDefault`：boolean，保存后的快捷键配置是否与默认配置一致。
 - 隐私边界：不上传快捷键具体组合、动作 key、搜索词或冲突提示内容。
 
-#### 2.4.27 `lobsterai_about_action`
+#### 2.4.27 `wulu_about_action`
 
 - 状态：已实现。
 - 触发时机：用户在「设置 -> 关于」执行主动动作后发送。包括检查更新、复制联系邮箱、打开用户社区、打开用户手册、打开服务条款、导出日志。
@@ -622,7 +622,7 @@ export const LogReporterActionPrefix = {
   - `missingEntryCount`：number，导出日志时缺失的日志项数量；仅导出成功且存在缺失项信息时发送。
 - 隐私边界：不上传联系邮箱、外链 URL、导出日志路径、日志内容、更新包 URL、错误详情或本地文件信息。
 
-#### 2.4.28 `lobsterai_account_menu_action`
+#### 2.4.28 `wulu_account_menu_action`
 
 - 状态：已实现。
 - 触发时机：用户在首页左下角「我的」入口执行主动动作后发送。包括未登录点击登录、已登录打开/关闭账号菜单、展开/收起剩余额度、打开用量概览、打开充值页、打开邀请页、退出登录。
@@ -638,7 +638,7 @@ export const LogReporterActionPrefix = {
   - 不上传手机号、手机号后四位、昵称、头像 URL、具体剩余额度数值、额度明细 label、额度类型、到期时间、Portal URL、登录 URL 或退出登录错误详情。
   - 额度相关字段只记录是否有额度明细和明细数量，不记录资产金额。
 
-#### 2.4.29 `lobsterai_sidebar_action`
+#### 2.4.29 `wulu_sidebar_action`
 
 - 状态：已实现。
 - 触发时机：用户在首页左侧边栏执行主动动作后发送。包括顶部导航入口、折叠/展开侧边栏、Agent 行操作、历史任务列表点击、任务菜单、展开更多/收起、批量操作和子任务操作。
@@ -676,7 +676,7 @@ export const LogReporterActionPrefix = {
   - 重命名只记录开始、取消和提交结果，不上传新旧标题。
   - 批量操作只记录数量和类型，不上传具体条目 ID。
 
-#### 2.4.30 `lobsterai_task_search_action`
+#### 2.4.30 `wulu_task_search_action`
 
 - 状态：已实现。
 - 触发时机：用户打开/关闭首页任务搜索弹窗、搜索结果为空、或点击搜索结果任务后发送。
@@ -693,7 +693,7 @@ export const LogReporterActionPrefix = {
   - 不上传搜索词、任务标题、sessionId、agentId、agentName、消息内容、创建/更新时间或本地路径。
   - 不记录每次输入变化，避免产生高频噪音和隐私风险。
 
-#### 2.4.31 `lobsterai_agent_settings_action`
+#### 2.4.31 `wulu_agent_settings_action`
 
 - 状态：已实现。
 - 触发时机：用户打开 Agent 编辑弹窗、切换弹窗 tab、保存配置、关闭弹窗或处理未保存变更确认时发送。
@@ -729,7 +729,7 @@ export const LogReporterActionPrefix = {
   - 文本编辑只记录字段是否发生变更，不记录内容长度或文本内容。
   - 关闭和切换 tab 只记录行为摘要，避免对每次输入做高频上报。
 
-#### 2.4.32 `lobsterai_agent_create_action`
+#### 2.4.32 `wulu_agent_create_action`
 
 - 状态：已实现。
 - 触发时机：用户打开创建 Agent 弹窗、打开/关闭模板选择、选择模板、切换弹窗 tab、创建 Agent、关闭弹窗或处理未保存变更确认时发送。
@@ -769,7 +769,7 @@ export const LogReporterActionPrefix = {
   - 文本编辑只记录字段是否发生变更，不记录内容长度或文本内容。
   - 关闭和切换 tab 只记录行为摘要，避免对每次输入做高频上报。
 
-#### 2.4.33 `lobsterai_scheduled_task_action`
+#### 2.4.33 `wulu_scheduled_task_action`
 
 - 状态：已实现。
 - 触发时机：用户在「定时任务」界面切换任务/历史 tab、新建任务、选择任务、打开任务菜单、开关任务、手动运行、编辑、删除确认、填写任务表单、选择模板、查看运行历史和进入运行会话时发送。
@@ -846,10 +846,10 @@ export const LogReporterActionPrefix = {
   - 会上传模型 ID/名称、provider、cron 表达式、通知渠道/platform、模板 ID/名称、payload 长度、计划时间和任务状态摘要，用于分析定时任务功能使用偏好。
   - 历史页只记录筛选和是否查看关联会话，不上传运行记录 ID、任务名或会话标识。
 
-#### 2.4.34 `lobsterai_prompt_submit`
+#### 2.4.34 `wulu_prompt_submit`
 
 - 状态：已实现。
-- 触发时机：用户从首页初始输入框或历史对话输入框成功发起一次任务/继续对话后发送。发送前被拦截、模型权限弹窗、附件校验失败、父层提交返回 `false` 时不发送本事件，而发送 `lobsterai_prompt_control_action` 的 `submit_blocked`。
+- 触发时机：用户从首页初始输入框或历史对话输入框成功发起一次任务/继续对话后发送。发送前被拦截、模型权限弹窗、附件校验失败、父层提交返回 `false` 时不发送本事件，而发送 `wulu_prompt_control_action` 的 `submit_blocked`。
 - 事件含义：统计核心 prompt 提交漏斗，区分新建任务和历史对话续聊。
 - 业务参数：
   - `surface`：string，输入框所在场景。当前取值为 `home` 或 `conversation`。
@@ -898,7 +898,7 @@ export const LogReporterActionPrefix = {
   - `inputLanguageType` 和 `has*` 字段均在本地用规则计算，仅上传输入形态信息，不上传用于判断的原始文本或任意截取片段。
   - 会上传技能/专家套件/模型 ID 和名称、Agent ID、数量和分桶信息，用于分析用户在不同场景下的能力选择和提交转化。
 
-#### 2.4.35 `lobsterai_prompt_control_action`
+#### 2.4.35 `wulu_prompt_control_action`
 
 - 状态：已实现。
 - 触发时机：用户操作输入框附近控件或提交前被阻断时发送。
@@ -921,7 +921,7 @@ export const LogReporterActionPrefix = {
   - 不上传 prompt 正文、prompt hash、文件路径、文件名、文件内容、工作目录真实路径、Agent 名称、Agent system prompt/identity/userInfo、语音识别文本或错误详情。
   - 会上传技能/专家套件 ID 和名称、模型/Agent 结构化上下文、附件类型分组和数量，用于分析输入框周边控件使用率和阻断原因。
 
-#### 2.4.36 `lobsterai_prompt_template_action`
+#### 2.4.36 `wulu_prompt_template_action`
 
 - 状态：已实现。
 - 触发时机：用户在首页初始状态下点击输入框下方的 prompt 模板入口（例如「制作幻灯片」「数据分析」「教育学习」「创建网站」）或点击具体模板 prompt 时发送。
@@ -945,7 +945,7 @@ export const LogReporterActionPrefix = {
   - 不上传模板 prompt 完整正文，仅上传模板 ID、展示名称、prompt ID/名称、长度和映射技能信息。
   - 这些字段用于分析首页模板入口点击率、具体模板偏好、模板到技能选择的转化情况。
 
-#### 2.4.37 `lobsterai_conversation_message_action`
+#### 2.4.37 `wulu_conversation_message_action`
 
 - 状态：已实现。
 - 触发时机：用户在历史对话消息上执行复制、重新编辑、从助手消息分叉、打开消息图片预览等动作时发送。
@@ -966,7 +966,7 @@ export const LogReporterActionPrefix = {
   - 不上传消息正文、图片内容、文件名、本地路径、sessionId、messageId 或错误详情。
   - 会上传技能/套件 ID、模型 ID/名称、角色、长度分桶和动作结果，用于分析用户对消息复用、分叉和图片查看的行为偏好。
 
-#### 2.4.38 `lobsterai_conversation_navigation_action`
+#### 2.4.38 `wulu_conversation_navigation_action`
 
 - 状态：已实现。
 - 触发时机：用户点击右侧消息轨道、轨道上一条/下一条按钮、回到底部按钮，以及执行会话导出、手动上下文压缩、选中文本引用等会话级操作时发送。
@@ -988,7 +988,7 @@ export const LogReporterActionPrefix = {
   - 不上传消息正文、轨道 tooltip 文本、选中文本正文、导出文件名、sessionId、messageId 或滚动容器具体 DOM 信息。
   - 会上传轨道序号、数量、距离、消息数分桶、导出格式、选中文本长度分桶和动作结果，用于分析长对话导航、导出和引用链路是否有效。
 
-#### 2.4.39 `lobsterai_conversation_block_action`
+#### 2.4.39 `wulu_conversation_block_action`
 
 - 状态：已实现。
 - 触发时机：用户在对话内容区操作代码块、思考过程块、计划模式输出块和工具调用块时发送。覆盖代码块展开/收起、换行、全屏、复制、下载、全屏搜索；思考过程展开/收起；计划模式复制、下载、展开/收起、确认执行、继续调整；工具调用展开/收起。
@@ -1013,14 +1013,14 @@ export const LogReporterActionPrefix = {
   - 不上传代码正文、思考过程正文、计划正文、工具输入/输出正文、下载文件名、消息正文、sessionId 或 messageId。
   - 会上传语言、工具名称、长度/行数分桶、区块类型和动作结果，用于分析代码、计划、思考过程和工具调用等富内容的真实使用情况。
 
-#### 2.4.40 `lobsterai_artifact_preview_action`
+#### 2.4.40 `wulu_artifact_preview_action`
 
 - 状态：已实现。
 - 触发时机：用户在会话中的 artifact 卡片、右侧 artifact 预览面板、内置浏览器 tab 和浏览器工具栏中操作时发送。
 - 事件含义：统计 artifact 从生成后的点击、打开、预览、切换、复用、浏览和导出链路。
 - 业务参数：
   - `source`：string，触发来源。当前取值包括 `conversation_artifact_card`、`artifact_panel`、`artifact_browser`。
-  - `actionType`：string，动作类型。当前取值包括 `card_open`、`badge_open`、`open_menu_toggle`、`open_lobster_browser`、`open_external_app`、`open_with_app`、`open_in_browser`、`open_local_service`、`reveal_in_folder`、`panel_toggle`、`panel_expand_toggle`、`panel_add_menu_toggle`、`panel_tab_open`、`panel_tab_switch`、`panel_tab_close`、`file_list_drawer_toggle`、`file_list_select_artifact`、`actions_menu_toggle`、`content_view_change`、`copy_content`、`refresh_preview`、`share_html_click`、`browser_preview_session_create`、`browser_back`、`browser_forward`、`browser_reload`、`browser_stop`、`browser_address_submit`、`browser_open_external`、`browser_more_menu_toggle`、`browser_open_blank_page`、`browser_open_local_service`、`browser_device_toolbar_toggle`、`browser_device_preset_change`、`browser_device_size_change`、`browser_device_rotate`、`browser_device_scale_change`、`browser_zoom_in`、`browser_zoom_out`、`browser_zoom_reset`、`browser_clear_cookies`、`browser_clear_cache`、`browser_screenshot`、`browser_annotate_start`、`browser_annotate_cancel`、`browser_annotate_end`、`browser_annotate_send`。
+  - `actionType`：string，动作类型。当前取值包括 `card_open`、`badge_open`、`open_menu_toggle`、`open_WULU_browser`、`open_external_app`、`open_with_app`、`open_in_browser`、`open_local_service`、`reveal_in_folder`、`panel_toggle`、`panel_expand_toggle`、`panel_add_menu_toggle`、`panel_tab_open`、`panel_tab_switch`、`panel_tab_close`、`file_list_drawer_toggle`、`file_list_select_artifact`、`actions_menu_toggle`、`content_view_change`、`copy_content`、`refresh_preview`、`share_html_click`、`browser_preview_session_create`、`browser_back`、`browser_forward`、`browser_reload`、`browser_stop`、`browser_address_submit`、`browser_open_external`、`browser_more_menu_toggle`、`browser_open_blank_page`、`browser_open_local_service`、`browser_device_toolbar_toggle`、`browser_device_preset_change`、`browser_device_size_change`、`browser_device_rotate`、`browser_device_scale_change`、`browser_zoom_in`、`browser_zoom_out`、`browser_zoom_reset`、`browser_clear_cookies`、`browser_clear_cache`、`browser_screenshot`、`browser_annotate_start`、`browser_annotate_cancel`、`browser_annotate_end`、`browser_annotate_send`。
   - `artifactType`：string，artifact 类型。当前取值包括 `html`、`svg`、`image`、`video`、`mermaid`、`code`、`markdown`、`text`、`document`、`local-service`。
   - `artifactSource`：string，artifact 来源。当前取值包括 `inline`、`tool`、`file`。
   - `artifactTitleLength` / `artifactTitleLengthBucket`：number/string，artifact 标题或文件名长度及分桶。
@@ -1028,7 +1028,7 @@ export const LogReporterActionPrefix = {
   - `hasFilePath` / `hasUrl` / `hasContent`：boolean，artifact 是否有本地文件路径、URL 或内联内容。
   - `contentLengthBucket`：string，artifact 内容长度分桶。
   - `isWebsite`：boolean，是否为网页/本地服务类 artifact。
-  - `openTarget`：string，打开目标。当前取值包括 `preview_panel`、`lobster_browser`、`external_browser`、`external_app`、`folder`。
+  - `openTarget`：string，打开目标。当前取值包括 `preview_panel`、`WULU_browser`、`external_browser`、`external_app`、`folder`。
   - `appName`：string，用户选择的系统 App 名称，例如 `Google Chrome`、`Safari`；不上传 App 路径。
   - `isDefaultApp`：boolean，是否为系统默认 App。
   - `tabType`：string，右侧面板 tab 类型。当前取值包括 `artifact`、`browser`、`file_list`。
@@ -1076,7 +1076,7 @@ Renderer 调试日志只记录事件 `action` 和请求结果，不记录完整�
 使用统计开关放在：
 
 ```text
-设置 -> 通用 -> 帮助改进 LobsterAI
+设置 -> 通用 -> 帮助改进 wulu
 ```
 
 配置字段为 `usageAnalyticsEnabled`，存储在现有 `app_config` 中，默认值为 `true`。老用户本地配置中没有该字段时，按开启处理，不需要新增数据库表或迁移脚本。
@@ -1085,7 +1085,7 @@ Renderer 调试日志只记录事件 `action` 和请求结果，不记录完整�
 
 用户可见文案应避免使用“日志上报”，避免误解为上传本地日志文件。当前中文文案为：
 
-- 标题：`帮助改进 LobsterAI`
+- 标题：`帮助改进 wulu`
 - 描述：`允许发送基础使用统计，帮助我们改进功能体验。不会上传对话内容、文件内容或 API Key。`
 
 ### 2.7 调用方式示例
@@ -1099,7 +1099,7 @@ void reportYdAnalyzer({
 });
 ```
 
-`action` 为 `lobsterai_plan_mode_enabled`，`entry` 为 `prompt_tools_menu`。其他事件同样从 `LogReporterAction` 取统一事件名，并按 2.4 中定义的业务参数补充结构化字段。
+`action` 为 `wulu_plan_mode_enabled`，`entry` 为 `prompt_tools_menu`。其他事件同样从 `LogReporterAction` 取统一事件名，并按 2.4 中定义的业务参数补充结构化字段。
 
 ## 3. 后续待完善内容
 

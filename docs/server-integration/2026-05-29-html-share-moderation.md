@@ -2,7 +2,7 @@
 
 ## Change Summary
 
-`lobsterai-server` now starts asynchronous content moderation after an HTML share is created or updated.
+`wulu-server` now starts asynchronous content moderation after an HTML share is created or updated.
 
 Shares are still returned as usable links immediately. The server records `moderationStatus` and may later disable a share if any submitted text or image file is rejected by moderation.
 
@@ -19,7 +19,7 @@ Response `data` now includes:
 ```json
 {
   "shareId": "shr_xxx",
-  "url": "https://lobsterai-server.youdao.com/s/shr_xxx/",
+  "url": "https://wulu-server.youdao.com/s/shr_xxx/",
   "accessMode": "public",
   "shareCode": null,
   "shareCodeUnavailable": false,

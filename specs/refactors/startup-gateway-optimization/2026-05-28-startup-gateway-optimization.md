@@ -4,7 +4,7 @@
 
 ### 1.1 问题/动机
 
-应用启动时，OpenClaw gateway 进程需要 ~40s 完成初始化（主要耗时在 `authBootstrap` 33.8s）。在此期间，LobsterAI 主进程因多个异步流程并行执行，反复写入 `openclaw.json`，触发 gateway 在启动过程中做多余的 plugin reload。
+应用启动时，OpenClaw gateway 进程需要 ~40s 完成初始化（主要耗时在 `authBootstrap` 33.8s）。在此期间，wulu 主进程因多个异步流程并行执行，反复写入 `openclaw.json`，触发 gateway 在启动过程中做多余的 plugin reload。
 
 观察到的现象：
 - 启动阶段插件 `register()` 被调用 4 次（正常应为 1-2 次）
@@ -16,7 +16,7 @@
 
 **问题 1：media-generation 插件配置动态变化**
 
-`lobster-media-generation` 插件的 `enabled` 字段依赖 `canUseMediaGeneration`（订阅状态），导致 entitlement 变化时插件配置发生变更，触发 gateway restart。而实际权限校验在 LobsterAI 回调侧已有兜底（`resolveMediaGenerationGate`），插件本身无需动态开关。
+`Wulu-media-generation` 插件的 `enabled` 字段依赖 `canUseMediaGeneration`（订阅状态），导致 entitlement 变化时插件配置发生变更，触发 gateway restart。而实际权限校验在 wulu 回调侧已有兜底（`resolveMediaGenerationGate`），插件本身无需动态开关。
 
 **问题 2：启动阶段缓存冷启动导致多余 sync**
 
@@ -42,7 +42,7 @@
 
 ### 1.3 目标
 
-1. `lobster-media-generation` 插件配置固定，不因 entitlement 变化触发 gateway restart
+1. `Wulu-media-generation` 插件配置固定，不因 entitlement 变化触发 gateway restart
 2. 启动阶段在首次 sync 之前预热 quota 和 model 缓存，使后续 renderer 触发的刷新不产生状态变化
 3. 减少启动阶段插件 register 次数至正常水平（1-2 次）
 
@@ -56,7 +56,7 @@
 | openclaw/openclaw#75298 | Webhook plugin re-registers repeatedly whenever event loop saturates |
 | openclaw/openclaw#80131 | per-request auth and tool bundling dominate gateway TTFT |
 
-OpenClaw 侧 `plugins.*` 路径一律触发 gateway restart（`config-reload-plan.ts`），粒度过粗。但这是上游问题，本次优化从 LobsterAI 侧减少不必要的配置变更。
+OpenClaw 侧 `plugins.*` 路径一律触发 gateway restart（`config-reload-plan.ts`），粒度过粗。但这是上游问题，本次优化从 wulu 侧减少不必要的配置变更。
 
 ### 2.2 现有 syncOpenClawConfig 调用点（启动相关）
 
@@ -70,9 +70,9 @@ OpenClaw 侧 `plugins.*` 路径一律触发 gateway restart（`config-reload-pla
 
 ### 3.1 Fix 1：media-generation 插件配置固定化
 
-将 `lobster-media-generation` 的 `enabled` 始终设为 `true`，plugin config 的写入不再依赖 `canUseMediaGeneration` 条件。
+将 `Wulu-media-generation` 的 `enabled` 始终设为 `true`，plugin config 的写入不再依赖 `canUseMediaGeneration` 条件。
 
-权限校验由 LobsterAI 回调端兜底：
+权限校验由 wulu 回调端兜底：
 - `mcpBridgeServer.onMediaGeneration` — handler 未就绪时返回 error
 - `resolveMediaGenerationGate()` — tool/action 级别拦截
 - UI 层 — 未付费用户无法选择 media model
@@ -150,7 +150,7 @@ if (getAuthTokens()) {
 
 ### 6.1 Fix 3：预热提前至 agent model 迁移之前 + 去重
 
-**问题**：`resolveDefaultAgentModelRef()` 和 `migrateAgentModelRefs()` 在预热代码块之前执行，此时 `serverModelMetadataCache` 为空，`resolveMatchedProvider` 无法匹配 `lobsterai-server` provider 的模型。另外 `migrateAgentModelRefs()` 内部重复调用了 `resolveDefaultAgentModelRef()`。
+**问题**：`resolveDefaultAgentModelRef()` 和 `migrateAgentModelRefs()` 在预热代码块之前执行，此时 `serverModelMetadataCache` 为空，`resolveMatchedProvider` 无法匹配 `wulu-server` provider 的模型。另外 `migrateAgentModelRefs()` 内部重复调用了 `resolveDefaultAgentModelRef()`。
 
 **改动**：
 - 将启动顺序调整为：proxy → pre-warm → agent model migration → syncConfig
@@ -160,9 +160,9 @@ if (getAuthTokens()) {
 
 ### 6.2 Fix 4：resolveStdioCommand 去除对 getEnhancedEnv 的依赖
 
-**问题**：每次 `syncOpenClawConfig` 时，`getResolvedMcpServers()` 对每个 stdio MCP server 调用 `resolveStdioCommand()`，其中 `getEnhancedEnv()` 触发完整的 API config 解析（`resolveCurrentApiConfig → resolveMatchedProvider → tryLobsteraiServerFallback`）。3 次 sync × 3 个 MCP servers = 9 次多余的 provider 解析。
+**问题**：每次 `syncOpenClawConfig` 时，`getResolvedMcpServers()` 对每个 stdio MCP server 调用 `resolveStdioCommand()`，其中 `getEnhancedEnv()` 触发完整的 API config 解析（`resolveCurrentApiConfig → resolveMatchedProvider → trywuluServerFallback`）。3 次 sync × 3 个 MCP servers = 9 次多余的 provider 解析。
 
-**分析**：`resolveStdioCommand` 调用 `getEnhancedEnv()` 只使用了返回值中的 `LOBSTERAI_NPM_BIN_DIR`，该值仅依赖 `process.resourcesPath`，是打包时的固定路径，不需要 API config、proxy 解析等开销。
+**分析**：`resolveStdioCommand` 调用 `getEnhancedEnv()` 只使用了返回值中的 `wulu_NPM_BIN_DIR`，该值仅依赖 `process.resourcesPath`，是打包时的固定路径，不需要 API config、proxy 解析等开销。
 
 **改动**：引入轻量函数 `getPackagedNpmBinDir()` 替代 `getEnhancedEnv()`：
 
@@ -178,7 +178,7 @@ function getPackagedNpmBinDir(): string | undefined {
 
 ### 6.3 效果
 
-启动期间 `tryLobsteraiServerFallback` 调用次数：
+启动期间 `trywuluServerFallback` 调用次数：
 
 | 场景 | 优化前 | 优化后 |
 |------|--------|--------|
@@ -193,7 +193,7 @@ function getPackagedNpmBinDir(): string | undefined {
 
 ### 6.4 Fix 5：dev 模式下 npm shim 路径修复
 
-**问题**：`moltbot-popo` 插件启动时调用 `execFileSync("npm", ["install", "-g", "@fabric/cli", ...])` 安装 fabric-cli。Gateway 进程通过 npm.cmd shim 执行 npm，shim 内部引用 `%LOBSTERAI_NPM_BIN_DIR%\npm-cli.js`。但 dev 模式下 `npmBinDir` 为 `undefined`，导致 env var 为空字符串，路径解析为 `D:\npm-cli.js`（cwd 盘符根），报 `Cannot find module 'D:\npm-cli.js'`。
+**问题**：`moltbot-popo` 插件启动时调用 `execFileSync("npm", ["install", "-g", "@fabric/cli", ...])` 安装 fabric-cli。Gateway 进程通过 npm.cmd shim 执行 npm，shim 内部引用 `%wulu_NPM_BIN_DIR%\npm-cli.js`。但 dev 模式下 `npmBinDir` 为 `undefined`，导致 env var 为空字符串，路径解析为 `D:\npm-cli.js`（cwd 盘符根），报 `Cannot find module 'D:\npm-cli.js'`。
 
 **根因**：`fee342d0` 引入 gateway node/npm shim 注入时，`npmBinDir` 仅在 `app.isPackaged` 时赋值，dev 模式遗漏。
 
@@ -223,5 +223,5 @@ const npmBinDir = app.isPackaged
 4. **未登录用户**：无 auth token 时跳过预热，行为不变
 5. **登出/登入**：entitlement 变化仍正确同步（不影响运行时 sync 逻辑）
 6. **MCP server 正常启动**：3 个 stdio MCP server（Context7、Tavily、Playwright）仍正确解析 npx 命令
-7. **Fallback 日志减少**：启动期间 `lobsterai-server fallback activated` 日志从 ~15 次降至 ~6 次
+7. **Fallback 日志减少**：启动期间 `wulu-server fallback activated` 日志从 ~15 次降至 ~6 次
 8. **fabric-cli 安装**：dev 模式启动后 gateway 日志显示 `fabric-cli installed successfully`（或 `fabric-cli detected`）

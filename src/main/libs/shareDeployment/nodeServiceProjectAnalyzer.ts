@@ -52,7 +52,7 @@ const SOURCE_BUILD_OUTPUT_DIRECTORY_NAMES = [
   '.nuxt',
   '.svelte-kit',
   '.output',
-  '.lobster-static-runtime',
+  '.Wulu-static-runtime',
   'dist',
   'build',
   'out',

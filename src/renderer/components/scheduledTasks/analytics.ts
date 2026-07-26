@@ -68,7 +68,7 @@ export function getModelAnalyticsParams(
   }
 
   const modelSource =
-    resolvedModel.isServerModel || resolvedModel.providerKey === ProviderName.LobsteraiServer
+    resolvedModel.isServerModel || resolvedModel.providerKey === ProviderName.WULUServer
       ? 'package'
       : 'custom';
 

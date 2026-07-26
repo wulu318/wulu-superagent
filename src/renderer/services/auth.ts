@@ -86,7 +86,7 @@ export function mapPricingCatalogTextModelsToServerModels(
     const modelName = readString(model.modelName) || modelId;
     const provider = readString(model.providerLabel)
       || readString(model.provider)
-      || 'LobsterAI';
+      || 'WULU';
     const contextWindow = readPositiveNumber(model.contextWindow);
     const costMultiplier = readPositiveNumber(model.costMultiplier);
 
@@ -94,7 +94,7 @@ export function mapPricingCatalogTextModelsToServerModels(
       id: modelId,
       name: modelName,
       provider,
-      providerKey: ProviderName.LobsteraiServer,
+      providerKey: ProviderName.WULUServer,
       isServerModel: true,
       supportsImage: model.supportsImage === true,
       supportsThinking: model.supportsThinking === true,
@@ -352,7 +352,7 @@ class AuthService {
           id: m.modelId,
           name: m.modelName,
           provider: m.provider,
-          providerKey: 'lobsterai-server',
+          providerKey: 'WULU-server',
           isServerModel: true,
           serverApiFormat: m.apiFormat,
           supportsImage: m.supportsImage ?? false,

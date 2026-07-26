@@ -20,7 +20,7 @@ const createFixture = async (options: {
   sessionFile?: string;
   sessionId?: string;
 }) => {
-  const stateDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'lobster-transcript-safety-'));
+  const stateDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'Wulu-transcript-safety-'));
   tempDirs.push(stateDir);
   const sessionsDir = path.join(stateDir, 'agents', 'main', 'sessions');
   await fs.promises.mkdir(sessionsDir, { recursive: true });

@@ -24,7 +24,7 @@ describe('parseLocalServiceArtifactsFromMessages', () => {
         toolName: 'Bash',
         toolUseId: 'tool-1',
         toolInput: {
-          command: 'lsof -ti:8765 | xargs kill -9 2>/dev/null; sleep 1; cd /Users/admin/lobsterai/project/dayan-shenjun && npm run dev',
+          command: 'lsof -ti:8765 | xargs kill -9 2>/dev/null; sleep 1; cd /Users/admin/WULU/project/dayan-shenjun && npm run dev',
         },
       }),
       makeMessage('bash-result-1', 'tool_result', 'ready', { toolUseId: 'tool-1' }),
@@ -36,13 +36,13 @@ describe('parseLocalServiceArtifactsFromMessages', () => {
     ];
 
     const artifacts = parseLocalServiceArtifactsFromMessages(messages, 'session-1', {
-      workingDirectory: '/Users/admin/lobsterai/project',
+      workingDirectory: '/Users/admin/WULU/project',
     });
 
     expect(artifacts).toHaveLength(1);
     expect(artifacts[0].messageId).toBe('assistant-1');
     expect(artifacts[0].localService?.projectDirectory).toBe(
-      '/Users/admin/lobsterai/project/dayan-shenjun',
+      '/Users/admin/WULU/project/dayan-shenjun',
     );
     expect(artifacts[0].localService?.projectCandidates?.[0]).toEqual(expect.objectContaining({
       source: ShareDeploymentCandidateSource.ToolCdCommand,

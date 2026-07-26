@@ -4,17 +4,17 @@
 
 ### 1.1 问题
 
-用户反馈 LobsterAI 的 Windows 更新脚本仍在使用 VBScript，而 Windows 11 正在逐步淘汰 VBScript 支持。截图中出现两个关键信息：
+用户反馈 wulu 的 Windows 更新脚本仍在使用 VBScript，而 Windows 11 正在逐步淘汰 VBScript 支持。截图中出现两个关键信息：
 
 1. Windows 兼容性提示检测到 `Wscript.exe` VBScript 使用。
-2. Windows Script Host 报错无法找到临时文件中的 `VBScript` 脚本，路径形如 `%TEMP%\lobsterai-update-<timestamp>.vbs`。
+2. Windows Script Host 报错无法找到临时文件中的 `VBScript` 脚本，路径形如 `%TEMP%\wulu-update-<timestamp>.vbs`。
 
 代码现状与反馈一致。Windows 更新安装路径在 `src/main/libs/appUpdateInstaller.ts` 的 `installWindowsNsis()` 中会：
 
-1. 生成 `%TEMP%\lobsterai-update-<timestamp>.ps1`。
-2. 生成 `%TEMP%\lobsterai-update-<timestamp>.vbs`。
+1. 生成 `%TEMP%\wulu-update-<timestamp>.ps1`。
+2. 生成 `%TEMP%\wulu-update-<timestamp>.vbs`。
 3. 通过 `wscript.exe` 运行 `.vbs`。
-4. `.vbs` 再隐藏启动 `powershell.exe`，由 PowerShell 等待 LobsterAI 退出后打开 NSIS 安装器。
+4. `.vbs` 再隐藏启动 `powershell.exe`，由 PowerShell 等待 wulu 退出后打开 NSIS 安装器。
 
 当前 VBS 内容本质上只是一个隐藏 PowerShell 窗口的 launcher：
 
@@ -22,7 +22,7 @@
 CreateObject("WScript.Shell").Run "powershell.exe -ExecutionPolicy Bypass -WindowStyle Hidden -File ""<scriptPath>""", 0, False
 ```
 
-因此用户说的“LobsterAI 还在使用 vbs”是准确的。问题不在 NSIS 安装包本身，也不是手动下载链接，而是应用内“下载完成后点击立即更新”的 Windows 安装启动链路。
+因此用户说的“wulu 还在使用 vbs”是准确的。问题不在 NSIS 安装包本身，也不是手动下载链接，而是应用内“下载完成后点击立即更新”的 Windows 安装启动链路。
 
 ### 1.2 外部环境变化
 
@@ -41,15 +41,15 @@ CreateObject("WScript.Shell").Run "powershell.exe -ExecutionPolicy Bypass -Windo
 
 当前设计要解决的是 Windows 更新时的两个工程约束：
 
-1. NSIS 安装器需要在 LobsterAI 当前进程退出后再运行，避免安装时文件仍被占用。
+1. NSIS 安装器需要在 wulu 当前进程退出后再运行，避免安装时文件仍被占用。
 2. 等待和启动安装器的辅助脚本不应显示额外控制台窗口。
 
 为此现有实现使用了“两层脚本”：
 
 ```text
-LobsterAI main process
-  -> wscript.exe lobsterai-update-<ts>.vbs
-    -> powershell.exe -WindowStyle Hidden -File lobsterai-update-<ts>.ps1
+wulu main process
+  -> wscript.exe wulu-update-<ts>.vbs
+    -> powershell.exe -WindowStyle Hidden -File wulu-update-<ts>.ps1
       -> wait current app PID exits
       -> Start-Process <downloaded NSIS installer>
 ```
@@ -83,9 +83,9 @@ P0 修复目标：
 ### 场景 1：Windows 11 24H2 禁用 VBScript 后安装更新
 
 **Given** 用户使用 Windows 11 24H2，VBScript FoD 未启用或被企业策略禁用  
-**When** LobsterAI 下载更新完成，用户点击立即更新  
+**When** wulu 下载更新完成，用户点击立即更新  
 **Then** 应用不生成 `.vbs`，不调用 `wscript.exe`，不弹出 Windows 兼容性助手或 Windows Script Host 错误  
-**And** LobsterAI 退出后 NSIS 安装器正常出现。
+**And** wulu 退出后 NSIS 安装器正常出现。
 
 ### 场景 2：普通 Windows 10/11 环境安装更新
 
@@ -98,12 +98,12 @@ P0 修复目标：
 
 **Given** 系统无法启动 `powershell.exe`，或脚本文件写入失败  
 **When** 用户点击立即更新  
-**Then** LobsterAI 不应先退出  
+**Then** wulu 不应先退出  
 **And** 更新状态进入安装失败，UI 可显示现有 `updateInstallFailed` 文案并允许用户重试或手动安装。
 
 ### 场景 4：当前 app 退出较慢
 
-**Given** 当前 LobsterAI 进程退出需要清理 OpenClaw Gateway、IM Gateway 或文件句柄  
+**Given** 当前 wulu 进程退出需要清理 OpenClaw Gateway、IM Gateway 或文件句柄  
 **When** launcher 已启动  
 **Then** PowerShell 脚本继续按现有逻辑等待当前 app PID，最多等待既有超时时间  
 **And** 等待结束后启动 NSIS 安装器。
@@ -121,7 +121,7 @@ P0 修复目标：
 Windows 更新安装路径不得再写入：
 
 ```text
-%TEMP%\lobsterai-update-<timestamp>.vbs
+%TEMP%\wulu-update-<timestamp>.vbs
 ```
 
 也不得再调用：
@@ -157,14 +157,14 @@ spawn('powershell.exe', [
 
 - 使用参数数组，不拼接整条命令，降低路径包含空格、中文或特殊字符时的转义风险。
 - 设置 `windowsHide: true`，避免 PowerShell 控制台闪窗。
-- 保留 `detached: true` 和 `unref()`，使等待脚本不依赖 LobsterAI 主进程生命周期。
+- 保留 `detached: true` 和 `unref()`，使等待脚本不依赖 wulu 主进程生命周期。
 - 使用 `-NoProfile`，避免用户 PowerShell profile 影响更新脚本。
 
 ### FR-3：保留现有 PowerShell 等待和安装逻辑
 
 现有 `.ps1` 的核心行为应保留：
 
-1. 写入 `%TEMP%\lobsterai-update-<timestamp>.log`。
+1. 写入 `%TEMP%\wulu-update-<timestamp>.log`。
 2. 记录当前 app PID。
 3. 最多等待当前 PID 退出。
 4. 使用 `Start-Process -FilePath $installerPath` 打开 NSIS 安装器。
@@ -275,7 +275,7 @@ write ps1
 | Windows Script Host 被禁用 | 不受影响，因为不再调用 `wscript.exe` |
 | VBScript FoD 未安装 | 不受影响，因为不再生成 `.vbs` |
 | PowerShell 启动失败 | `installReadyUpdate()` 返回失败，app 不退出 |
-| PowerShell 已启动但脚本内部失败 | 写入 `%TEMP%\lobsterai-update-<ts>.log`，现有 UI 可能已退出；这是当前架构限制，可通过日志诊断 |
+| PowerShell 已启动但脚本内部失败 | 写入 `%TEMP%\wulu-update-<ts>.log`，现有 UI 可能已退出；这是当前架构限制，可通过日志诊断 |
 | 当前 app 120 秒内未退出 | 保留现有等待上限逻辑，等待结束后继续启动安装器 |
 | 安装器路径包含空格/中文 | PowerShell 脚本内继续使用 `psEscape()`，入口用参数数组 |
 | 旧版本遗留 `.vbs` 临时文件 | 不需要专门清理；新版本不再创建即可 |
@@ -333,14 +333,14 @@ npm run compile:electron
 
 在 Windows 11 24H2 或已禁用 VBScript FoD 的环境验证：
 
-1. 准备一个可检测到新版本的 LobsterAI build。
+1. 准备一个可检测到新版本的 wulu build。
 2. 等待或手动触发更新下载。
 3. 点击立即更新。
 4. 确认不会出现 Windows 兼容性助手的 `Wscript.exe VBScript` 提示。
 5. 确认不会出现 Windows Script Host 的 `.vbs` 错误。
-6. 确认 `%TEMP%` 下没有新生成的 `lobsterai-update-<ts>.vbs`。
-7. 确认 `%TEMP%\lobsterai-update-<ts>.ps1` 和 `.log` 存在。
-8. 确认 LobsterAI 退出后 NSIS 安装器正常出现。
+6. 确认 `%TEMP%` 下没有新生成的 `wulu-update-<ts>.vbs`。
+7. 确认 `%TEMP%\wulu-update-<ts>.ps1` 和 `.log` 存在。
+8. 确认 wulu 退出后 NSIS 安装器正常出现。
 9. 完成安装后确认桌面快捷方式、开始菜单、安装后运行行为不回退。
 
 补充验证：
@@ -356,7 +356,7 @@ npm run compile:electron
 - [ ] Windows 更新安装流程不再调用 `wscript.exe` 或 `cscript.exe`。
 - [ ] Windows 11 24H2 禁用 VBScript 时，点击立即更新不会弹兼容性助手或 Windows Script Host 错误。
 - [ ] PowerShell 等待脚本隐藏执行，不出现控制台闪窗。
-- [ ] LobsterAI 当前进程退出后，NSIS 安装器正常出现。
+- [ ] wulu 当前进程退出后，NSIS 安装器正常出现。
 - [ ] 安装器仍以正常交互 UI 运行，不变为静默安装。
 - [ ] 安装完成后的快捷方式、开始菜单和安装后运行行为不回退。
 - [ ] launcher 启动失败时 app 不提前退出，更新状态进入安装失败。

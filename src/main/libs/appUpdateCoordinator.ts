@@ -49,7 +49,7 @@ type UpdateApiResponse = {
 };
 
 export const INSTALLATION_UUID_KEY = 'installation_uuid';
-const APP_UPDATE_TEST_CURRENT_VERSION_ENV = 'LOBSTERAI_UPDATE_CURRENT_VERSION';
+const APP_UPDATE_TEST_CURRENT_VERSION_ENV = 'WULU_UPDATE_CURRENT_VERSION';
 export const APP_UPDATE_READY_FILE_KEY_PREFIX = 'app_update_ready_file';
 
 type StoredReadyFile = {
@@ -702,16 +702,16 @@ export class AppUpdateCoordinator {
   }
 
   private isCachedInstallerForSource(filename: string, source: AppUpdateSource | null): boolean {
-    if (!filename.startsWith('lobsterai-update-')) {
+    if (!filename.startsWith('WULU-update-')) {
       return false;
     }
     if (source == null) {
       return true;
     }
-    if (filename.startsWith(`lobsterai-update-${source}-`)) {
+    if (filename.startsWith(`WULU-update-${source}-`)) {
       return true;
     }
-    return /^lobsterai-update-\d+/.test(filename);
+    return /^WULU-update-\d+/.test(filename);
   }
 
   private async pruneCachedInstallerFiles(

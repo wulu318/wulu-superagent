@@ -1723,7 +1723,7 @@ export class IMGatewayManager extends EventEmitter {
   // ---------------------------------------------------------------------------
 
   private static readonly POPO_QRCODE_BASE_URL =
-    'https://f2e.popo.netease.com/polymers/lobster-bot-h5/?pp_htb=1&pp_back_type=cross&taskToken=';
+    'https://f2e.popo.netease.com/polymers/Wulu-bot-h5/?pp_htb=1&pp_back_type=cross&taskToken=';
   private static readonly POPO_POLLING_API =
     'https://open.popo.netease.com/open-apis/no-auth/openclaw/v1/polling';
   private static readonly POPO_COMPLETE_API =

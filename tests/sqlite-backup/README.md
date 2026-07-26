@@ -31,7 +31,7 @@ This directory contains utilities and notes for SQLite backup and recovery perfo
    Confirm the target database path. The default desktop user-data path is usually:
 
    ```bash
-   ~/Library/Application\ Support/LobsterAI/lobsterai.sqlite
+   ~/Library/Application\ Support/WULU/WULU.sqlite
    ```
 
 3. 建议先退出应用，避免写入测试数据时与正在运行的进程竞争数据库锁。  
@@ -46,7 +46,7 @@ First, generate enough data for backup performance testing.
 
 ```bash
 npm run test:sqlite-backup:seed -- \
-  --db '/Users/jj.deng/Library/Application Support/LobsterAI/lobsterai.sqlite' \
+  --db '/Users/jj.deng/Library/Application Support/WULU/WULU.sqlite' \
   --sessions 10 \
   --messages-per-session 2000 \
   --payload-kb 8
@@ -56,7 +56,7 @@ npm run test:sqlite-backup:seed -- \
 
 ```bash
 npm run test:sqlite-backup:seed -- \
-  --db '/Users/jj.deng/Library/Application Support/LobsterAI/lobsterai.sqlite' \
+  --db '/Users/jj.deng/Library/Application Support/WULU/WULU.sqlite' \
   --sessions 50 \
   --messages-per-session 10000 \
   --payload-kb 16
@@ -85,7 +85,7 @@ This is required before the automatic backup logic will run.
 If QA needs an automatic backup on every startup, set this environment variable:
 
 ```bash
-LOBSTERAI_SQLITE_BACKUP_ALWAYS_ON_STARTUP=1
+WULU_SQLITE_BACKUP_ALWAYS_ON_STARTUP=1
 ```
 
 支持的 truthy 值：`1`、`true`。  
@@ -94,7 +94,7 @@ Supported truthy values: `1`, `true`.
 ### Example: run in dev mode with forced startup backup
 
 ```bash
-LOBSTERAI_SQLITE_BACKUP_ALWAYS_ON_STARTUP=1 npm run electron:dev
+WULU_SQLITE_BACKUP_ALWAYS_ON_STARTUP=1 npm run electron:dev
 ```
 
 ### What this does
@@ -113,7 +113,7 @@ After the app starts, inspect the main-process logs.
 Focus on these log lines:
 
 - `[SqliteBackup] Forced startup backup is enabled ...`
-- `[SqliteBackup] Starting periodic backup to lobsterai-latest.sqlite`
+- `[SqliteBackup] Starting periodic backup to WULU-latest.sqlite`
 - `[SqliteBackup] Backup progress: transferred X/Y pages, Z remaining`
 - `[SqliteBackup] Completed periodic backup with 1 retained snapshot(s)`
 
@@ -131,14 +131,14 @@ Without the force env var, startup will first check:
 After backup completes, verify that the backup file exists:
 
 ```bash
-ls -lh ~/Library/Application\ Support/LobsterAI/backups/sqlite/snapshots/
+ls -lh ~/Library/Application\ Support/WULU/backups/sqlite/snapshots/
 ```
 
 当前单文件备份名为：  
 The current single backup file is:
 
 ```text
-lobsterai-latest.sqlite
+WULU-latest.sqlite
 ```
 
 ## 6. Recovery Test
@@ -165,7 +165,7 @@ Make sure a valid backup exists first, then intentionally corrupt the main datab
 Example:
 
 ```bash
-printf 'not-a-sqlite-db' > ~/Library/Application\ Support/LobsterAI/lobsterai.sqlite
+printf 'not-a-sqlite-db' > ~/Library/Application\ Support/WULU/WULU.sqlite
 ```
 
 然后启动应用。  
@@ -192,8 +192,8 @@ Suggested QA sequence:
    Run the seeding script to build a large database.
 3. 在应用中启用自动备份与恢复。  
    Enable auto backup and recovery in the app.
-4. 使用 `LOBSTERAI_SQLITE_BACKUP_ALWAYS_ON_STARTUP=1` 启动应用。  
-   Launch the app with `LOBSTERAI_SQLITE_BACKUP_ALWAYS_ON_STARTUP=1`.
+4. 使用 `WULU_SQLITE_BACKUP_ALWAYS_ON_STARTUP=1` 启动应用。  
+   Launch the app with `WULU_SQLITE_BACKUP_ALWAYS_ON_STARTUP=1`.
 5. 记录备份开始、进度、完成日志及耗时。  
    Record backup start, progress, completion logs, and duration.
 6. 删除备份文件，重新启动，确认会立即补备份。  

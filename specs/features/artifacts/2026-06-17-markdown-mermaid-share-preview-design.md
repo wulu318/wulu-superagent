@@ -2,7 +2,7 @@
 
 ## 1. 背景
 
-LobsterAI 已经基于 `lobsterai-server` 的 HTML 分享系统支持 HTML、图片、SVG、Office/PDF 文件分享。现有链路为：
+wulu 已经基于 `wulu-server` 的 HTML 分享系统支持 HTML、图片、SVG、Office/PDF 文件分享。现有链路为：
 
 - 客户端把待分享内容打成 zip，通过 `POST /api/html-shares` 或 `PUT /api/html-shares/{shareId}` 上传。
 - 服务端保存 `html_shares` / `html_share_files`，文件上传到 NOS。
@@ -41,7 +41,7 @@ LobsterAI 已经基于 `lobsterai-server` 的 HTML 分享系统支持 HTML、图
 
 ## 4. 现状快照
 
-### 4.1 LobsterAI 客户端
+### 4.1 wulu 客户端
 
 | 文件 | 现状 |
 | --- | --- |
@@ -52,7 +52,7 @@ LobsterAI 已经基于 `lobsterai-server` 的 HTML 分享系统支持 HTML、图
 | `MarkdownRenderer.tsx` | 复用 `MarkdownContent`，支持本地相对链接解析 |
 | `MermaidRenderer.tsx` | 直接用 `mermaid.render` 生成 SVG，提供缩放控制 |
 
-### 4.2 lobsterai-server
+### 4.2 wulu-server
 
 | 文件 | 现状 |
 | --- | --- |
@@ -62,7 +62,7 @@ LobsterAI 已经基于 `lobsterai-server` 的 HTML 分享系统支持 HTML、图
 | `HtmlShareProperties.java` | 已有通用上传限制和 document preview 配置，缺少 text preview 配置 |
 | `html_shares.source_type` | `VARCHAR(32)`，不是 enum，新增 source type 不需要改列类型 |
 
-### 4.3 lobsterai-admin
+### 4.3 wulu-admin
 
 | 文件 | 现状 |
 | --- | --- |
@@ -117,7 +117,7 @@ mermaid_file
 - 不允许 NUL 字节，不允许二进制内容伪装文本。
 - Mermaid zip 内必须只有一个有效文件，`entryFile` 必须等于该文件路径。
 - Markdown zip 必须包含一个入口 Markdown 文件；可包含客户端收集的本地图片文件和一份图片 manifest。
-- Markdown 本地图片资源只允许来自 Markdown 文件所在项目/工作目录边界内，打包后统一放到 `_lobster_assets/` 下。
+- Markdown 本地图片资源只允许来自 Markdown 文件所在项目/工作目录边界内，打包后统一放到 `_WULU_assets/` 下。
 - Markdown 资源首版只支持图片：`.png`、`.jpg`、`.jpeg`、`.gif`、`.webp`、`.svg`。SVG 仍走服务端 SVG 安全校验。
 - Markdown 非图片本地资源首版不打包、不提供同源下载、不做跨文件跳转。
 - 默认最大原文件大小建议 2 MiB；超过预览阈值时公共页展示下载入口，不加载渲染 bundle。
@@ -129,8 +129,8 @@ mermaid_file
 
 | 本地引用类型 | 示例 | 首版行为 |
 | --- | --- | --- |
-| 图片 | `![架构图](./images/arch.png)` | 打包、改写为 `_lobster_assets/...`、分享页渲染 |
-| file URL 图片 | `![图](file:///project/images/arch.png)` | 若真实路径在允许目录内则打包、改写为 `_lobster_assets/...`；manifest 只保留脱敏文件名 |
+| 图片 | `![架构图](./images/arch.png)` | 打包、改写为 `_WULU_assets/...`、分享页渲染 |
+| file URL 图片 | `![图](file:///project/images/arch.png)` | 若真实路径在允许目录内则打包、改写为 `_WULU_assets/...`；manifest 只保留脱敏文件名 |
 | 其他 Markdown 文件 | `[详情](./docs/detail.md)` | 不打包，不做跨文档预览 |
 | PDF / Office / 文本附件 | `[方案](./spec.pdf)`、`[日志](./app.log)` | 不打包，不提供下载 |
 | 音视频 | `<video src="./demo.mp4">`、`@[video](./demo.mp4)` | 不打包，不渲染 |
@@ -189,7 +189,7 @@ Then 公共页不请求 preview bundle，只展示文件名、大小、不可预
 
 Given `README.md` 中包含 `![架构图](./images/arch.png)`，且 `arch.png` 位于当前项目目录下。
 When 用户创建分享。
-Then 客户端把 `arch.png` 复制进 zip 的 `_lobster_assets/` 目录，并把 Markdown 中的图片引用改写为 `_lobster_assets/<hash>.png`。访问者打开分享页时，图片从 `/s/{shareId}/content/_lobster_assets/<hash>.png` 加载。
+Then 客户端把 `arch.png` 复制进 zip 的 `_WULU_assets/` 目录，并把 Markdown 中的图片引用改写为 `_WULU_assets/<hash>.png`。访问者打开分享页时，图片从 `/s/{shareId}/content/_WULU_assets/<hash>.png` 加载。
 
 如果 Markdown 中包含 `![secret](/Users/admin/private.png)`、`![remote](https://example.com/a.png)` 或指向工作区外的相对路径，客户端不打包该资源；分享页显示“该图片未随分享发布”的占位提示。
 
@@ -267,7 +267,7 @@ GET /s/{shareId}/content/?download=1
 ```text
 html_shares.source_type = markdown_file | mermaid_file
 html_shares.entry_file = README.md | diagram.mmd
-html_share_files.relative_path = README.md | diagram.mmd | _lobster_assets/<hash>.png
+html_share_files.relative_path = README.md | diagram.mmd | _WULU_assets/<hash>.png
 html_share_files.content_type = text/markdown;charset=UTF-8 | text/plain;charset=UTF-8 | image/png
 ```
 
@@ -283,7 +283,7 @@ Markdown 建议在 zip 中加入图片 manifest：
   "assets": [
     {
       "originalUrl": "./images/arch.png",
-      "relativePath": "_lobster_assets/5d41402abc4b2a76.png",
+      "relativePath": "_WULU_assets/5d41402abc4b2a76.png",
       "contentType": "image/png",
       "sha256": "5d41402abc4b2a76...",
       "sizeBytes": 12345
@@ -298,7 +298,7 @@ Markdown 建议在 zip 中加入图片 manifest：
 }
 ```
 
-Manifest 文件路径固定为 `_lobster_share_manifest.json`。服务端可用它校验图片列表；公共页不需要依赖 manifest 渲染。
+Manifest 文件路径固定为 `_WULU_share_manifest.json`。服务端可用它校验图片列表；公共页不需要依赖 manifest 渲染。
 
 可选迁移：
 
@@ -344,19 +344,19 @@ html-share.text.preview.max-render-bytes=2097152
 扩展 `prepareExtractedFilesForSourceType()`：
 
 - `mermaid_file` 与 image/svg/document 一样要求 `files.size() == 1`。
-- `markdown_file` 要求存在且只存在一个入口 Markdown 文件；其他文件必须是 `_lobster_assets/` 下的图片或 `_lobster_share_manifest.json`。
+- `markdown_file` 要求存在且只存在一个入口 Markdown 文件；其他文件必须是 `_WULU_assets/` 下的图片或 `_WULU_share_manifest.json`。
 - `entryFile` 必须指向入口 Markdown/Mermaid 文件。
 - Markdown 入口只允许 `.md`、`.markdown`。
 - Mermaid 只允许 `.mmd`、`.mermaid`。
 - 读取入口文件 bytes，校验 UTF-8、去除 BOM 后非空、不含 NUL。
-- Markdown 资源文件只能位于 `_lobster_assets/`，路径不允许 `..`、反斜杠、空段、绝对路径。
+- Markdown 资源文件只能位于 `_WULU_assets/`，路径不允许 `..`、反斜杠、空段、绝对路径。
 - Markdown 资源文件只允许图片扩展名和图片 MIME；图片 magic bytes 必须匹配。SVG 复用现有 `validateSvgShareFile()` 安全校验。
 - Markdown manifest 中列出的 asset 必须真实存在；实际图片文件也必须出现在 manifest 中。manifest 可记录 omitted assets，但不能包含本地绝对路径。
 - 按 source type 重写 `contentType`：
   - Markdown: `text/markdown;charset=UTF-8`
   - Mermaid: `text/plain;charset=UTF-8`
 - Markdown 图片资源在服务端复用 `image_file` 的上传前压缩策略：小图原样保留，GIF/WebP/SVG 不转码，较大的 PNG/JPEG 在上传 NOS 前按最长边和质量候选压缩；非透明图片可能从 `.png` / `.jpeg` 改写为 `.jpg`。
-- 如果 Markdown 图片压缩导致 `_lobster_assets/...` 路径或扩展名变化，服务端必须同步改写入口 Markdown 和 manifest 中的资源路径，再上传最终文件。
+- 如果 Markdown 图片压缩导致 `_WULU_assets/...` 路径或扩展名变化，服务端必须同步改写入口 Markdown 和 manifest 中的资源路径，再上传最终文件。
 - Mermaid `sourceSha256` 必须等于原始文本 bytes SHA-256。
 - Markdown `sourceSha256` 必须等于客户端上传包压缩前的规范化分享包 hash：`sha256(entry markdown bytes + sorted(image relativePath + image sha256))`，确保客户端内容变化会触发内容版本更新；服务端压缩后的文件 sha256 记录在 `html_share_files.sha256`。
 
@@ -392,11 +392,11 @@ private boolean isTextPreviewShare(HtmlShare share) {
 新增 `textPreviewShellPage(share, adminPreview)`，结构参考 document shell：
 
 - 固定顶部 header：品牌、管理员预览 badge、文件名、文件大小、下载源文件按钮、我也来制作。
-- 主区域 `<section id="lobster-text-preview">`。
+- 主区域 `<section id="Wulu-text-preview">`。
 - 当 preview 可用时注入：
 
 ```html
-<script type="application/json" id="lobster-share-config">
+<script type="application/json" id="Wulu-share-config">
 {
   "shareId": "shr_xxx",
   "sourceType": "markdown_file",
@@ -445,14 +445,14 @@ src/main/share-preview/text-preview.tsx
 - 如果不能跨仓库直接 import 客户端源码，需要在 server 仓库 vendored 一份同名渲染核心，并在文件头记录同步来源和客户端 commit；后续客户端渲染逻辑变更时必须同步公共页 renderer。
 - 公共页只允许做环境适配：去掉 Electron IPC、本地文件打开、Finder reveal、toast 等客户端专属能力；Markdown AST 解析、插件、URL 分类、代码块展示、图片展示、Mermaid 初始化、缩放和错误展示逻辑保持一致。
 
-构建方式参考 `src/main/share-preview/README.md` 中 Office bundle 的方式，使用 LobsterAI 客户端已有依赖打包：
+构建方式参考 `src/main/share-preview/README.md` 中 Office bundle 的方式，使用 wulu 客户端已有依赖打包：
 
 ```bash
-./node_modules/.bin/esbuild ../lobsterai-server/src/main/share-preview/text-preview.tsx \
+./node_modules/.bin/esbuild ../wulu-server/src/main/share-preview/text-preview.tsx \
   --bundle --format=esm --target=es2020 \
   --alias:react=./node_modules/react/index.js \
   --alias:react-dom/client=./node_modules/react-dom/client.js \
-  --outfile=../lobsterai-server/src/main/resources/static/html-share/text-preview/text-preview.js
+  --outfile=../wulu-server/src/main/resources/static/html-share/text-preview/text-preview.js
 ```
 
 需要 bundle 的运行时依赖：
@@ -487,7 +487,7 @@ frame-ancestors 'self'
 说明：
 
 - Markdown 原始 HTML 不执行。
-- Markdown 图片只加载 `sourceUrl` 同目录下的 `_lobster_assets/` 资源或 data URL；外链图片、本地绝对路径和未打包资源渲染为占位提示。
+- Markdown 图片只加载 `sourceUrl` 同目录下的 `_WULU_assets/` 资源或 data URL；外链图片、本地绝对路径和未打包资源渲染为占位提示。
 - 链接只允许 `http:`、`https:`、`mailto:`、`tel:`，并强制 `target="_blank"`、`rel="noopener noreferrer"`.
 - 不允许 `file:`、`localfile:`、`kit:`、`data:` 链接跳转。
 - Mermaid 输出 SVG 再经过 DOMPurify 清洗后插入 DOM。
@@ -514,7 +514,7 @@ frame-ancestors 'self'
 允许的公共页适配：
 
 - 客户端 Electron 的 `window.electron.shell.openPath()`、`showItemInFolder()`、toast 不可在分享页使用；对应本地链接渲染为不可访问/不可下载状态。
-- Markdown 已打包图片通过同源 `/s/{shareId}/content/_lobster_assets/...` 加载；客户端本地路径 resolver 在公共页替换为 share package resolver。
+- Markdown 已打包图片通过同源 `/s/{shareId}/content/_WULU_assets/...` 加载；客户端本地路径 resolver 在公共页替换为 share package resolver。
 - 未打包图片、工作区外图片、裸绝对路径和越界 `file://` 图片仍按客户端图片组件位置展示，但源地址替换为不可加载占位，不向发布者本机或远端发请求。
 - 为满足公共页 CSP 和 XSS 防护，Mermaid 渲染出的 SVG 在插入前额外经过 DOMPurify；清洗配置必须允许 Mermaid 默认 HTML labels 所需的 `foreignObject` 和安全 HTML 文本标签，否则节点文字会被删掉；这不改变 Mermaid 图语义。
 
@@ -528,7 +528,7 @@ frame-ancestors 'self'
 | 数学公式 | 支持 `remark-math` + `rehype-katex` |
 | 原始 HTML | 不渲染为 HTML，按文本处理 |
 | 代码块 | 复用或等价移植客户端 `CodeBlock` 行为，展示语言、复制按钮、横向滚动和 inline code 样式 |
-| 图片 | 复用客户端图片组件样式；已打包本地图片改写为同源 `/content/_lobster_assets/...` 加载；外链、绝对路径、未打包资源展示为不可加载提示 |
+| 图片 | 复用客户端图片组件样式；已打包本地图片改写为同源 `/content/_WULU_assets/...` 加载；外链、绝对路径、未打包资源展示为不可加载提示 |
 | 链接 | URL 分类规则与客户端一致；外链新窗口打开；本地链接因公共页无本机访问能力展示为不可访问状态 |
 | 大文件 | renderer 内部折叠/展开逻辑与客户端一致；超过服务端 preview 阈值时不进入 renderer，展示下载卡片 |
 
@@ -624,7 +624,7 @@ Markdown 图片收集规则：
 - 图片相对路径和允许目录内的 `file://` 图片会自动打包；`http(s):`、`data:`、`blob:`、裸绝对路径、越界 `file://`、非图片相对路径直接记入 `omittedAssets`。
 - `allowedRoot` 优先使用当前 Cowork working directory；没有 working directory 时使用 Markdown 文件所在目录。
 - 对候选资源执行 `realpath`，必须仍在 `allowedRoot` 内；符号链接跳出 root 的资源拒绝打包。
-- 图片写入 `_lobster_assets/<sha256-prefix>.<ext>`，入口 Markdown 中对应 URL 改写为这个相对路径。
+- 图片写入 `_WULU_assets/<sha256-prefix>.<ext>`，入口 Markdown 中对应 URL 改写为这个相对路径。
 - 同一图片被多处引用时只打包一次。
 - 收集结果在分享弹窗展示摘要：已打包图片数、未打包引用数；未打包不阻塞分享，服务端校验失败才阻塞。
 
@@ -760,7 +760,7 @@ HtmlShareService.createShare/updateShare
 | --- | --- | --- | --- | --- |
 | Markdown 标题 | `title` | `moderateText()` | `html_shares.title` | `reject/high` 关闭分享 |
 | Markdown 正文 | `text_file` | `moderateText()` | 入口 Markdown 源文本 | `reject/high` 关闭分享 |
-| Markdown 已打包图片 | `markdown_image` 或 `image_file` | `moderateImage()` | `_lobster_assets/*` 图片 URL | 任一图片 `reject/high` 关闭分享 |
+| Markdown 已打包图片 | `markdown_image` 或 `image_file` | `moderateImage()` | `_WULU_assets/*` 图片 URL | 任一图片 `reject/high` 关闭分享 |
 | Markdown 未打包引用 | `markdown_omitted_asset` 或 `skipped` | 不调用模型 | manifest 中的 omitted reason | 默认不阻断；异常数量或敏感协议进入 `review` |
 | Mermaid 标题 | `title` | `moderateText()` | `html_shares.title` | `reject/high` 关闭分享 |
 | Mermaid 源码 | `mermaid_source` | `moderateText()` | Mermaid DSL 源文本 | `reject/high` 关闭分享 |
@@ -789,7 +789,7 @@ HtmlShareService.createShare/updateShare
 图片模型调用要求：
 
 - 使用 `html-share.moderation.image.model-id` 对应的视觉模型。
-- 只审核客户端已打包且服务端已校验通过的 `_lobster_assets/` 图片。
+- 只审核客户端已打包且服务端已校验通过的 `_WULU_assets/` 图片。
 - 输入图片使用服务端上传后的受控 NOS URL 或等价的服务端可访问临时 URL；该 URL 不返回给客户端或公共分享页。
 - 受 `html-share.moderation.image.max-bytes` 和 `max-count-per-share` 限制。
 
@@ -811,14 +811,14 @@ Markdown 不渲染、不执行，只审核可公开传播的源内容和已打�
    - 模型输入包含文件名、sourceType 和正文；正文放在 `UNTRUSTED_CONTENT` 边界中。
 
 3. 审核已打包图片：
-   - 遍历 `_lobster_assets/` 下的图片文件。
+   - 遍历 `_WULU_assets/` 下的图片文件。
    - 复用现有图片审核模型和大小限制。
    - `itemType=markdown_image`，如首版不新增 item type，可复用 `image_file`。
-   - `relativePath=_lobster_assets/<file>`
+   - `relativePath=_WULU_assets/<file>`
    - 任一图片审核拒绝时关闭整个分享。
 
 4. 记录未打包引用：
-   - 解析 `_lobster_share_manifest.json` 的 `omittedAssets`。
+   - 解析 `_WULU_share_manifest.json` 的 `omittedAssets`。
    - 不抓取、不审核远端 URL，不读取本机绝对路径。
    - 如果存在 omitted local/remote image，可写入 `itemType=skipped` 或 `markdown_omitted_asset`。
    - omitted 引用默认不导致拒绝；如果数量异常多或包含明显敏感协议，可进入 `review`。
@@ -968,13 +968,13 @@ html-share.text.preview.max-render-bytes=5242880
 
 新增或扩展 `HtmlShareServiceTest`：
 
-- `markdown_file` 创建成功，文件列表包含入口 `.md` 和 `_lobster_assets/` 图片资源。
+- `markdown_file` 创建成功，文件列表包含入口 `.md` 和 `_WULU_assets/` 图片资源。
 - `mermaid_file` 创建成功，文件列表只有一个 `.mmd`。
 - 错误扩展名被拒绝。
 - 二进制/NUL 内容被拒绝。
 - 非 UTF-8 内容被拒绝。
 - Mermaid zip 内多文件被拒绝。
-- Markdown zip 内出现非 manifest、非 `_lobster_assets/`、非入口文件的路径被拒绝。
+- Markdown zip 内出现非 manifest、非 `_WULU_assets/`、非入口文件的路径被拒绝。
 - Markdown 图片路径穿越、符号链接越界、扩展名与 magic bytes 不匹配被拒绝。
 - Markdown 图片数量、单文件大小、图片总大小超限被拒绝。
 - 超过 `html-share.text.max-file-bytes` 被拒绝。
@@ -985,7 +985,7 @@ html-share.text.preview.max-render-bytes=5242880
 
 - `/s/{shareId}/` 对 Markdown 返回 text preview shell。
 - `/s/{shareId}/` 对 Mermaid 返回 text preview shell。
-- Markdown 图片引用被解析为 `/s/{shareId}/content/_lobster_assets/<file>` 并成功加载。
+- Markdown 图片引用被解析为 `/s/{shareId}/content/_WULU_assets/<file>` 并成功加载。
 - 未打包图片、远端图片和绝对路径图片展示占位提示，不发起外部请求。
 - 未通过分享码时 `/content/` 返回 403。
 - `download=1` 返回 attachment。
@@ -1027,8 +1027,8 @@ html-share.text.preview.max-render-bytes=5242880
 1. 分享普通 `README.md`，确认 GFM 表格、数学公式、代码块渲染。
 2. 分享 Mermaid flowchart，确认图形渲染、缩放、语法错误提示。
 3. 分享含 `<script>` 的 Markdown，确认不会执行。
-4. 分享含本地相对图片的 Markdown，确认图片随分享发布并从 `/content/_lobster_assets/` 加载。
-5. 分享含大尺寸本地 PNG/JPEG 的 Markdown，确认服务端上传前压缩图片；若扩展名变为 `.jpg`，入口 Markdown 中的 `_lobster_assets/...` 引用也同步变更。
+4. 分享含本地相对图片的 Markdown，确认图片随分享发布并从 `/content/_WULU_assets/` 加载。
+5. 分享含大尺寸本地 PNG/JPEG 的 Markdown，确认服务端上传前压缩图片；若扩展名变为 `.jpg`，入口 Markdown 中的 `_WULU_assets/...` 引用也同步变更。
 6. 分享含外链图片的 Markdown，确认不会自动加载外链图片。
 7. 分享含工作区外图片路径的 Markdown，确认不会打包且分享页显示占位提示。
 8. 分享超大 Markdown，确认只展示下载入口。

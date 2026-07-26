@@ -119,7 +119,7 @@
 |------|------|
 | Clipboard 图片名为 `image.png`（通用名） | `saveInlineFile` 生成 `image-{timestamp}-{random}.png`，不冲突 |
 | 图片超过 25MB | `saveInlineFile` 返回失败，降级到 `addImageAttachmentFromDataUrl` |
-| 工作目录未设置 | `resolveInlineAttachmentDir` 降级到 `/tmp/lobsterai/attachments/` |
+| 工作目录未设置 | `resolveInlineAttachmentDir` 降级到 `/tmp/wulu/attachments/` |
 | 工作目录只读 | `saveInlineFile` 返回失败，降级到仅 vision |
 | File 对象被读两次 | `fileToDataUrl` 和 `saveInlineFile` 各自创建 `FileReader` 实例，互不干扰 |
 

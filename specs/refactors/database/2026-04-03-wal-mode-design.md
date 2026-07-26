@@ -74,7 +74,7 @@ main.ts (singleton SqliteStore)
 
 ```typescript
 // src/main/appConstants.ts L3
-export const DB_FILENAME = 'lobsterai.sqlite';
+export const DB_FILENAME = 'wulu.sqlite';
 // 使用位置：sqliteStore.ts L45
 ```
 

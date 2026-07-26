@@ -3,7 +3,7 @@
 // Channel web-installer build entry. Wraps the dist:win chain so that every
 // web-installer variable is scoped to the spawned build only — nothing is
 // read from or written to the caller's shell environment, which makes builds
-// reproducible from any terminal state (see LOBSTERAI_WEB_* handling below).
+// reproducible from any terminal state (see wulu_WEB_* handling below).
 
 const { spawnSync } = require('child_process');
 const fs = require('fs');
@@ -20,7 +20,7 @@ const USAGE = `Usage:
   npm run dist:win:web -- --keyfrom <channel> [--pkg-base-url <cdn-dir> | --pkg-url <package-url>]
 
 Modes:
-  --pkg-base-url  one-pass build; the installer downloads <dir>/<keyfrom>/LobsterAI-<version>-x64.nsis.7z
+  --pkg-base-url  one-pass build; the installer downloads <dir>/<keyfrom>/wulu-<version>-x64.nsis.7z
   --pkg-url       stub-only rebuild with the exact package URL (upload-first flow, e.g. NOS)
   (no URL flag)   full build with a placeholder URL, to produce the .nsis.7z for upload;
                   the unusable WebSetup exe from this pass is deleted afterwards
@@ -149,6 +149,6 @@ if (usesPlaceholder) {
     console.warn('[WebBuild] no WebSetup artifact found to delete; check the build output.');
   }
   const version = require('../package.json').version;
-  console.log(`[WebBuild] next: upload release/LobsterAI-${version}-x64.nsis.7z, then run`);
+  console.log(`[WebBuild] next: upload release/wulu-${version}-x64.nsis.7z, then run`);
   console.log(`[WebBuild]   npm run dist:win:web -- --keyfrom ${keyfrom} --pkg-url <uploaded-url>`);
 }

@@ -12,7 +12,7 @@ import {
   removeLegacyAgentsMdIdentityBlock,
 } from './openclawAgentsMdIdentityMigration';
 
-const MARKER = '<!-- LobsterAI managed: do not edit below this line -->';
+const MARKER = '<!-- WULU managed: do not edit below this line -->';
 
 const buildLegacyAgentsMd = (legacyBody = '你的名字是"小小翻译家"。'): string => [
   '# AGENTS.md - Your Workspace',
@@ -43,7 +43,7 @@ afterEach(() => {
 });
 
 const makeTempWorkspace = (): string => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'lobsterai-agents-md-migration-'));
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'WULU-agents-md-migration-'));
   tmpDirs.push(dir);
   return dir;
 };
@@ -195,7 +195,7 @@ describe('cleanupLegacyAgentsMdIdentityBlockInWorkspace', () => {
     }
     expect(fs.readFileSync(agentsMdPath, 'utf8')).not.toContain('## Identity（必须遵守）');
     expect(fs.readFileSync(result.backupPath, 'utf8')).toBe(original);
-    expect(result.backupPath).toContain(path.join('.lobsterai', 'migrations'));
+    expect(result.backupPath).toContain(path.join('.WULU', 'migrations'));
   });
 
   test('skips when AGENTS.md does not exist', () => {

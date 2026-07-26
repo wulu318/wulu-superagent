@@ -627,12 +627,12 @@ test('updateSession can patch model override without refreshing the session upda
 
   store.updateSession(
     sid,
-    { modelOverride: 'lobsterai-server/qwen3.6-plus-YoudaoInner' },
+    { modelOverride: 'WULU-server/qwen3.6-plus-YoudaoInner' },
     { touchUpdatedAt: false },
   );
 
   const session = store.getSession(sid);
-  expect(session?.modelOverride).toBe('lobsterai-server/qwen3.6-plus-YoudaoInner');
+  expect(session?.modelOverride).toBe('WULU-server/qwen3.6-plus-YoudaoInner');
   expect(session?.updatedAt).toBe(1000);
 });
 

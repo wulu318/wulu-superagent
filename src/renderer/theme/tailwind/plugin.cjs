@@ -1,5 +1,5 @@
 /**
- * Tailwind CSS v3 plugin — bridges --lobster-* CSS variables into Tailwind utility classes.
+ * Tailwind CSS v3 plugin — bridges --Wulu-* CSS variables into Tailwind utility classes.
  *
  * Usage in tailwind.config.js:
  *   plugins: [require('./src/renderer/theme/tailwind/plugin.cjs')]
@@ -24,73 +24,73 @@ module.exports = plugin(function () {
     extend: {
       colors: {
         // === Semantic theme colors (driven by CSS variables) ===
-        background:    withAlpha('--lobster-background'),
-        foreground:    withAlpha('--lobster-foreground'),
+        background:    withAlpha('--Wulu-background'),
+        foreground:    withAlpha('--Wulu-foreground'),
         primary: {
-          DEFAULT:     withAlpha('--lobster-primary'),
-          foreground:  withAlpha('--lobster-primary-foreground'),
-          hover:       withAlpha('--lobster-primary-hover'),
-          muted:       withAlpha('--lobster-primary-muted'),
-          dark:        withAlpha('--lobster-primary-hover'),  // backward compat alias
+          DEFAULT:     withAlpha('--Wulu-primary'),
+          foreground:  withAlpha('--Wulu-primary-foreground'),
+          hover:       withAlpha('--Wulu-primary-hover'),
+          muted:       withAlpha('--Wulu-primary-muted'),
+          dark:        withAlpha('--Wulu-primary-hover'),  // backward compat alias
         },
         accent: {
-          DEFAULT:     withAlpha('--lobster-accent'),
-          foreground:  withAlpha('--lobster-accent-foreground'),
+          DEFAULT:     withAlpha('--Wulu-accent'),
+          foreground:  withAlpha('--Wulu-accent-foreground'),
         },
         surface: {
-          DEFAULT:     withAlpha('--lobster-surface'),
-          foreground:  withAlpha('--lobster-surface-foreground'),
-          raised:      withAlpha('--lobster-surface-raised'),
-          overlay:     withAlpha('--lobster-surface-overlay'),
-          inset:       withAlpha('--lobster-surface-raised'),  // alias
+          DEFAULT:     withAlpha('--Wulu-surface'),
+          foreground:  withAlpha('--Wulu-surface-foreground'),
+          raised:      withAlpha('--Wulu-surface-raised'),
+          overlay:     withAlpha('--Wulu-surface-overlay'),
+          inset:       withAlpha('--Wulu-surface-raised'),  // alias
         },
         border: {
-          DEFAULT:     withAlpha('--lobster-border'),
-          subtle:      withAlpha('--lobster-border-subtle'),
-          input:       withAlpha('--lobster-input-border'),
+          DEFAULT:     withAlpha('--Wulu-border'),
+          subtle:      withAlpha('--Wulu-border-subtle'),
+          input:       withAlpha('--Wulu-input-border'),
         },
-        muted:         withAlpha('--lobster-text-muted'),
+        muted:         withAlpha('--Wulu-text-muted'),
         destructive: {
-          DEFAULT:     withAlpha('--lobster-destructive'),
-          foreground:  withAlpha('--lobster-destructive-foreground'),
+          DEFAULT:     withAlpha('--Wulu-destructive'),
+          foreground:  withAlpha('--Wulu-destructive-foreground'),
         },
-        success:       withAlpha('--lobster-success'),
-        warning:       withAlpha('--lobster-warning'),
+        success:       withAlpha('--Wulu-success'),
+        warning:       withAlpha('--Wulu-warning'),
 
-        // === Legacy claude.* aliases (map to --lobster-* for backward compat) ===
+        // === Legacy claude.* aliases (map to --Wulu-* for backward compat) ===
         claude: {
-          bg:                withAlpha('--lobster-background'),
-          surface:           withAlpha('--lobster-surface'),
-          surfaceHover:      withAlpha('--lobster-surface-raised'),
-          surfaceMuted:      withAlpha('--lobster-surface-raised'),
-          surfaceInset:      withAlpha('--lobster-surface-raised'),
-          border:            withAlpha('--lobster-border'),
-          borderLight:       withAlpha('--lobster-border-subtle'),
-          text:              withAlpha('--lobster-text-primary'),
-          textSecondary:     withAlpha('--lobster-text-secondary'),
+          bg:                withAlpha('--Wulu-background'),
+          surface:           withAlpha('--Wulu-surface'),
+          surfaceHover:      withAlpha('--Wulu-surface-raised'),
+          surfaceMuted:      withAlpha('--Wulu-surface-raised'),
+          surfaceInset:      withAlpha('--Wulu-surface-raised'),
+          border:            withAlpha('--Wulu-border'),
+          borderLight:       withAlpha('--Wulu-border-subtle'),
+          text:              withAlpha('--Wulu-text-primary'),
+          textSecondary:     withAlpha('--Wulu-text-secondary'),
           // dark.* aliases point to the same vars — theme handles light/dark
-          darkBg:            withAlpha('--lobster-background'),
-          darkSurface:       withAlpha('--lobster-surface'),
-          darkSurfaceHover:  withAlpha('--lobster-surface-raised'),
-          darkSurfaceMuted:  withAlpha('--lobster-surface-raised'),
-          darkSurfaceInset:  withAlpha('--lobster-surface-raised'),
-          darkBorder:        withAlpha('--lobster-border'),
-          darkBorderLight:   withAlpha('--lobster-border-subtle'),
-          darkText:          withAlpha('--lobster-text-primary'),
-          darkTextSecondary: withAlpha('--lobster-text-secondary'),
+          darkBg:            withAlpha('--Wulu-background'),
+          darkSurface:       withAlpha('--Wulu-surface'),
+          darkSurfaceHover:  withAlpha('--Wulu-surface-raised'),
+          darkSurfaceMuted:  withAlpha('--Wulu-surface-raised'),
+          darkSurfaceInset:  withAlpha('--Wulu-surface-raised'),
+          darkBorder:        withAlpha('--Wulu-border'),
+          darkBorderLight:   withAlpha('--Wulu-border-subtle'),
+          darkText:          withAlpha('--Wulu-text-primary'),
+          darkTextSecondary: withAlpha('--Wulu-text-secondary'),
           // Accent
-          accent:            withAlpha('--lobster-primary'),
-          accentHover:       withAlpha('--lobster-primary-hover'),
-          accentLight:       withAlpha('--lobster-primary'),
-          accentMuted:       withAlpha('--lobster-primary-muted'),
+          accent:            withAlpha('--Wulu-primary'),
+          accentHover:       withAlpha('--Wulu-primary-hover'),
+          accentLight:       withAlpha('--Wulu-primary'),
+          accentMuted:       withAlpha('--Wulu-primary-muted'),
         },
         secondary: {
-          DEFAULT: withAlpha('--lobster-text-secondary'),
-          dark:    withAlpha('--lobster-border'),
+          DEFAULT: withAlpha('--Wulu-text-secondary'),
+          dark:    withAlpha('--Wulu-border'),
         },
       },
       borderRadius: {
-        theme: 'var(--lobster-radius)',
+        theme: 'var(--Wulu-radius)',
       },
     },
   },

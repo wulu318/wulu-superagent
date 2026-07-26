@@ -6,7 +6,7 @@
 从主进程日志看，删除请求实际已触发，但目录删除阶段持续报错：
 
 ```text
-[skills] deleteSkill: id=Desktop, targetDir=C:\Users\jjh\AppData\Roaming\LobsterAI\SKILLs\Desktop, platform=win32
+[skills] deleteSkill: id=Desktop, targetDir=C:\Users\jjh\AppData\Roaming\wulu\SKILLs\Desktop, platform=win32
 [skills] deleteSkill: failed to remove "Desktop" ... Error: EPERM, Permission denied
 [skills] Failed to delete skill: Desktop Error: EPERM, Permission denied
 ```

@@ -7,7 +7,7 @@ export const LogReporterEndpoint = {
 } as const;
 
 export const LogReporterProduct = {
-  LobsterAI: 'wisdom',
+  WULU: 'wisdom',
 } as const;
 
 export const LogReporterCategory = {
@@ -15,53 +15,53 @@ export const LogReporterCategory = {
 } as const;
 
 export const LogReporterActionPrefix = {
-  LobsterAI: 'lobsterai_',
+  WULU: 'WULU_',
 } as const;
 
 export const LogReporterAction = {
-  AgentCreateAction: 'lobsterai_agent_create_action',
-  AgentSettingsAction: 'lobsterai_agent_settings_action',
-  AgentEngineMaintenanceAction: 'lobsterai_agent_engine_maintenance_action',
-  AgentEngineSettingChanged: 'lobsterai_agent_engine_setting_changed',
-  AboutAction: 'lobsterai_about_action',
-  AccountMenuAction: 'lobsterai_account_menu_action',
-  AppStarted: 'lobsterai_app_started',
-  AppearanceSettingChanged: 'lobsterai_appearance_setting_changed',
-  ArtifactPreviewAction: 'lobsterai_artifact_preview_action',
-  BrowserSettingChanged: 'lobsterai_browser_setting_changed',
-  CustomModelConnectionTested: 'lobsterai_custom_model_connection_tested',
-  CustomModelSettingsSaved: 'lobsterai_custom_model_settings_saved',
-  ConversationBlockAction: 'lobsterai_conversation_block_action',
-  ConversationMessageAction: 'lobsterai_conversation_message_action',
-  ConversationNavigationAction: 'lobsterai_conversation_navigation_action',
-  DreamingSettingChanged: 'lobsterai_dreaming_setting_changed',
-  EmailSkillConnectionTested: 'lobsterai_email_skill_connection_tested',
-  EmailSkillSettingsSaved: 'lobsterai_email_skill_settings_saved',
-  ExpertKitAction: 'lobsterai_expert_kit_action',
-  ExpertKitSelected: 'lobsterai_expert_kit_selected',
-  GeneralSettingChanged: 'lobsterai_general_setting_changed',
-  ImConnectionTested: 'lobsterai_im_connection_tested',
-  ImGatewayToggled: 'lobsterai_im_gateway_toggled',
-  ImInstanceChanged: 'lobsterai_im_instance_changed',
-  ImSettingsSaved: 'lobsterai_im_settings_saved',
-  MemoryEntryChanged: 'lobsterai_memory_entry_changed',
-  MemorySettingChanged: 'lobsterai_memory_setting_changed',
-  McpEnabled: 'lobsterai_mcp_enabled',
-  McpAction: 'lobsterai_mcp_action',
-  ModelSelected: 'lobsterai_model_selected',
-  PlanModeEnabled: 'lobsterai_plan_mode_enabled',
-  PluginAction: 'lobsterai_plugin_action',
-  PluginSettingsSaved: 'lobsterai_plugin_settings_saved',
-  PromptControlAction: 'lobsterai_prompt_control_action',
-  PromptSubmit: 'lobsterai_prompt_submit',
-  PromptTemplateAction: 'lobsterai_prompt_template_action',
-  ShortcutSettingChanged: 'lobsterai_shortcut_setting_changed',
-  SidebarAction: 'lobsterai_sidebar_action',
-  SkillAction: 'lobsterai_skill_action',
-  SkillEnabled: 'lobsterai_skill_enabled',
-  ScheduledTaskAction: 'lobsterai_scheduled_task_action',
-  TaskSearchAction: 'lobsterai_task_search_action',
-  UsageAnalyticsEnabled: 'lobsterai_usage_analytics_enabled',
+  AgentCreateAction: 'WULU_agent_create_action',
+  AgentSettingsAction: 'WULU_agent_settings_action',
+  AgentEngineMaintenanceAction: 'WULU_agent_engine_maintenance_action',
+  AgentEngineSettingChanged: 'WULU_agent_engine_setting_changed',
+  AboutAction: 'WULU_about_action',
+  AccountMenuAction: 'WULU_account_menu_action',
+  AppStarted: 'WULU_app_started',
+  AppearanceSettingChanged: 'WULU_appearance_setting_changed',
+  ArtifactPreviewAction: 'WULU_artifact_preview_action',
+  BrowserSettingChanged: 'WULU_browser_setting_changed',
+  CustomModelConnectionTested: 'WULU_custom_model_connection_tested',
+  CustomModelSettingsSaved: 'WULU_custom_model_settings_saved',
+  ConversationBlockAction: 'WULU_conversation_block_action',
+  ConversationMessageAction: 'WULU_conversation_message_action',
+  ConversationNavigationAction: 'WULU_conversation_navigation_action',
+  DreamingSettingChanged: 'WULU_dreaming_setting_changed',
+  EmailSkillConnectionTested: 'WULU_email_skill_connection_tested',
+  EmailSkillSettingsSaved: 'WULU_email_skill_settings_saved',
+  ExpertKitAction: 'WULU_expert_kit_action',
+  ExpertKitSelected: 'WULU_expert_kit_selected',
+  GeneralSettingChanged: 'WULU_general_setting_changed',
+  ImConnectionTested: 'WULU_im_connection_tested',
+  ImGatewayToggled: 'WULU_im_gateway_toggled',
+  ImInstanceChanged: 'WULU_im_instance_changed',
+  ImSettingsSaved: 'WULU_im_settings_saved',
+  MemoryEntryChanged: 'WULU_memory_entry_changed',
+  MemorySettingChanged: 'WULU_memory_setting_changed',
+  McpEnabled: 'WULU_mcp_enabled',
+  McpAction: 'WULU_mcp_action',
+  ModelSelected: 'WULU_model_selected',
+  PlanModeEnabled: 'WULU_plan_mode_enabled',
+  PluginAction: 'WULU_plugin_action',
+  PluginSettingsSaved: 'WULU_plugin_settings_saved',
+  PromptControlAction: 'WULU_prompt_control_action',
+  PromptSubmit: 'WULU_prompt_submit',
+  PromptTemplateAction: 'WULU_prompt_template_action',
+  ShortcutSettingChanged: 'WULU_shortcut_setting_changed',
+  SidebarAction: 'WULU_sidebar_action',
+  SkillAction: 'WULU_skill_action',
+  SkillEnabled: 'WULU_skill_enabled',
+  ScheduledTaskAction: 'WULU_scheduled_task_action',
+  TaskSearchAction: 'WULU_task_search_action',
+  UsageAnalyticsEnabled: 'WULU_usage_analytics_enabled',
 } as const;
 
 export const LogReporterEntry = {
@@ -70,14 +70,14 @@ export const LogReporterEntry = {
 
 type LogParamValue = string | number | boolean | null | undefined;
 
-export type LogEventAction = `${typeof LogReporterActionPrefix.LobsterAI}${string}`;
+export type LogEventAction = `${typeof LogReporterActionPrefix.WULU}${string}`;
 
 export type LogEventParams = Record<string, LogParamValue> & {
   action: LogEventAction;
 };
 
 const logCommons = {
-  _npid: LogReporterProduct.LobsterAI,
+  _npid: LogReporterProduct.WULU,
   _ncat: LogReporterCategory.Actions,
 } as const;
 
@@ -243,8 +243,8 @@ export const reportYdAnalyzer = async (params: LogEventParams): Promise<boolean>
     return false;
   }
 
-  if (!params.action.startsWith(LogReporterActionPrefix.LobsterAI)) {
-    writeReporterLog('warn', 'skipped an event without the LobsterAI action prefix');
+  if (!params.action.startsWith(LogReporterActionPrefix.WULU)) {
+    writeReporterLog('warn', 'skipped an event without the WULU action prefix');
     return false;
   }
 

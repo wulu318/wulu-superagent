@@ -18,8 +18,8 @@ describe('pricing catalog model mapping', () => {
       {
         modelId: 'qwen3.7-plus',
         modelName: 'Qwen3.7-Plus',
-        provider: 'LobsterAI',
-        providerLabel: 'LobsterAI Plan',
+        provider: 'WULU',
+        providerLabel: 'WULU Plan',
         description: 'Strong multimodal model',
         supportsImage: true,
         supportsThinking: true,
@@ -31,8 +31,8 @@ describe('pricing catalog model mapping', () => {
     expect(model).toMatchObject({
       id: 'qwen3.7-plus',
       name: 'Qwen3.7-Plus',
-      provider: 'LobsterAI Plan',
-      providerKey: ProviderName.LobsteraiServer,
+      provider: 'WULU Plan',
+      providerKey: ProviderName.WULUServer,
       isServerModel: true,
       accessible: false,
       description: 'Strong multimodal model',
@@ -81,7 +81,7 @@ describe('login diagnostics', () => {
         api: {
           fetch: vi.fn().mockResolvedValue({
             ok: true,
-            data: { data: { value: 'https://lobsterai.youdao.com/portal#/login' } },
+            data: { data: { value: 'https://WULU.youdao.com/portal#/login' } },
           }),
         },
         auth: { login },
@@ -91,7 +91,7 @@ describe('login diagnostics', () => {
 
     await authService.login();
 
-    expect(login).toHaveBeenCalledWith('https://lobsterai.youdao.com/portal#/login');
+    expect(login).toHaveBeenCalledWith('https://WULU.youdao.com/portal#/login');
     expect(fromRenderer).toHaveBeenCalledWith(
       'info',
       'AuthService',
@@ -102,7 +102,7 @@ describe('login diagnostics', () => {
       'AuthService',
       expect.stringMatching(/^login attempt \d+ handed off to the system browser$/),
     );
-    expect(fromRenderer.mock.calls.flat().join(' ')).not.toContain('lobsterai.youdao.com');
+    expect(fromRenderer.mock.calls.flat().join(' ')).not.toContain('WULU.youdao.com');
   });
 
   test('records a warning while preserving the existing non-throwing IPC failure behavior', async () => {
@@ -115,7 +115,7 @@ describe('login diagnostics', () => {
         api: {
           fetch: vi.fn().mockResolvedValue({
             ok: true,
-            data: { data: { value: 'https://lobsterai.youdao.com/portal#/login' } },
+            data: { data: { value: 'https://WULU.youdao.com/portal#/login' } },
           }),
         },
         auth: { login: vi.fn().mockResolvedValue({ success: false, error: 'open failed' }) },

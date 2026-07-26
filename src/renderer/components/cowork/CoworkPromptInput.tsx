@@ -233,7 +233,7 @@ const SteerQueueIcon: React.FC<React.SVGProps<SVGSVGElement>> = ({ className, ..
 );
 
 const getModelAnalyticsSource = (model: Model, selectorGroup: ModelSelectorChangeMeta['group']): string => {
-  if (model.isServerModel || model.providerKey === ProviderName.LobsteraiServer || selectorGroup === ModelSelectorGroup.Server) {
+  if (model.isServerModel || model.providerKey === ProviderName.WULUServer || selectorGroup === ModelSelectorGroup.Server) {
     return 'package';
   }
   return 'custom';
@@ -647,7 +647,7 @@ const CoworkPromptInput = React.forwardRef<CoworkPromptInputRef, CoworkPromptInp
       return ModelAccessPromptKind.Login;
     }
     if (
-      effectiveSelectedModel?.providerKey === ProviderName.LobsteraiServer
+      effectiveSelectedModel?.providerKey === ProviderName.WULUServer
       && effectiveSelectedModel.accessible === false
     ) {
       return isLoggedIn ? ModelAccessPromptKind.Subscribe : ModelAccessPromptKind.Login;
@@ -1770,7 +1770,7 @@ const CoworkPromptInput = React.forwardRef<CoworkPromptInputRef, CoworkPromptInp
     reportPromptControl('kit_toggle', {
       kitId,
       kitName: marketplaceKit ? resolveLocalizedText(marketplaceKit.name) : installedKit?.id ?? kitId,
-      kitSource: marketplaceKit ? 'lobsterai-kits' : 'installed',
+      kitSource: marketplaceKit ? 'WULU-kits' : 'installed',
       targetEnabled: willSelect,
       isInstalled: !!installedKit,
       skillCount: installedKit?.skills?.skillIds.length ?? marketplaceKit?.skills?.list.length,
@@ -1783,7 +1783,7 @@ const CoworkPromptInput = React.forwardRef<CoworkPromptInputRef, CoworkPromptInp
         action: LogReporterAction.ExpertKitSelected,
         kitId,
         kitName: marketplaceKit ? resolveLocalizedText(marketplaceKit.name) : undefined,
-        kitSource: marketplaceKit ? 'lobsterai-kits' : 'installed',
+        kitSource: marketplaceKit ? 'WULU-kits' : 'installed',
         isInstalled: !!installedKit,
         skillCount: installedKit?.skills?.skillIds.length ?? marketplaceKit?.skills?.list.length,
         mcpServerCount: installedKit?.mcpServers.length ?? marketplaceKit?.mcpServers?.length,
@@ -1949,12 +1949,12 @@ const CoworkPromptInput = React.forwardRef<CoworkPromptInputRef, CoworkPromptInp
     : 'relative flex items-end gap-2 p-3 rounded-xl border border-border bg-surface';
 
   const textareaClass = isCompact
-    ? `w-full resize-none bg-transparent px-4 pb-1.5 text-sm leading-[var(--lobster-leading-sm)] text-foreground placeholder:dark:text-foregroundSecondary/60 placeholder:text-secondary/60 focus:outline-none min-h-[${minHeight}px] max-h-[${maxHeight}px] ${hasActiveContext ? 'pt-1.5' : 'pt-2'}`
+    ? `w-full resize-none bg-transparent px-4 pb-1.5 text-sm leading-[var(--Wulu-leading-sm)] text-foreground placeholder:dark:text-foregroundSecondary/60 placeholder:text-secondary/60 focus:outline-none min-h-[${minHeight}px] max-h-[${maxHeight}px] ${hasActiveContext ? 'pt-1.5' : 'pt-2'}`
     : isLarge
     ? `w-full resize-none bg-transparent px-4 pb-2 text-foreground placeholder:dark:text-foregroundSecondary/60 placeholder:text-secondary/60 focus:outline-none min-h-[${minHeight}px] max-h-[${maxHeight}px] ${
       useHomeContextLayout
-        ? `${hasActiveContext ? 'pt-2' : 'pt-3'} text-sm leading-[var(--lobster-leading-prompt)]`
-        : `${hasActiveContext ? 'pt-2' : 'pt-2.5'} text-[length:var(--lobster-text-promptLarge)] leading-[var(--lobster-leading-promptLarge)]`
+        ? `${hasActiveContext ? 'pt-2' : 'pt-3'} text-sm leading-[var(--Wulu-leading-prompt)]`
+        : `${hasActiveContext ? 'pt-2' : 'pt-2.5'} text-[length:var(--Wulu-text-promptLarge)] leading-[var(--Wulu-leading-promptLarge)]`
     }`
     : 'flex-1 resize-none bg-transparent text-foreground placeholder:placeholder:text-secondary focus:outline-none text-sm leading-relaxed min-h-[24px] max-h-[200px]';
 
@@ -3340,7 +3340,7 @@ const CoworkPromptInput = React.forwardRef<CoworkPromptInputRef, CoworkPromptInp
         className={`${textareaClass} relative z-10`}
         style={{
           ...style,
-          caretColor: 'var(--lobster-text-primary)',
+          caretColor: 'var(--Wulu-text-primary)',
           }}
         />
       </div>

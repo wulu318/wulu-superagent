@@ -22,8 +22,8 @@ afterEach(() => {
 
 test('resolveNpmCommand delegates to shared npm runtime resolution', () => {
   const resolved = {
-    command: 'C:\\LobsterAI\\LobsterAI.exe',
-    baseArgs: ['C:\\LobsterAI\\resources\\app.asar.unpacked\\node_modules\\npm\\bin\\npm-cli.js'],
+    command: 'C:\\WULU\\WULU.exe',
+    baseArgs: ['C:\\WULU\\resources\\app.asar.unpacked\\node_modules\\npm\\bin\\npm-cli.js'],
     env: { ELECTRON_RUN_AS_NODE: '1' },
     shell: false,
   };

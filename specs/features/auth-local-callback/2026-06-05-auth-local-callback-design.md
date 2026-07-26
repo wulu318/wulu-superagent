@@ -1,34 +1,34 @@
-# LobsterAI 本地回调登录设计文档
+# wulu 本地回调登录设计文档
 
 ## 1. 概述
 
 ### 1.1 背景
 
-当前 LobsterAI 登录流程为：
+当前 wulu 登录流程为：
 
 ```
 客户端点击登录
   -> 主进程通过 shell.openExternal 打开网页登录页
   -> 用户在网页端完成登录
-  -> 网页触发 lobsterai://auth/callback?code=<authCode>
-  -> 浏览器弹出系统确认框，用户点击"打开 LobsterAI"
+  -> 网页触发 wulu://auth/callback?code=<authCode>
+  -> 浏览器弹出系统确认框，用户点击"打开 wulu"
   -> Electron 通过 deep link 收到 code
   -> 主进程调用 /api/auth/exchange 换取 accessToken 与 refreshToken
 ```
 
-该流程可用，但浏览器在打开 `lobsterai://` 自定义协议时会显示系统级确认弹窗。弹窗由浏览器控制，样式不可定制；首次登录时用户会看到一层额外确认，体验不够顺滑。
+该流程可用，但浏览器在打开 `wulu://` 自定义协议时会显示系统级确认弹窗。弹窗由浏览器控制，样式不可定制；首次登录时用户会看到一层额外确认，体验不够顺滑。
 
-本需求希望改为 **localhost / 127.0.0.1 本地回调模式**：网页登录成功后直接重定向到客户端临时启动的本地 HTTP callback server，由客户端接收一次性 auth code 并完成登录。因为浏览器访问的是普通 HTTP 地址，而不是外部应用协议，所以不会触发"是否打开 LobsterAI"的系统确认框。
+本需求希望改为 **localhost / 127.0.0.1 本地回调模式**：网页登录成功后直接重定向到客户端临时启动的本地 HTTP callback server，由客户端接收一次性 auth code 并完成登录。因为浏览器访问的是普通 HTTP 地址，而不是外部应用协议，所以不会触发"是否打开 wulu"的系统确认框。
 
 ### 1.2 目标
 
 - 使用 `http://127.0.0.1:<port>/auth/callback` 接收网页登录回调。
 - 登录时由客户端临时启动本地 callback server，登录结束后立即关闭。
 - 端口使用系统分配的动态空闲端口，避免固定端口冲突。
-- 保留现有 `lobsterai://auth/callback` deep link 逻辑作为兼容或 fallback。
+- 保留现有 `wulu://auth/callback` deep link 逻辑作为兼容或 fallback。
 - 复用现有 `/api/auth/exchange`、token 持久化、刷新、用户信息加载逻辑。
-- 网页端登录成功后展示用户友好的成功页，提示可以关闭浏览器页面或返回 LobsterAI。
-- 客户端收到本地 callback 后主动恢复并聚焦 LobsterAI 主窗口，尽量让用户回到应用。
+- 网页端登录成功后展示用户友好的成功页，提示可以关闭浏览器页面或返回 wulu。
+- 客户端收到本地 callback 后主动恢复并聚焦 wulu 主窗口，尽量让用户回到应用。
 - 本地 callback 成功页短暂停留后自动跳回 portal 的 Electron 登录成功页，避免浏览器长期停留在 `127.0.0.1` 地址。
 
 ### 1.3 非目标
@@ -42,7 +42,7 @@
 
 ### 场景 1: 首次登录
 
-**Given** 用户未登录 LobsterAI
+**Given** 用户未登录 wulu
 **When** 用户在客户端点击登录按钮
 **Then** 客户端启动一个只监听 `127.0.0.1` 的临时 HTTP server，并打开带 `redirect_uri` 的网页登录页
 
@@ -65,7 +65,7 @@
 
 **Given** 后端或网页端尚未支持 `redirect_uri=http://127.0.0.1:<port>/auth/callback`
 **When** 用户点击登录
-**Then** 客户端可继续使用现有 `lobsterai://auth/callback` deep link 流程作为 fallback，确保登录功能不回退
+**Then** 客户端可继续使用现有 `wulu://auth/callback` deep link 流程作为 fallback，确保登录功能不回退
 
 ## 3. 功能需求
 
@@ -110,7 +110,7 @@
 
 ### FR-6: deep link 兼容
 
-- 保留现有 `lobsterai://auth/callback?code=...` 解析。
+- 保留现有 `wulu://auth/callback?code=...` 解析。
 - macOS `open-url`、Windows/Linux `second-instance` 和 cold start 参数解析逻辑继续可用。
 - 若本地回调启动失败或网页端未支持 `redirect_uri`，可以退回 deep link 流程。
 
@@ -145,7 +145,7 @@
   - 返回成功页或失败页
   - 通知主流程处理 code
 
-参考实现可借鉴 `src/main/libs/openaiCodexAuth.ts` 中本地 callback server 的 HTML 响应、超时和 server close 模式，但端口策略不同：LobsterAI 登录使用动态端口；OpenAI Codex OAuth 因第三方注册限制必须使用固定 `1455`。
+参考实现可借鉴 `src/main/libs/openaiCodexAuth.ts` 中本地 callback server 的 HTML 响应、超时和 server close 模式，但端口策略不同：wulu 登录使用动态端口；OpenAI Codex OAuth 因第三方注册限制必须使用固定 `1455`。
 
 ### 4.2 调整主进程登录入口
 
@@ -175,7 +175,7 @@ const finalUrl = buildLoginUrl(baseUrl, {
 await shell.openExternal(finalUrl);
 ```
 
-实际实现时需要给 `AuthCallbackRouter` 增加一个直接投递 code 的方法，避免为了本地 callback 再伪造 `lobsterai://` URL。例如：
+实际实现时需要给 `AuthCallbackRouter` 增加一个直接投递 code 的方法，避免为了本地 callback 再伪造 `wulu://` URL。例如：
 
 ```ts
 handleAuthCode(code: string): void {
@@ -201,7 +201,7 @@ function appendLoginParams(baseUrl: string, params: Record<string, string>): str
 
 ### 4.4 超时与并发控制
 
-- 同一时间只允许一个 LobsterAI 登录 callback server。
+- 同一时间只允许一个 wulu 登录 callback server。
 - 如果用户重复点击登录：
   - 关闭旧 server；
   - 创建新 state 和新 server；
@@ -235,8 +235,8 @@ macOS 仍可能受到系统抢焦点策略限制，但该处理能覆盖大多�
 
 本地 server 返回简单 HTML：
 
-- 成功：`登录已完成，正在返回 LobsterAI 登录页。`
-- 失败：`登录失败，请返回 LobsterAI 后重试。`
+- 成功：`登录已完成，正在返回 wulu 登录页。`
+- 失败：`登录失败，请返回 wulu 后重试。`
 - 页面不包含 code、token 或敏感错误详情。
 - HTML 中的用户可见文案在主进程内生成。若未来需要多语言，可接入 `src/main/i18n.ts`。
 
@@ -277,7 +277,7 @@ window.location.replace(returnTo);
 4. 若未传 `redirect_uri`，保留现有 deep link：
 
 ```text
-lobsterai://auth/callback?code=<authCode>
+wulu://auth/callback?code=<authCode>
 ```
 
 推荐优先只允许 `127.0.0.1`，减少 localhost 被 hosts 或代理环境影响的可能性。
@@ -286,28 +286,28 @@ lobsterai://auth/callback?code=<authCode>
 
 当前网页端代码位于：
 
-`/Users/admin/Desktop/disk/work/lobsterai-portal`
+`/Users/admin/Desktop/disk/work/wulu-portal`
 
 客户端当前打开的生产登录地址为：
 
 ```text
-https://lobsterai.youdao.com/portal#/login?source=electron
+https://wulu.youdao.com/portal#/login?source=electron
 ```
 
 网页端登录主入口为：
 
-`/Users/admin/Desktop/disk/work/lobsterai-portal/src/views/LoginView.vue`
+`/Users/admin/Desktop/disk/work/wulu-portal/src/views/LoginView.vue`
 
 现有逻辑：
 
 - `route.query.source` 决定是否为 Electron 登录，默认值为 `portal`。
 - `route.query.electronLogin === 'success'` 时显示 Electron 登录完成状态，不加载 URS SDK。
-- Electron 登录完成状态页使用 LobsterAI 品牌图标与成功文案，并提供"返回网站首页"按钮。
+- Electron 登录完成状态页使用 wulu 品牌图标与成功文案，并提供"返回网站首页"按钮。
 - 普通 URS 登录成功后，`handleLoginSuccess()` 调用 `POST /api/auth/callback`，服务端返回 `data.authCode`。
 - 当 `source === 'electron' && authCode` 时，页面创建隐藏 iframe：
 
 ```ts
-iframe.src = `lobsterai://auth/callback?code=${authCode}`;
+iframe.src = `wulu://auth/callback?code=${authCode}`;
 ```
 
 - 员工 OpenID 登录成功后，`handleOpenIdCallback()` 也使用同样的隐藏 iframe 触发 deep link。
@@ -326,7 +326,7 @@ function resolveElectronCallbackUrl(authCode: string): string {
     return callbackUrl.toString();
   }
 
-  return `lobsterai://auth/callback?code=${encodeURIComponent(authCode)}`;
+  return `wulu://auth/callback?code=${encodeURIComponent(authCode)}`;
 }
 ```
 
@@ -353,7 +353,7 @@ function notifyElectronClient(authCode: string): void {
 
 | 客户端版本 | 打开的登录 URL | 网页端行为 |
 |------------|----------------|------------|
-| 旧版本 | `#/login?source=electron` | 没有 `redirect_uri`，继续使用 `lobsterai://auth/callback?code=...` |
+| 旧版本 | `#/login?source=electron` | 没有 `redirect_uri`，继续使用 `wulu://auth/callback?code=...` |
 | 新版本 | `#/login?source=electron&redirect_uri=http%3A%2F%2F127.0.0.1%3A<port>%2Fauth%2Fcallback&state=...` | 优先跳转本地 callback URL |
 | Web 普通登录 | `#/login` 或 `#/login?source=portal` | 不通知客户端，按现有页面逻辑进入 `/profile` |
 
@@ -387,7 +387,7 @@ window.location.href = `${API_BASE_URL}/api/auth/openid/login?${params.toString(
 
 ## 5. 端口策略
 
-### 5.1 不使用 LobsterAI 应用端口
+### 5.1 不使用 wulu 应用端口
 
 不要复用 Vite dev server 的 `5175` 端口：
 
@@ -401,7 +401,7 @@ window.location.href = `${API_BASE_URL}/api/auth/openid/login?${params.toString(
 
 - `src/main/libs/openaiCodexAuth.ts` 已使用该端口处理 ChatGPT/Codex OAuth。
 - 该流程因 OpenAI 注册的 redirect URI 限制必须固定端口。
-- LobsterAI 自有登录没有必要引入该冲突点。
+- wulu 自有登录没有必要引入该冲突点。
 
 ### 5.3 推荐动态端口
 
@@ -431,8 +431,8 @@ http://127.0.0.1:<actualPort>/auth/callback
 | `src/shared/auth/constants.ts` | 如新增 IPC 事件或状态常量，则在此集中定义 |
 | `src/main/libs/authLocalCallbackServer.test.ts` | 新建，覆盖 callback path、state、code、server close 等逻辑 |
 | `src/main/libs/authCallbackRouter.test.ts` | 修改，覆盖直接投递 code 的 buffer/deliver 行为 |
-| `/Users/admin/Desktop/disk/work/lobsterai-portal/src/views/LoginView.vue` | 修改，优先使用 `redirect_uri` 通知新客户端，并保留 deep link 兼容旧客户端 |
-| `/Users/admin/Desktop/disk/work/lobsterai-portal/docs/server-integration/*` | 可选修改，补充 portal 与后端对 `redirect_uri` / `state` 的协作说明 |
+| `/Users/admin/Desktop/disk/work/wulu-portal/src/views/LoginView.vue` | 修改，优先使用 `redirect_uri` 通知新客户端，并保留 deep link 兼容旧客户端 |
+| `/Users/admin/Desktop/disk/work/wulu-portal/docs/server-integration/*` | 可选修改，补充 portal 与后端对 `redirect_uri` / `state` 的协作说明 |
 
 ## 7. 边界情况
 
@@ -471,20 +471,20 @@ http://127.0.0.1:<actualPort>/auth/callback
 5. 确认登录成功后 Redux auth 状态、quota、server models 与现有 deep link 流程一致。
 6. 确认本地 callback server 在成功后关闭，再访问同一 callback URL 应连接失败或无响应。
 7. 在 portal 登录页使用 `#/login?source=electron&redirect_uri=http%3A%2F%2F127.0.0.1%3A<port>%2Fauth%2Fcallback&state=abc`，普通 URS 登录成功后跳转到本地 callback URL。
-8. 在 portal 登录页使用 `#/login?source=electron`，普通 URS 登录成功后仍触发 `lobsterai://auth/callback?code=...`。
+8. 在 portal 登录页使用 `#/login?source=electron`，普通 URS 登录成功后仍触发 `wulu://auth/callback?code=...`。
 9. 员工 OpenID 登录成功后同样遵循 `redirect_uri` 优先、deep link fallback 的规则。
-10. 新本地 callback 收到合法 code 后，LobsterAI 主窗口会从最小化/后台状态恢复到前台。
+10. 新本地 callback 收到合法 code 后，wulu 主窗口会从最小化/后台状态恢复到前台。
 
 ### 8.3 回归测试
 
-1. 现有 `lobsterai://auth/callback?code=...` deep link 仍可触发登录。
+1. 现有 `wulu://auth/callback?code=...` deep link 仍可触发登录。
 2. 应用未启动时由 deep link 冷启动，仍能 buffer auth code。
 3. macOS `open-url` 与 Windows/Linux `second-instance` 逻辑不受影响。
 4. 退出登录、token refresh、`auth:getUser`、`auth:getQuota` 行为不变。
 
 ## 9. 验收标准
 
-1. 用户点击客户端登录后，浏览器打开网页登录页，不直接触发浏览器"打开 LobsterAI"系统确认框。
+1. 用户点击客户端登录后，浏览器打开网页登录页，不直接触发浏览器"打开 wulu"系统确认框。
 2. 网页登录成功后，浏览器跳转到 `127.0.0.1` 成功页，页面提示登录完成。
 3. 客户端自动完成登录，用户信息和额度正常显示。
 4. 登录过程中不使用固定端口；多次登录不会因为端口占用失败。
@@ -501,4 +501,4 @@ http://127.0.0.1:<actualPort>/auth/callback
 3. 修改 `auth:login`，先启动本地 callback server，再打开携带 `redirect_uri` 和 `state` 的登录 URL。
 4. 与网页端联调 `redirect_uri` 参数透传和 loopback 白名单校验。
 5. 保留 deep link fallback，灰度观察登录成功率和错误日志。
-6. 验收通过后，将网页登录完成页中的"打开 LobsterAI"引导降级为 fallback 入口。
+6. 验收通过后，将网页登录完成页中的"打开 wulu"引导降级为 fallback 入口。

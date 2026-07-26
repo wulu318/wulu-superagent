@@ -171,7 +171,7 @@ describe('OpenClawConfigSync runtime config output', () => {
     } as never);
   };
 
-  test('writes OpenClaw config fields required by LobsterAI patches', async () => {
+  test('writes OpenClaw config fields required by WULU patches', async () => {
     const legacyWorkingDirectory = path.join(tmpDir, 'legacy-working-directory');
     const mainAgentWorkingDirectory = path.join(tmpDir, 'main-agent-working-directory');
 
@@ -209,7 +209,7 @@ describe('OpenClawConfigSync runtime config output', () => {
       ],
     });
 
-    const result = sync.sync('lobsterai-patch-dependent-fields');
+    const result = sync.sync('WULU-patch-dependent-fields');
     expect(result.ok).toBe(true);
 
     const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
@@ -656,7 +656,7 @@ describe('OpenClawConfigSync runtime config output', () => {
     expect(fs.existsSync(path.join(writerWorkspace, 'USER.md'))).toBe(false);
   });
 
-  test('merges all server models into existing lobsterai provider and updates image input', async () => {
+  test('merges all server models into existing WULU provider and updates image input', async () => {
     mockRuntimeState.proxyPort = 56646;
     mockRuntimeState.serverModels = [
       {
@@ -719,13 +719,13 @@ describe('OpenClawConfigSync runtime config output', () => {
     ];
     mockRuntimeState.rawApiConfig = {
       config: {
-        baseURL: 'https://lobsterai-server.youdao.com/api/proxy/v1',
+        baseURL: 'https://WULU-server.youdao.com/api/proxy/v1',
         apiKey: 'access-token',
         model: 'qwen3.5-plus-YoudaoInner',
         apiType: 'openai',
       },
       providerMetadata: {
-        providerName: 'lobsterai-server',
+        providerName: 'WULU-server',
         codingPlanEnabled: false,
         supportsImage: false,
         modelName: 'Qwen3.5 Plus',
@@ -774,10 +774,10 @@ describe('OpenClawConfigSync runtime config output', () => {
     expect(result.ok).toBe(true);
 
     const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-    const provider = config.models.providers['lobsterai-server'];
+    const provider = config.models.providers['WULU-server'];
     expect(provider.baseUrl).toBe('http://127.0.0.1:56646/v1');
-    expect(provider.apiKey).toBe('${LOBSTER_PROXY_TOKEN}');
-    expect(JSON.stringify(config)).not.toContain('LOBSTER_APIKEY_SERVER');
+    expect(provider.apiKey).toBe('${WULU_PROXY_TOKEN}');
+    expect(JSON.stringify(config)).not.toContain('WULU_APIKEY_SERVER');
     expect(provider.models).toEqual(expect.arrayContaining([
       expect.objectContaining({
         id: 'qwen3.5-plus-YoudaoInner',
@@ -825,31 +825,31 @@ describe('OpenClawConfigSync runtime config output', () => {
     expect(JSON.stringify(provider.models)).not.toContain('cacheControlFormat');
     expect(JSON.stringify(provider.models)).not.toContain('supportsLongCacheRetention');
     expect(config.agents.defaults.models).toEqual(expect.objectContaining({
-      'lobsterai-server/qwen3.5-plus-YoudaoInner': {
+      'WULU-server/qwen3.5-plus-YoudaoInner': {
         params: {
           cacheRetention: 'short',
           contextCacheProvider: 'dashscope',
           contextCacheMode: 'explicit',
         },
       },
-      'lobsterai-server/qwen3.6-plus-YoudaoInner': {
+      'WULU-server/qwen3.6-plus-YoudaoInner': {
         params: {
           cacheRetention: 'short',
           contextCacheProvider: 'dashscope',
           contextCacheMode: 'explicit',
         },
       },
-      'lobsterai-server/claude-sonnet-4-6-YoudaoInner': {
+      'WULU-server/claude-sonnet-4-6-YoudaoInner': {
         params: {
           cacheRetention: 'short',
         },
       },
-      'lobsterai-server/claude-opus-4-YoudaoInner': {
+      'WULU-server/claude-opus-4-YoudaoInner': {
         params: {
           cacheRetention: 'short',
         },
       },
-      'lobsterai-server/claude-sonnet-4-6': {
+      'WULU-server/claude-sonnet-4-6': {
         params: {
           cacheRetention: 'short',
           contextCacheProvider: 'anthropic-compatible',
@@ -864,13 +864,13 @@ describe('OpenClawConfigSync runtime config output', () => {
     mockRuntimeState.serverModels = [];
     mockRuntimeState.rawApiConfig = {
       config: {
-        baseURL: 'https://lobsterai-server.youdao.com/api/proxy/v1',
+        baseURL: 'https://WULU-server.youdao.com/api/proxy/v1',
         apiKey: 'access-token',
         model: 'claude-sonnet-4-6',
         apiType: 'openai',
       },
       providerMetadata: {
-        providerName: 'lobsterai-server',
+        providerName: 'WULU-server',
         codingPlanEnabled: false,
         supportsImage: true,
         supportsThinking: true,
@@ -884,14 +884,14 @@ describe('OpenClawConfigSync runtime config output', () => {
     expect(result.ok).toBe(true);
 
     const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-    expect(config.models.providers['lobsterai-server'].models).toEqual(expect.arrayContaining([
+    expect(config.models.providers['WULU-server'].models).toEqual(expect.arrayContaining([
       expect.objectContaining({
         id: 'claude-sonnet-4-6',
         api: 'openai-completions',
       }),
     ]));
     expect(config.agents.defaults.models).toEqual(expect.objectContaining({
-      'lobsterai-server/claude-sonnet-4-6': {
+      'WULU-server/claude-sonnet-4-6': {
         params: {
           cacheRetention: 'short',
           contextCacheProvider: 'anthropic-compatible',
@@ -1135,15 +1135,15 @@ describe('OpenClawConfigSync runtime config output', () => {
         },
       },
       'deepseek/deepseek-v4-pro': {},
-      'lobsterai-server/MiniMax-M2.7-YoudaoInner': {},
-      'lobsterai-server/kimi-k2.6-inhouse-ZhiYun': {},
+      'WULU-server/MiniMax-M2.7-YoudaoInner': {},
+      'WULU-server/kimi-k2.6-inhouse-ZhiYun': {},
     }));
     expect(Object.keys(modelDefaults)).toEqual(expect.arrayContaining([
       'deepseek/deepseek-v4-flash',
       'deepseek/deepseek-v4-pro',
       'custom_0/custom-thinking-model',
-      'lobsterai-server/MiniMax-M2.7-YoudaoInner',
-      'lobsterai-server/kimi-k2.6-inhouse-ZhiYun',
+      'WULU-server/MiniMax-M2.7-YoudaoInner',
+      'WULU-server/kimi-k2.6-inhouse-ZhiYun',
     ]));
   });
 
@@ -1152,7 +1152,7 @@ describe('OpenClawConfigSync runtime config output', () => {
       agents: {
         defaults: {
           models: {
-            'lobsterai-server/MiniMax-M2.7-YoudaoInner': {},
+            'WULU-server/MiniMax-M2.7-YoudaoInner': {},
           },
         },
       },
@@ -1177,11 +1177,11 @@ describe('OpenClawConfigSync runtime config output', () => {
     expect(result.ok).toBe(true);
 
     const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-    expect(config.plugins.entries['lobster-media-generation']).toEqual({
+    expect(config.plugins.entries['Wulu-media-generation']).toEqual({
       enabled: true,
       config: {
         callbackUrl: 'http://127.0.0.1:5175/media-callback',
-        secret: '${LOBSTER_MCP_BRIDGE_SECRET}',
+        secret: '${WULU_MCP_BRIDGE_SECRET}',
         requestTimeoutMs: 150000,
       },
     });
@@ -1199,11 +1199,11 @@ describe('OpenClawConfigSync runtime config output', () => {
     expect(result.ok).toBe(true);
 
     const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-    expect(config.plugins.entries['lobster-media-generation']).toEqual({
+    expect(config.plugins.entries['Wulu-media-generation']).toEqual({
       enabled: true,
       config: {
         callbackUrl: 'http://127.0.0.1:5175/media-callback',
-        secret: '${LOBSTER_MCP_BRIDGE_SECRET}',
+        secret: '${WULU_MCP_BRIDGE_SECRET}',
         requestTimeoutMs: 150000,
       },
     });
@@ -1362,7 +1362,7 @@ describe('OpenClawConfigSync runtime config output', () => {
     expect(selection.primaryModel).toBe(`${OpenClawProviderId.MinimaxPortal}/MiniMax-M3`);
     expect(selection.providerConfig.api).toBe(OpenClawApi.AnthropicMessages);
     expect(selection.providerConfig.auth).toBe(AuthType.OAuth);
-    expect(selection.providerConfig.apiKey).toBe('${LOBSTER_APIKEY_MINIMAX}');
+    expect(selection.providerConfig.apiKey).toBe('${WULU_APIKEY_MINIMAX}');
     expect(selection.providerConfig.models[0].maxTokens).toBe(131_072);
   });
 
@@ -1410,7 +1410,7 @@ describe('OpenClawConfigSync runtime config output', () => {
     expect(selection.providerId).toBe(OpenClawProviderId.Xai);
     expect(selection.providerConfig.api).toBe(OpenClawApi.OpenAIResponses);
     expect(selection.providerConfig.auth).toBe(AuthType.ApiKey);
-    expect(selection.providerConfig.apiKey).toBe('${LOBSTER_APIKEY_XAI}');
+    expect(selection.providerConfig.apiKey).toBe('${WULU_APIKEY_XAI}');
   });
 
   test.each([
@@ -2151,12 +2151,12 @@ describe('OpenClawConfigSync runtime config output', () => {
       'packed-app|packed-account|packed-token',
     );
     expect(config.channels.nim.accounts['nim-work'].nimToken).toBe(
-      'work-app|work-account|${LOBSTER_NIM_TOKEN_1}',
+      'work-app|work-account|${WULU_NIM_TOKEN_1}',
     );
 
     const env = sync.collectSecretEnvVars();
-    expect(env).not.toHaveProperty('LOBSTER_NIM_TOKEN');
-    expect(env.LOBSTER_NIM_TOKEN_1).toBe('work-token');
+    expect(env).not.toHaveProperty('WULU_NIM_TOKEN');
+    expect(env.WULU_NIM_TOKEN_1).toBe('work-token');
   });
 
   test('writes weixin channel config using dmPolicy and allowFrom instead of unsupported accountId', async () => {
@@ -2252,7 +2252,7 @@ describe('OpenClawConfigSync runtime config output', () => {
 
     const agentsMdPath = path.join(stateDir, 'workspace-main', 'AGENTS.md');
     const agentsMd = fs.readFileSync(agentsMdPath, 'utf8');
-    expect(agentsMd).toContain('LobsterAI does not support sandbox browser execution in this version.');
+    expect(agentsMd).toContain('WULU does not support sandbox browser execution in this version.');
     expect(agentsMd).toContain('For every `browser` tool call, set `target="host"` explicitly.');
   });
 
@@ -2329,7 +2329,7 @@ describe('OpenClawConfigSync runtime config output', () => {
           timeoutSeconds: 25,
           maxRedirects: 4,
           maxChars: 12000,
-          userAgent: 'LobsterAI Test',
+          userAgent: 'WULU Test',
           readability: false,
           allowRfc2544BenchmarkRange: true,
         },
@@ -2384,7 +2384,7 @@ describe('OpenClawConfigSync runtime config output', () => {
       timeoutSeconds: 25,
       maxRedirects: 4,
       maxChars: 12000,
-      userAgent: 'LobsterAI Test',
+      userAgent: 'WULU Test',
       ssrfPolicy: { allowRfc2544BenchmarkRange: true },
     });
     expect(config.tools.web.fetch.useEnvProxy).toBeUndefined();
@@ -2399,7 +2399,7 @@ describe('OpenClawConfigSync runtime config output', () => {
         transportType: 'stdio',
         command: 'node',
         args: ['server.js'],
-        env: { TAVILY_API_KEY: '${LOBSTER_TAVILY_API_KEY}' },
+        env: { TAVILY_API_KEY: '${WULU_TAVILY_API_KEY}' },
       }],
     });
 
@@ -2445,11 +2445,11 @@ describe('resolveModelSourceForOpenClawProvider', () => {
     mockRuntimeState.providerSourceEntries = [];
   });
 
-  test('classifies the LobsterAI plan without any Settings entry', async () => {
+  test('classifies the WULU plan without any Settings entry', async () => {
     const { resolveModelSourceForOpenClawProvider } = await import('./openclawConfigSync');
-    expect(resolveModelSourceForOpenClawProvider('lobsterai-server')).toEqual({
-      source: 'lobsterai-plan',
-      providerName: ProviderName.LobsteraiServer,
+    expect(resolveModelSourceForOpenClawProvider('WULU-server')).toEqual({
+      source: 'WULU-plan',
+      providerName: ProviderName.WULUServer,
     });
   });
 

@@ -830,7 +830,7 @@ export const isMediaStatusPoll = (group: ToolGroupItem): boolean => {
   const toolName = group.toolUse.metadata?.toolName;
   if (!toolName) return false;
   const normalized = normalizeToolName(toolName);
-  if (normalized !== 'lobsteraivideogenerate' && normalized !== 'lobsteraiimagegenerate') return false;
+  if (normalized !== 'WULUvideogenerate' && normalized !== 'WULUimagegenerate') return false;
   const input = group.toolUse.metadata?.toolInput as Record<string, unknown> | undefined;
   return input?.action === 'status' && typeof input?.taskId === 'string';
 };
@@ -880,7 +880,7 @@ export const isMediaGenerateRunning = (group: ToolGroupItem): boolean => {
   const toolName = group.toolUse.metadata?.toolName;
   if (!toolName) return false;
   const normalized = normalizeToolName(toolName);
-  if (normalized !== 'lobsteraivideogenerate') return false;
+  if (normalized !== 'WULUvideogenerate') return false;
   const input = group.toolUse.metadata?.toolInput as Record<string, unknown> | undefined;
   const action = input?.action;
   if (action !== 'generate' && action !== undefined) return false;

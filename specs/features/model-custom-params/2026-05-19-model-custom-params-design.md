@@ -4,11 +4,11 @@
 
 ### 1.1 问题/背景
 
-模型提供商会不断引入新的 API 参数（如 DeepSeek 的 `reasoning_effort` 新增 `smart` 选项、Anthropic 的 `thinking` 配置等）。这些参数通常是模型/提供商特有的，LobsterAI 无法为每个新参数都预设 UI 字段。
+模型提供商会不断引入新的 API 参数（如 DeepSeek 的 `reasoning_effort` 新增 `smart` 选项、Anthropic 的 `thinking` 配置等）。这些参数通常是模型/提供商特有的，wulu 无法为每个新参数都预设 UI 字段。
 
 OpenClaw 的 `agents.defaults.models["provider/model"].params` 支持部分参数透传，但内部使用白名单机制，仅允许 `temperature`、`maxTokens` 等少数已知参数。其他参数（如 `enable_thinking`、`reasoning_effort`）会被静默忽略。
 
-本功能通过 LobsterAI 侧 patch OpenClaw runtime，增加 `extra_body` 通用透传机制，将 `params.extra_body` 中的字段直接合并到 API 请求 body，绕过白名单限制。
+本功能通过 wulu 侧 patch OpenClaw runtime，增加 `extra_body` 通用透传机制，将 `params.extra_body` 中的字段直接合并到 API 请求 body，绕过白名单限制。
 
 ### 1.2 目标
 

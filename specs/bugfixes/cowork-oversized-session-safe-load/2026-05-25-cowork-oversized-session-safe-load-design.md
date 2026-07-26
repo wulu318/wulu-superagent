@@ -4,15 +4,15 @@
 
 ### 1.1 问题
 
-用户反馈某一个固定任务记录只要点击，整个 LobsterAI 应用就会卡死，无法继续操作。重启应用后，只要不点击该任务记录就正常；再次点击同一个任务记录后又会卡死。
+用户反馈某一个固定任务记录只要点击，整个 wulu 应用就会卡死，无法继续操作。重启应用后，只要不点击该任务记录就正常；再次点击同一个任务记录后又会卡死。
 
 本次日志中可定位到异常会话：
 
 | 字段 | 值 |
 |---|---|
-| LobsterAI sessionId | `d5bc36d4-57f7-4c4b-8248-f7ddc5727e12` |
+| wulu sessionId | `d5bc36d4-57f7-4c4b-8248-f7ddc5727e12` |
 | OpenClaw sessionId | `98850bbd-4ec0-4a87-8865-7069801f3ccd` |
-| session key | `agent:pm:lobsterai:d5bc36d4-57f7-4c4b-8248-f7ddc5727e12` |
+| session key | `agent:pm:wulu:d5bc36d4-57f7-4c4b-8248-f7ddc5727e12` |
 | 任务特征 | `外挂逆向大盘 Dashboard`、`PM 外挂逆向数据` |
 
 日志显示该 session 的 OpenClaw transcript 已异常膨胀：

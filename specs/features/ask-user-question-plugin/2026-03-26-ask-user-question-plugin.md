@@ -26,7 +26,7 @@ OpenClaw 引擎接管后，原有的 Claude Agent SDK `canUseTool` 执行前拦�
 
 ```
 模型调用 AskUserQuestion 工具（结构化 JSON）
-→ 插件 execute() 通过 HTTP POST /askuser 发送到 LobsterAI
+→ 插件 execute() 通过 HTTP POST /askuser 发送到 wulu
 → McpBridgeServer 收到请求，创建 Promise 等待
 → IPC 通知渲染进程弹窗
 → 用户操作（确认/拒绝/选择/超时 120s）
@@ -38,7 +38,7 @@ OpenClaw 引擎接管后，原有的 Claude Agent SDK `canUseTool` 执行前拦�
 ### 桌面端 vs IM 端隔离
 
 插件通过 `sessionKey` 判断来源：
-- `agent:main:lobsterai:*` → 桌面端 → 注册 AskUserQuestion 工具
+- `agent:main:wulu:*` → 桌面端 → 注册 AskUserQuestion 工具
 - 其他（qqbot/dingtalk/weixin/feishu/wecom）→ IM → 返回 null，工具不可见
 
 IM 端模型工具列表中没有 AskUserQuestion，自然不会调用，命令直接执行。
@@ -61,7 +61,7 @@ IM 端模型工具列表中没有 AskUserQuestion，自然不会调用，命令�
                    POST /askuser                       │
                         │                              │
 ┌───────────────────────▼──────────────────────────────┐
-│ LobsterAI 主进程 (Electron)                          │
+│ wulu 主进程 (Electron)                          │
 │                                                      │
 │  McpBridgeServer ──IPC──▶ 渲染进程弹窗               │
 │  (HTTP callback)          CoworkPermissionModal      │
@@ -138,7 +138,7 @@ IM 端模型工具列表中没有 AskUserQuestion，自然不会调用，命令�
 2. **同 session 重试**：拒绝删除后在同一 session 说"还是删除吧"，模型可能跳过弹窗直接执行。新 session 正常。
 3. **超时**：弹窗 120 秒无操作自动关闭，视为拒绝。
 4. **IM 选择场景**：IM 端无 AskUserQuestion 工具，选择场景退化为文本交互。
-5. **钉钉/企微**：通过 HTTP API 接入，`messageChannel=webchat`，通过 `sessionKey` 前缀区分（非 `lobsterai:` 前缀）。
+5. **钉钉/企微**：通过 HTTP API 接入，`messageChannel=webchat`，通过 `sessionKey` 前缀区分（非 `wulu:` 前缀）。
 
 ## 测试用例
 

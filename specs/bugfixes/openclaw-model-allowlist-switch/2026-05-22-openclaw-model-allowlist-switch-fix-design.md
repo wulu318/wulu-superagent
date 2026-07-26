@@ -14,19 +14,19 @@
 
 已观察到的失败模型包括：
 
-- `lobsterai-server/MiniMax-M2.7-YoudaoInner`
-- `lobsterai-server/kimi-k2.6-inhouse-ZhiYun`
-- `lobsterai-server/kimi-k2.6-YoudaoInner`
-- `lobsterai-server/glm-5.1-YoudaoInner`
+- `wulu-server/MiniMax-M2.7-YoudaoInner`
+- `wulu-server/kimi-k2.6-inhouse-ZhiYun`
+- `wulu-server/kimi-k2.6-YoudaoInner`
+- `wulu-server/glm-5.1-YoudaoInner`
 - `deepseek/deepseek-v4-pro`
 
-这些模型在 LobsterAI 的可用模型列表和 OpenClaw `models.providers` catalog 中都存在，但在已有会话执行 `sessions.patch` 时被 OpenClaw gateway 拒绝。
+这些模型在 wulu 的可用模型列表和 OpenClaw `models.providers` catalog 中都存在，但在已有会话执行 `sessions.patch` 时被 OpenClaw gateway 拒绝。
 
 ### 1.2 根因
 
-根因是 LobsterAI 生成 OpenClaw 配置时，把 `agents.defaults.models` 当成“每模型参数配置表”使用，但 OpenClaw 同时把这个字段解释为“允许切换的模型 allowlist”。
+根因是 wulu 生成 OpenClaw 配置时，把 `agents.defaults.models` 当成“每模型参数配置表”使用，但 OpenClaw 同时把这个字段解释为“允许切换的模型 allowlist”。
 
-当前 LobsterAI 的配置生成逻辑：
+当前 wulu 的配置生成逻辑：
 
 1. `openclawConfigSync.ts` 遍历本地 provider 模型，只把带 `customParams` 的模型写入 `perModelCustomParams`。
 2. 当 `perModelCustomParams` 非空时，把它写入 `agents.defaults.models`。
@@ -48,16 +48,16 @@ OpenClaw 的模型校验逻辑：
 [ClaudeSettings] resolved raw API config ... "MiniMax-M2.7-YoudaoInner" ...
 ```
 
-会话发送前或底部模型切换时，LobsterAI 正确把 UI 模型转换为 OpenClaw ref：
+会话发送前或底部模型切换时，wulu 正确把 UI 模型转换为 OpenClaw ref：
 
 ```text
-model=lobsterai-server/MiniMax-M2.7-YoudaoInner source=sessionOverride
+model=wulu-server/MiniMax-M2.7-YoudaoInner source=sessionOverride
 ```
 
 OpenClaw gateway 拒绝的真实错误是：
 
 ```text
-sessions.patch ... errorCode=INVALID_REQUEST errorMessage=model not allowed: lobsterai-server/MiniMax-M2.7-YoudaoInner
+sessions.patch ... errorCode=INVALID_REQUEST errorMessage=model not allowed: wulu-server/MiniMax-M2.7-YoudaoInner
 ```
 
 这说明问题不是模型列表缺失、账号权限缺失、网络失败或前端 toast 误报，而是 OpenClaw 当前配置中的 allowed model set 不完整。
@@ -83,13 +83,13 @@ sessions.patch ... errorCode=INVALID_REQUEST errorMessage=model not allowed: lob
 ### 场景 B：没有自定义参数的电脑
 
 **Given** 用户没有配置任何模型自定义参数  
-**When** LobsterAI 同步 OpenClaw 配置  
+**When** wulu 同步 OpenClaw 配置  
 **Then** 可以继续不生成 `agents.defaults.models`  
 **And** OpenClaw 保持 `allowAny = true`
 
 ### 场景 C：服务端模型列表更新
 
-**Given** LobsterAI 从服务端拉到新的 `lobsterai-server` 模型  
+**Given** wulu 从服务端拉到新的 `wulu-server` 模型  
 **When** 任意模型存在 `customParams`，需要生成 `agents.defaults.models`  
 **Then** 新服务端模型也应进入 allowlist，否则 UI 可见但会话切换会失败
 
@@ -103,7 +103,7 @@ sessions.patch ... errorCode=INVALID_REQUEST errorMessage=model not allowed: lob
 
 ### FR-1：`agents.defaults.models` 一旦生成，必须完整覆盖可选模型
 
-当 LobsterAI 需要写入 `agents.defaults.models` 时，不能只写带 `customParams` 的模型。
+当 wulu 需要写入 `agents.defaults.models` 时，不能只写带 `customParams` 的模型。
 
 应以 `allProvidersMap` 中最终生成的 OpenClaw catalog 为准，为每个可选模型生成一个 allowlist entry：
 
@@ -112,8 +112,8 @@ sessions.patch ... errorCode=INVALID_REQUEST errorMessage=model not allowed: lob
   "agents": {
     "defaults": {
       "models": {
-        "lobsterai-server/MiniMax-M2.7-YoudaoInner": {},
-        "lobsterai-server/kimi-k2.6-inhouse-ZhiYun": {},
+        "wulu-server/MiniMax-M2.7-YoudaoInner": {},
+        "wulu-server/kimi-k2.6-inhouse-ZhiYun": {},
         "deepseek/deepseek-v4-flash": {}
       }
     }
@@ -137,7 +137,7 @@ sessions.patch ... errorCode=INVALID_REQUEST errorMessage=model not allowed: lob
             }
           }
         },
-        "lobsterai-server/MiniMax-M2.7-YoudaoInner": {}
+        "wulu-server/MiniMax-M2.7-YoudaoInner": {}
       }
     }
   }
@@ -160,7 +160,7 @@ sessions.patch ... errorCode=INVALID_REQUEST errorMessage=model not allowed: lob
 
 ### FR-5：模型列表与 OpenClaw allowlist 保持一致
 
-后续如果 UI 模型列表来自 LobsterAI 的 `availableModels`，而 OpenClaw runtime 使用 `models.list` 或 `sessions.patch` 校验，就必须保证两边模型集合一致。
+后续如果 UI 模型列表来自 wulu 的 `availableModels`，而 OpenClaw runtime 使用 `models.list` 或 `sessions.patch` 校验，就必须保证两边模型集合一致。
 
 可选增强：在当前会话模型选择器中使用 OpenClaw `models.list` 的 allowed catalog 过滤模型，避免显示当前 runtime 不接受的模型。但主修复仍应在配置生成层解决 allowlist 不完整。
 
@@ -198,14 +198,14 @@ const modelDefaults = shouldWriteModelDefaults
 ...(shouldWriteModelDefaults ? { models: modelDefaults } : {})
 ```
 
-注意：服务端模型的 metadata 来自 `getAllServerModelMetadata()`，它们当前会进入 `allProvidersMap['lobsterai-server'].models`，因此完整 allowlist 也必须覆盖这些模型。
+注意：服务端模型的 metadata 来自 `getAllServerModelMetadata()`，它们当前会进入 `allProvidersMap['wulu-server'].models`，因此完整 allowlist 也必须覆盖这些模型。
 
 ### 4.2 不改变模型 ref 生成规则
 
 前端 `toOpenClawModelRef()` 对服务端模型固定生成：
 
 ```text
-lobsterai-server/<modelId>
+wulu-server/<modelId>
 ```
 
 这与 OpenClaw catalog 中的 provider/model 一致，本次不需要调整。
@@ -214,7 +214,7 @@ lobsterai-server/<modelId>
 
 当前会话内切换模型必须继续调用 OpenClaw `sessions.patch`，因为它是让当前 runtime 会话即时生效的唯一来源。
 
-需要修的是 patch 前的 OpenClaw 配置 allowlist，而不是改成只更新 LobsterAI SQLite。
+需要修的是 patch 前的 OpenClaw 配置 allowlist，而不是改成只更新 wulu SQLite。
 
 ### 4.4 可选：错误提示增强
 
@@ -232,7 +232,7 @@ lobsterai-server/<modelId>
 |---|---|
 | 所有模型都没有 `customParams` | 不生成 `agents.defaults.models`，保持 `allowAny = true` |
 | 只有一个模型有 `customParams` | 生成完整 allowlist，带参数模型写 `params.extra_body`，其他模型写 `{}` |
-| 服务端模型没有本地 provider API key | 仍通过 `lobsterai-server` proxy provider 进入 allowlist |
+| 服务端模型没有本地 provider API key | 仍通过 `wulu-server` proxy provider 进入 allowlist |
 | 服务端模型列表发生增删 | 下次配置同步后按最新 `allProvidersMap` 重建 allowlist |
 | 用户删除某模型的 `customParams` 后仍有其他模型带参数 | 该模型保留 `{}`，继续 allowed |
 | 用户删除所有 `customParams` | `agents.defaults.models` 应从生成配置中移除，恢复 allowAny |
@@ -270,8 +270,8 @@ lobsterai-server/<modelId>
    - 带参数模型包含 `params.extra_body`。
    - 不带参数模型为 `{}`。
 3. 存在服务端模型且任意模型带 `customParams` 时：
-   - `config.agents.defaults.models` 包含 `lobsterai-server/MiniMax-M2.7-YoudaoInner`。
-   - `config.agents.defaults.models` 包含 `lobsterai-server/kimi-k2.6-inhouse-ZhiYun`。
+   - `config.agents.defaults.models` 包含 `wulu-server/MiniMax-M2.7-YoudaoInner`。
+   - `config.agents.defaults.models` 包含 `wulu-server/kimi-k2.6-inhouse-ZhiYun`。
    - 这些无自定义参数的服务端模型 entry 为 `{}`。
 4. 删除所有 `customParams` 后重新 sync，`agents.defaults.models` 不再生成。
 

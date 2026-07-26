@@ -51,8 +51,8 @@ test('compact spacing reduces list margins for user message rendering', () => {
 });
 
 test('kit links are treated as safe internal links', () => {
-  expect(safeUrlTransform('kit://design@lobsterai-kits')).toBe('kit://design@lobsterai-kits');
-  expect(isInternalHref('kit://design@lobsterai-kits')).toBe(true);
+  expect(safeUrlTransform('kit://design@WULU-kits')).toBe('kit://design@WULU-kits');
+  expect(isInternalHref('kit://design@WULU-kits')).toBe(true);
 });
 
 test('unsafe markdown protocols are still stripped', () => {

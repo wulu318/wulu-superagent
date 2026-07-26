@@ -2,7 +2,7 @@
 
 ## 1. 背景
 
-LobsterAI 当前已经实现 HTML Artifact 分享：客户端把 HTML 文件及依赖静态资源打成 zip，通过 `lobsterai-server` 的 `/api/html-shares` 上传，服务端保存 `html_shares` / `html_share_files` 记录，把文件上传到 NOS，并通过 `/s/{shareId}/` 提供分享码访问、状态管理、内容审核和访问统计。
+wulu 当前已经实现 HTML Artifact 分享：客户端把 HTML 文件及依赖静态资源打成 zip，通过 `wulu-server` 的 `/api/html-shares` 上传，服务端保存 `html_shares` / `html_share_files` 记录，把文件上传到 NOS，并通过 `/s/{shareId}/` 提供分享码访问、状态管理、内容审核和访问统计。
 
 Artifacts 预览当前已经支持图片和 SVG：
 
@@ -256,7 +256,7 @@ src/main/libs/htmlShare/artifactFileSharePackager.ts
 3. 为无文件名内容生成稳定文件名：
    - 图片：`image.<ext>`
    - SVG：`image.svg`
-4. 写入临时目录 `lobster-artifact-share-*`。
+4. 写入临时目录 `Wulu-artifact-share-*`。
 5. 生成只包含一个文件的 zip。
 6. 计算 zip 的 SHA-256 作为 `sourceSha256`。
 7. 返回：
@@ -408,7 +408,7 @@ Form fields：
   "message": "success",
   "data": {
     "shareId": "shr_xxxxxxxxxxxxxxxx",
-    "url": "https://lobsterai-server.inner.youdao.com/s/shr_xxxxxxxxxxxxxxxx/",
+    "url": "https://wulu-server.inner.youdao.com/s/shr_xxxxxxxxxxxxxxxx/",
     "accessMode": "code",
     "shareCode": "K7Q9P2",
     "shareCodeUnavailable": false,
@@ -522,9 +522,9 @@ SVG 在公开页中使用 `<img src="/s/{shareId}/content/">` 渲染，不内联
 图片 shell 示例结构：
 
 ```html
-<main class="lobster-image-share-viewer">
+<main class="Wulu-image-share-viewer">
   <img
-    class="lobster-image-share-image"
+    class="Wulu-image-share-image"
     src="/s/{shareId}/content/?preview=1"
     alt="{title}"
     referrerpolicy="same-origin"
@@ -584,7 +584,7 @@ Fetch metadata 可作为增强防护：
 
 UI 要求：
 
-- 保留顶部 LobsterAI 品牌栏和“我也来制作”按钮。
+- 保留顶部 wulu 品牌栏和“我也来制作”按钮。
 - 图片区域使用中性背景和居中查看器，避免大面积棋盘格影响观感。
 - 图片使用 `max-width: 100%`、`max-height: calc(100vh - header - footer)`、`object-fit: contain`。
 - 移动端不裁切图片。
@@ -706,7 +706,7 @@ SVG 不能在模型审查时以内联 HTML 形式拼进公共页；公共访问�
 管理员后台代码在：
 
 ```text
-/Users/admin/Documents/lobsterai/lobsterai-admin
+/Users/admin/Documents/wulu/wulu-admin
 ```
 
 现有 HTML 分享后台已经具备：
@@ -720,11 +720,11 @@ SVG 不能在模型审查时以内联 HTML 形式拼进公共页；公共访问�
 
 | 文件 | 改动 |
 | --- | --- |
-| `/Users/admin/Documents/lobsterai/lobsterai-admin/src/views/HtmlShareListView.vue` | 来源筛选增加 `image_file` / `svg_file`，`sourceTypeLabel()` 增加“图片文件”/“SVG 文件”，来源 tooltip 增加说明 |
-| `/Users/admin/Documents/lobsterai/lobsterai-admin/src/views/HtmlShareListView.vue` | `moderationItemTypeLabel()` 增加 `image_file`、`text_file`、`svg_snapshot`，避免展示原始 itemType |
-| `/Users/admin/Documents/lobsterai/lobsterai-admin/src/views/HtmlShareListView.vue` | 文件列表继续展示路径、Content-Type、大小、SHA-256，不展示 NOS URL |
-| `/Users/admin/Documents/lobsterai/lobsterai-admin/src/api/htmlShares.ts` | `HtmlShareFileItem.nosUrl` 改为可选或移除，前端逻辑不能依赖该字段 |
-| `/Users/admin/Documents/lobsterai/lobsterai-admin/docs/server-integration/*html-share*` | 如需要同步后台集成说明，补充 `image_file` / `svg_file` sourceType 和预览行为 |
+| `/Users/admin/Documents/wulu/wulu-admin/src/views/HtmlShareListView.vue` | 来源筛选增加 `image_file` / `svg_file`，`sourceTypeLabel()` 增加“图片文件”/“SVG 文件”，来源 tooltip 增加说明 |
+| `/Users/admin/Documents/wulu/wulu-admin/src/views/HtmlShareListView.vue` | `moderationItemTypeLabel()` 增加 `image_file`、`text_file`、`svg_snapshot`，避免展示原始 itemType |
+| `/Users/admin/Documents/wulu/wulu-admin/src/views/HtmlShareListView.vue` | 文件列表继续展示路径、Content-Type、大小、SHA-256，不展示 NOS URL |
+| `/Users/admin/Documents/wulu/wulu-admin/src/api/htmlShares.ts` | `HtmlShareFileItem.nosUrl` 改为可选或移除，前端逻辑不能依赖该字段 |
+| `/Users/admin/Documents/wulu/wulu-admin/docs/server-integration/*html-share*` | 如需要同步后台集成说明，补充 `image_file` / `svg_file` sourceType 和预览行为 |
 
 服务端管理员接口也需要配合：
 
@@ -777,7 +777,7 @@ ALTER TABLE `html_shares`
 
 ```properties
 mybatis-router.datasource.username=dict
-mybatis-router.datasource.writer-jdbc-url=jdbc:mysql://test-lunadb-writer.corp.yodao.com:13306/lobsterai_server?useSSL=false&serverTimezone=Asia/Shanghai&useAffectedRows=true
+mybatis-router.datasource.writer-jdbc-url=jdbc:mysql://test-lunadb-writer.corp.yodao.com:13306/wulu_server?useSSL=false&serverTimezone=Asia/Shanghai&useAffectedRows=true
 ```
 
 验证时只需要在测试环境执行迁移和创建测试分享，不需要手工改生产数据。
@@ -804,24 +804,24 @@ mybatis-router.datasource.writer-jdbc-url=jdbc:mysql://test-lunadb-writer.corp.y
 
 | 文件 | 改动 |
 | --- | --- |
-| `src/main/java/com/youdao/lobsterai/service/HtmlShareService.java` | 增加 sourceType、单文件校验、magic bytes 校验、SVG 安全校验 |
-| `src/main/java/com/youdao/lobsterai/web/controller/HtmlShareStaticController.java` | shell 根据 entry content type 渲染 iframe 或 img |
+| `src/main/java/com/youdao/wulu/service/HtmlShareService.java` | 增加 sourceType、单文件校验、magic bytes 校验、SVG 安全校验 |
+| `src/main/java/com/youdao/wulu/web/controller/HtmlShareStaticController.java` | shell 根据 entry content type 渲染 iframe 或 img |
 | `src/main/resources/mapper/HtmlShareMapper.xml` | 如需要新增 entry file meta 查询则补 mapper |
-| `src/main/java/com/youdao/lobsterai/mapper/HtmlShareMapper.java` | 同上 |
-| `src/main/java/com/youdao/lobsterai/exceptions/ErrorCode.java` | 新增 `HTML_SHARE_UNSAFE_SVG(41312, ...)` |
-| `src/test/java/com/youdao/lobsterai/service/HtmlShareServiceTest.java` | 增加 image/svg create/update 校验 |
-| `src/test/java/com/youdao/lobsterai/web/controller/HtmlShareStaticControllerTest.java` | 增加图片 shell 测试 |
+| `src/main/java/com/youdao/wulu/mapper/HtmlShareMapper.java` | 同上 |
+| `src/main/java/com/youdao/wulu/exceptions/ErrorCode.java` | 新增 `HTML_SHARE_UNSAFE_SVG(41312, ...)` |
+| `src/test/java/com/youdao/wulu/service/HtmlShareServiceTest.java` | 增加 image/svg create/update 校验 |
+| `src/test/java/com/youdao/wulu/web/controller/HtmlShareStaticControllerTest.java` | 增加图片 shell 测试 |
 | `sql/V53__html_share_artifact_source_types.sql` | 可选注释迁移 |
 
 ### 9.3 管理员后台
 
 | 文件 | 改动 |
 | --- | --- |
-| `/Users/admin/Documents/lobsterai/lobsterai-admin/src/api/htmlShares.ts` | `HtmlShareFileItem.nosUrl` 改为可选或移除；如增加 sourceType 常量，统一定义 `html_file/local_service_build/image_file/svg_file` |
-| `/Users/admin/Documents/lobsterai/lobsterai-admin/src/views/HtmlShareListView.vue` | 来源筛选和 `sourceTypeLabel()` 增加图片/SVG；来源说明 tooltip 同步更新 |
-| `/Users/admin/Documents/lobsterai/lobsterai-admin/src/views/HtmlShareListView.vue` | `moderationItemTypeLabel()` 增加图片文件、文本文件、SVG 快照 |
-| `/Users/admin/Documents/lobsterai/lobsterai-admin/src/views/HtmlShareListView.vue` | 文件列表保持只展示路径、Content-Type、大小、SHA-256、创建时间，不展示 NOS URL |
-| `/Users/admin/Documents/lobsterai/lobsterai-admin/docs/server-integration/*.md` | 如团队要求同步接口文档，补充图片/SVG sourceType、管理员预览和不返回 NOS URL 的约束 |
+| `/Users/admin/Documents/wulu/wulu-admin/src/api/htmlShares.ts` | `HtmlShareFileItem.nosUrl` 改为可选或移除；如增加 sourceType 常量，统一定义 `html_file/local_service_build/image_file/svg_file` |
+| `/Users/admin/Documents/wulu/wulu-admin/src/views/HtmlShareListView.vue` | 来源筛选和 `sourceTypeLabel()` 增加图片/SVG；来源说明 tooltip 同步更新 |
+| `/Users/admin/Documents/wulu/wulu-admin/src/views/HtmlShareListView.vue` | `moderationItemTypeLabel()` 增加图片文件、文本文件、SVG 快照 |
+| `/Users/admin/Documents/wulu/wulu-admin/src/views/HtmlShareListView.vue` | 文件列表保持只展示路径、Content-Type、大小、SHA-256、创建时间，不展示 NOS URL |
+| `/Users/admin/Documents/wulu/wulu-admin/docs/server-integration/*.md` | 如团队要求同步接口文档，补充图片/SVG sourceType、管理员预览和不返回 NOS URL 的约束 |
 
 ---
 
@@ -888,7 +888,7 @@ mybatis-router.datasource.writer-jdbc-url=jdbc:mysql://test-lunadb-writer.corp.y
 
 ### 11.3 管理员后台测试
 
-在 `/Users/admin/Documents/lobsterai/lobsterai-admin`：
+在 `/Users/admin/Documents/wulu/wulu-admin`：
 
 1. 运行 `npm run type-check`。
 2. 运行 `npm run lint`。
@@ -944,5 +944,5 @@ mybatis-router.datasource.writer-jdbc-url=jdbc:mysql://test-lunadb-writer.corp.y
 9. 管理员后台能筛选、展示、预览、审核图片/SVG 分享，文件列表不暴露 NOS URL。
 10. 服务端拒绝多文件 image/svg zip、伪装图片和危险 SVG。
 11. 内容审核、访问统计、后台列表不因新 sourceType 失败。
-12. `npm run lint`、相关 Electron 单元测试、`./gradlew test --tests com.youdao.lobsterai.service.HtmlShareServiceTest`、`./gradlew test --tests com.youdao.lobsterai.web.controller.HtmlShareStaticControllerTest` 通过。
-12. 如修改管理员后台，`/Users/admin/Documents/lobsterai/lobsterai-admin` 下 `npm run type-check` 和 `npm run lint` 通过。
+12. `npm run lint`、相关 Electron 单元测试、`./gradlew test --tests com.youdao.wulu.service.HtmlShareServiceTest`、`./gradlew test --tests com.youdao.wulu.web.controller.HtmlShareStaticControllerTest` 通过。
+12. 如修改管理员后台，`/Users/admin/Documents/wulu/wulu-admin` 下 `npm run type-check` 和 `npm run lint` 通过。

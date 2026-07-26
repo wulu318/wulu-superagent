@@ -1,7 +1,7 @@
 import type { ThemeDefinition } from '../themes/types';
 
 /** localStorage key read by index.html's pre-React splash to pick light/dark before any JS bundle loads */
-export const THEME_APPEARANCE_STORAGE_KEY = 'lobster-theme-appearance';
+export const THEME_APPEARANCE_STORAGE_KEY = 'Wulu-theme-appearance';
 
 export interface ThemeStorage {
   get(key: string): string | null | Promise<string | null>;
@@ -9,7 +9,7 @@ export interface ThemeStorage {
 }
 
 export interface ThemeManagerOptions {
-  /** localStorage key for persistence. Default: 'lobster-theme' */
+  /** localStorage key for persistence. Default: 'Wulu-theme' */
   storageKey?: string;
   /** Default theme ID (first theme if omitted) */
   defaultTheme?: string;
@@ -33,7 +33,7 @@ export class ThemeManager {
     const fallback = themes[0]?.meta.id ?? '';
     this.currentId = fallback;
     this.opts = {
-      storageKey: options.storageKey ?? 'lobster-theme',
+      storageKey: options.storageKey ?? 'Wulu-theme',
       defaultTheme: options.defaultTheme ?? fallback,
       followSystem: options.followSystem ?? false,
       storage: options.storage ?? {

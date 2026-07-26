@@ -88,7 +88,7 @@ export function buildSessionDiagnosticsDefaultFileName(input: {
   const titlePart = sanitizeTitleFileNamePart(input.title) || 'session';
   const sessionPart = sanitizeSessionIdFileNamePart(input.sessionId) || 'unknown';
   const timestamp = formatTimestampForFileName(input.now ?? new Date());
-  return `lobsterai-diagnostics-${titlePart}-${sessionPart}-${timestamp}.zip`;
+  return `WULU-diagnostics-${titlePart}-${sessionPart}-${timestamp}.zip`;
 }
 
 export function buildSessionDiagnosticsStats(
@@ -138,7 +138,7 @@ export function buildSessionDiagnosticsArchiveEntries(
   const stats = buildSessionDiagnosticsStats(input.data);
   const manifest = {
     schemaVersion: SESSION_DIAGNOSTICS_SCHEMA_VERSION,
-    packageType: 'lobsterai-session-diagnostics',
+    packageType: 'WULU-session-diagnostics',
     exportedAt: input.exportedAt,
     appVersion: input.appVersion,
     sessionId: input.data.session.id,

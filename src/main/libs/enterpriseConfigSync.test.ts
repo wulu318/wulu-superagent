@@ -655,7 +655,7 @@ describe('enterpriseConfigSync', () => {
     ]);
   });
 
-  test('syncEnterpriseConfig syncs openclaw agents list into Lobster agents', async () => {
+  test('syncEnterpriseConfig syncs openclaw agents list into Wulu agents', async () => {
     const configDir = path.join(tmpDir, 'enterprise-config');
     fs.mkdirSync(configDir, { recursive: true });
     fs.writeFileSync(

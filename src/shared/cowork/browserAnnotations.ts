@@ -33,8 +33,8 @@ export const BrowserAnnotationGuestEventType = {
 } as const;
 
 export const BrowserAnnotationGuestChannel = {
-  Command: 'lobster:browser-annotation:command',
-  Event: 'lobster:browser-annotation:event',
+  Command: 'Wulu:browser-annotation:command',
+  Event: 'Wulu:browser-annotation:event',
 } as const;
 
 export const BrowserAnnotationLimit = {

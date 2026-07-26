@@ -4,7 +4,7 @@
 
 ### 1.1 背景
 
-LobsterAI 已有 Skill（技能）体系，用户可以为 Agent 加载单个 Skill 来扩展能力。但在实际使用中，某些场景需要多个 Skill 协同工作才能完成较复杂的任务（如"翻译专家"需要术语库 + 翻译引擎 + 校对三个 Skill 配合）。单独安装和管理多个 Skill 的体验较碎片化，用户难以发现"哪些 Skill 组合在一起效果最好"。
+wulu 已有 Skill（技能）体系，用户可以为 Agent 加载单个 Skill 来扩展能力。但在实际使用中，某些场景需要多个 Skill 协同工作才能完成较复杂的任务（如"翻译专家"需要术语库 + 翻译引擎 + 校对三个 Skill 配合）。单独安装和管理多个 Skill 的体验较碎片化，用户难以发现"哪些 Skill 组合在一起效果最好"。
 
 Kit（专家套件）是在 Skill 之上的一层打包概念：一个 Kit 包含一组预配置的 Skill，用户一键安装即可获得完整的专家能力集合。
 
@@ -140,8 +140,8 @@ interface InstalledKit {
 | `kits:uninstall` | 删除 Skill 文件 → 清除记录 → 通知 |
 
 数据源 URL:
-- test: `https://api-overmind.youdao.com/openapi/get/luna/hardware/lobsterai/test/kit-store`
-- prod: `https://api-overmind.youdao.com/openapi/get/luna/hardware/lobsterai/prod/kit-store`
+- test: `https://api-overmind.youdao.com/openapi/get/luna/hardware/wulu/test/kit-store`
+- prod: `https://api-overmind.youdao.com/openapi/get/luna/hardware/wulu/prod/kit-store`
 
 安装流程：下载 zip → 临时目录解压 → 扫描 `SKILL.md` 识别 Skill 目录 → 拷贝到 `{userData}/SKILLs/` → 写入 `skills_state` 和 `kits_installed` → 触发 `skills:changed` 事件 → 清理临时文件。
 

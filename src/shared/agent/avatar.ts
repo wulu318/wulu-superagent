@@ -9,7 +9,7 @@ export const AgentAvatarIconSeparator = {
 } as const;
 
 export const AgentAvatarSvg = {
-  Lobster: 'lobster',
+  Wulu: 'Wulu',
   Code: 'code',
   Repair: 'repair',
   Briefcase: 'briefcase',
@@ -52,7 +52,7 @@ const AGENT_AVATAR_PART_COUNT = 2;
 const AGENT_AVATAR_SVGS = new Set<string>(Object.values(AgentAvatarSvg));
 
 export const DefaultAgentAvatar = {
-  svg: AgentAvatarSvg.Lobster,
+  svg: AgentAvatarSvg.Wulu,
 } as const satisfies DesignedAgentAvatar;
 
 export const isAgentAvatarSvg = (value: string): value is AgentAvatarSvg => {

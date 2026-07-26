@@ -19,7 +19,7 @@ afterEach(() => {
 });
 
 function createTempFile(fileName: string, content: string): string {
-  tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'lobsterai-localfile-'));
+  tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'WULU-localfile-'));
   const filePath = path.join(tempDir, fileName);
   fs.writeFileSync(filePath, content);
   return filePath;

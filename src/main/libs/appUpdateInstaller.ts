@@ -74,8 +74,8 @@ export async function downloadUpdate(
   const ext = path.extname(parsedUrl.pathname) || (process.platform === 'darwin' ? '.dmg' : '.exe');
   const updateDir = path.join(app.getPath('userData'), 'updates');
   const ts = Date.now();
-  const downloadPath = path.join(updateDir, `lobsterai-update-${source}-${ts}${ext}.download`);
-  const finalPath = path.join(updateDir, `lobsterai-update-${source}-${ts}${ext}`);
+  const downloadPath = path.join(updateDir, `WULU-update-${source}-${ts}${ext}.download`);
+  const finalPath = path.join(updateDir, `WULU-update-${source}-${ts}${ext}`);
 
   console.log(`[AppUpdate] Temp path: ${downloadPath}`);
   console.log(`[AppUpdate] Final path: ${finalPath}`);
@@ -943,9 +943,9 @@ async function installWindowsNsis(
   // offers a retry instead of quitting into nothing.
   //
   // Quitting in parallel with the installer running is safe: the NSIS
-  // customCheckAppRunning macro stops remaining LobsterAI processes by image
+  // customCheckAppRunning macro stops remaining WULU processes by image
   // name and polls until they are gone before replacing files. The installer
-  // process itself is named lobsterai-update-*, so it is not affected by that
+  // process itself is named WULU-update-*, so it is not affected by that
   // kill.
   console.log(`[AppUpdate] Launching Windows installer in update mode: ${exePath}`);
   const extraArgs = options?.noDefenderExclusion === true

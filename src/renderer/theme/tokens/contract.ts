@@ -1,75 +1,75 @@
 /**
  * Token Contract — defines all semantic variables a theme must provide.
  *
- * Naming: --lobster-{category}-{name}
+ * Naming: --Wulu-{category}-{name}
  * Convention: shadcn/ui background/foreground pairing + Radix 12-step gray scale
  *
  * Every theme (ThemeDefinition.tokens) must supply a value for each key.
  */
 export const TOKEN_CONTRACT = {
   // ── Brand ──
-  'primary':            '--lobster-primary',
-  'primary-foreground': '--lobster-primary-foreground',
-  'primary-hover':      '--lobster-primary-hover',
-  'primary-muted':      '--lobster-primary-muted',
+  'primary':            '--Wulu-primary',
+  'primary-foreground': '--Wulu-primary-foreground',
+  'primary-hover':      '--Wulu-primary-hover',
+  'primary-muted':      '--Wulu-primary-muted',
 
   // ── Accent ──
-  'accent':             '--lobster-accent',
-  'accent-foreground':  '--lobster-accent-foreground',
+  'accent':             '--Wulu-accent',
+  'accent-foreground':  '--Wulu-accent-foreground',
 
   // ── Surface / Background ──
-  'background':         '--lobster-background',
-  'foreground':         '--lobster-foreground',
-  'surface':            '--lobster-surface',
-  'surface-foreground': '--lobster-surface-foreground',
-  'surface-raised':     '--lobster-surface-raised',
-  'surface-overlay':    '--lobster-surface-overlay',
+  'background':         '--Wulu-background',
+  'foreground':         '--Wulu-foreground',
+  'surface':            '--Wulu-surface',
+  'surface-foreground': '--Wulu-surface-foreground',
+  'surface-raised':     '--Wulu-surface-raised',
+  'surface-overlay':    '--Wulu-surface-overlay',
 
   // ── Chat bubbles ──
-  'chat-user':              '--lobster-chat-user',
-  'chat-user-foreground':   '--lobster-chat-user-foreground',
-  'chat-bot':               '--lobster-chat-bot',
-  'chat-bot-foreground':    '--lobster-chat-bot-foreground',
+  'chat-user':              '--Wulu-chat-user',
+  'chat-user-foreground':   '--Wulu-chat-user-foreground',
+  'chat-bot':               '--Wulu-chat-bot',
+  'chat-bot-foreground':    '--Wulu-chat-bot-foreground',
 
   // ── Text hierarchy ──
-  'text-primary':       '--lobster-text-primary',
-  'text-secondary':     '--lobster-text-secondary',
-  'text-muted':         '--lobster-text-muted',
+  'text-primary':       '--Wulu-text-primary',
+  'text-secondary':     '--Wulu-text-secondary',
+  'text-muted':         '--Wulu-text-muted',
 
   // ── Borders ──
-  'border':             '--lobster-border',
-  'border-subtle':      '--lobster-border-subtle',
-  'input-border':       '--lobster-input-border',
+  'border':             '--Wulu-border',
+  'border-subtle':      '--Wulu-border-subtle',
+  'input-border':       '--Wulu-input-border',
 
   // ── Scrollbar ──
-  'scroll-thumb':       '--lobster-scroll-thumb',
-  'scroll-thumb-hover': '--lobster-scroll-thumb-hover',
+  'scroll-thumb':       '--Wulu-scroll-thumb',
+  'scroll-thumb-hover': '--Wulu-scroll-thumb-hover',
 
   // ── Decorative gradients ──
-  'gradient-1':         '--lobster-gradient-1',
-  'gradient-2':         '--lobster-gradient-2',
+  'gradient-1':         '--Wulu-gradient-1',
+  'gradient-2':         '--Wulu-gradient-2',
 
   // ── Status ──
-  'destructive':            '--lobster-destructive',
-  'destructive-foreground': '--lobster-destructive-foreground',
-  'success':                '--lobster-success',
-  'warning':                '--lobster-warning',
+  'destructive':            '--Wulu-destructive',
+  'destructive-foreground': '--Wulu-destructive-foreground',
+  'success':                '--Wulu-success',
+  'warning':                '--Wulu-warning',
 
   // ── Gray scale 11 steps (gray-1=lightest → gray-11=darkest, all themes) ──
-  'gray-1':  '--lobster-gray-1',
-  'gray-2':  '--lobster-gray-2',
-  'gray-3':  '--lobster-gray-3',
-  'gray-4':  '--lobster-gray-4',
-  'gray-5':  '--lobster-gray-5',
-  'gray-6':  '--lobster-gray-6',
-  'gray-7':  '--lobster-gray-7',
-  'gray-8':  '--lobster-gray-8',
-  'gray-9':  '--lobster-gray-9',
-  'gray-10': '--lobster-gray-10',
-  'gray-11': '--lobster-gray-11',
+  'gray-1':  '--Wulu-gray-1',
+  'gray-2':  '--Wulu-gray-2',
+  'gray-3':  '--Wulu-gray-3',
+  'gray-4':  '--Wulu-gray-4',
+  'gray-5':  '--Wulu-gray-5',
+  'gray-6':  '--Wulu-gray-6',
+  'gray-7':  '--Wulu-gray-7',
+  'gray-8':  '--Wulu-gray-8',
+  'gray-9':  '--Wulu-gray-9',
+  'gray-10': '--Wulu-gray-10',
+  'gray-11': '--Wulu-gray-11',
 
   // ── Radius ──
-  'radius':  '--lobster-radius',
+  'radius':  '--Wulu-radius',
 } as const;
 
 export type TokenName = keyof typeof TOKEN_CONTRACT;

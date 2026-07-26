@@ -69,13 +69,13 @@ export const applyTypographyPreferences = (config: TypographyConfig): void => {
   const root = document.documentElement;
   const scale = uiFontSize / FontPreferences.UiFontSizeDefault;
 
-  root.style.setProperty('--lobster-ui-font-size', `${uiFontSize}px`);
-  root.style.setProperty('--lobster-code-font-size', `${codeFontSize}px`);
+  root.style.setProperty('--Wulu-ui-font-size', `${uiFontSize}px`);
+  root.style.setProperty('--Wulu-code-font-size', `${codeFontSize}px`);
 
   Object.entries(TEXT_SIZE_BASE).forEach(([key, value]) => {
-    setPxVariable(root, `--lobster-text-${key}`, value * scale);
+    setPxVariable(root, `--Wulu-text-${key}`, value * scale);
   });
   Object.entries(LINE_HEIGHT_BASE).forEach(([key, value]) => {
-    setPxVariable(root, `--lobster-leading-${key}`, value * scale);
+    setPxVariable(root, `--Wulu-leading-${key}`, value * scale);
   });
 };

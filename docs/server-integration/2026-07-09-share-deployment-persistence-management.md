@@ -296,13 +296,13 @@ NAS 文件用量不能通过当前管理 API 低成本实时读取，因此默�
 3. 客户端保存到默认目录：
 
 ```text
-<project>/.lobster/persistence/<shareId>/<yyyyMMdd-HHmmss>/<shareId>-service-data.zip
+<project>/.Wulu/persistence/<shareId>/<yyyyMMdd-HHmmss>/<shareId>-service-data.zip
 ```
 
 4. 下载完成后显示：
 
 ```text
-线上服务数据已下载到 .lobster/persistence/shr_xxx/20260709-153000/shr_xxx-service-data.zip
+线上服务数据已下载到 .Wulu/persistence/shr_xxx/20260709-153000/shr_xxx-service-data.zip
 ```
 
 下载完成后只提供 `在 Finder 中显示`。下载操作只生成备份，不修改当前项目。
@@ -458,8 +458,8 @@ Cache-Control: no-store
 
 同步下载支持两种服务端数据访问方式：
 
-1. `local_mount`：`lobsterai-server` 所在主机已经挂载同一个 NAS，直接读取本地挂载目录。
-2. `ephemeral_function`：每次操作创建一个挂载同一 NAS 的 veFaaS 临时函数，`lobsterai-server` 通过一次性 HMAC 密钥请求读取数据，操作后删除函数和 APIG 路由。测试和生产默认使用此方式。
+1. `local_mount`：`wulu-server` 所在主机已经挂载同一个 NAS，直接读取本地挂载目录。
+2. `ephemeral_function`：每次操作创建一个挂载同一 NAS 的 veFaaS 临时函数，`wulu-server` 通过一次性 HMAC 密钥请求读取数据，操作后删除函数和 APIG 路由。测试和生产默认使用此方式。
 
 FileNAS OpenAPI 只管理文件系统、挂载点、权限组和配额，不提供读取任意 NAS 文件内容的 API。因此不能通过 `DescribeFileSystems` 等管理 API 下载服务数据。
 
@@ -480,7 +480,7 @@ share-deployment.persistence.manager.cleanup-attempts=${SHARE_DEPLOYMENT_PERSIST
 
 无需配置常驻函数 URL 或固定密钥。服务端每次生成独立随机密钥，并把唯一允许访问的 `shareId` 放入临时函数包。包强制通过 `direct_zip` 上传，密钥不进入 TOS、properties、Overmind 或数据库。下载操作创建并销毁一个临时函数，复用用户服务的 VPC、子网、安全组、NAS 和 APIG 配置。
 
-函数服务自身挂载 NAS 不等于 `lobsterai-server` 已经挂载。临时函数创建或执行失败时，接口可能返回业务错误 JSON；客户端必须校验 HTTP 状态、业务码和 ZIP 文件头，不能将错误 JSON 保存为 `.zip`。
+函数服务自身挂载 NAS 不等于 `wulu-server` 已经挂载。临时函数创建或执行失败时，接口可能返回业务错误 JSON；客户端必须校验 HTTP 状态、业务码和 ZIP 文件头，不能将错误 JSON 保存为 `.zip`。
 
 客户端相关 IPC/HTTP 请求必须使用长超时、展示不确定进度，并在整个过程禁用重复操作。每次操作都由服务端在 `finally` 中清理 APIG route、upstream 和函数，失败时默认重试清理 3 次。
 
@@ -602,7 +602,7 @@ V1 不做用户自定义额度。后续可按套餐或后台配置下发。
 - 服务详情展示 `服务数据` 面板。
 - 已存在部署时，点击分享优先打开部署状态页。
 - 支持下载线上服务数据 zip。
-- 支持下载后保存到 `.lobster/persistence/...`。
+- 支持下载后保存到 `.Wulu/persistence/...`。
 - 支持“在 Finder 中显示”。
 
 ### Phase 3：覆盖部署
@@ -624,7 +624,7 @@ V1 不做用户自定义额度。后续可按套餐或后台配置下发。
 必须覆盖：
 
 1. OpenAPI smoke test：调用真实 veFaaS `ListFunctions`，验证 AK/SK、签名、区域和 OpenAPI endpoint。
-2. NAS 功能测试：用 `/Users/admin/lobsterai/project/brotato-clone` 打包部署，写入排行榜，通过真实临时函数下载 ZIP，并验证 `preserve` 与 `replace` 两种重新部署路径。低层管理器的清理/恢复能力可继续用于测试数据回填，但客户端不暴露入口。
+2. NAS 功能测试：用 `/Users/admin/wulu/project/brotato-clone` 打包部署，写入排行榜，通过真实临时函数下载 ZIP，并验证 `preserve` 与 `replace` 两种重新部署路径。低层管理器的清理/恢复能力可继续用于测试数据回填，但客户端不暴露入口。
 3. 上传路径测试：brotato 默认走 TOS 上传。direct zip 只能用于小包验证，因为 zip base64 后会膨胀，较大的 JSON body 可能触发 OpenAPI request parsing error。
 
 推荐命令：
@@ -633,12 +633,12 @@ V1 不做用户自定义额度。后续可按套餐或后台配置下发。
 # 真实 OpenAPI smoke test，不创建云资源。
 SHARE_DEPLOYMENT_VOLCENGINE_API_TEST=true \
 SHARE_DEPLOYMENT_VOLCENGINE_CREDENTIAL_JSON='{"accessKeyId":"...","secretAccessKey":"..."}' \
-./gradlew test --tests com.youdao.lobsterai.service.sharedeployment.VolcengineVefaasCloudIntegrationTest.listFunctionsThroughVolcengineOpenApiClient --rerun-tasks
+./gradlew test --tests com.youdao.wulu.service.sharedeployment.VolcengineVefaasCloudIntegrationTest.listFunctionsThroughVolcengineOpenApiClient --rerun-tasks
 
 # brotato-clone 端到端 NAS 功能测试，会创建临时函数并在结束后清理。
 SHARE_DEPLOYMENT_BROTATO_PERSISTENCE_CLOUD_TEST=true \
 SHARE_DEPLOYMENT_VOLCENGINE_CREDENTIAL_JSON='{"accessKeyId":"...","secretAccessKey":"..."}' \
-./gradlew test --tests com.youdao.lobsterai.service.sharedeployment.VolcengineVefaasCloudIntegrationTest.deployBrotatoAndManageNasDataThroughEphemeralFunctions --rerun-tasks
+./gradlew test --tests com.youdao.wulu.service.sharedeployment.VolcengineVefaasCloudIntegrationTest.deployBrotatoAndManageNasDataThroughEphemeralFunctions --rerun-tasks
 ```
 
 测试通过条件：
@@ -650,16 +650,16 @@ SHARE_DEPLOYMENT_VOLCENGINE_CREDENTIAL_JSON='{"accessKeyId":"...","secretAccessK
 2026-07-13 本地验证结果：客户端 23 个相关测试、变更文件 ESLint、Electron TypeScript
 编译均通过；`brotato-clone` 真实云闭环耗时约 135 秒，单次临时函数业务操作约
 15.6 到 15.9 秒。闭环完成后再次调用 `ListFunctions`，未发现
-`lobster-persistence-op-` 前缀的遗留函数。
+`Wulu-persistence-op-` 前缀的遗留函数。
 
 ## 验收标准
 
-1. 对 `/Users/admin/lobsterai/project/brotato-clone` 这类项目，部署前默认开启 `保留服务数据`。
+1. 对 `/Users/admin/wulu/project/brotato-clone` 这类项目，部署前默认开启 `保留服务数据`。
 2. 点击 `查看保留内容` 后能看到带目录图标的 `data/`，不显示额外说明文字。
 3. 用户取消 `data/` 后，manifest 不包含 `persistence` 配置。
 4. 用户选择 `data/` 后，部署 response 返回 `persistence.enabled=true`。
 5. 线上写入排行榜后，更新服务仍保留排行榜数据。
-6. 点击 `下载线上服务数据` 后，本地生成 `.lobster/persistence/<shareId>/<timestamp>/<shareId>-service-data.zip`，且不会自动覆盖当前项目。
+6. 点击 `下载线上服务数据` 后，本地生成 `.Wulu/persistence/<shareId>/<timestamp>/<shareId>-service-data.zip`，且不会自动覆盖当前项目。
 7. 本地数据文件被选择时，部署确认弹窗显示“数据保存方式发生变化”的迁移提示，不默认出现 SQLite/schema。
 8. 重新部署时默认不勾选“用本地数据替换线上数据”。
 9. 用户无法选择项目外路径、`.env`、`node_modules`。

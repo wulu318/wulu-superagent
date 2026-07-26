@@ -4,7 +4,7 @@
 
 ### 1.1 问题/动机
 
-LobsterAI 在较早版本中自行实现了 MCP (Model Context Protocol) 集成方案（mcp-bridge），通过 HTTP callback 在 OpenClaw gateway 与 MCP 服务器之间中转工具调用。该方案随迭代暴露出多项问题：
+wulu 在较早版本中自行实现了 MCP (Model Context Protocol) 集成方案（mcp-bridge），通过 HTTP callback 在 OpenClaw gateway 与 MCP 服务器之间中转工具调用。该方案随迭代暴露出多项问题：
 
 - **Windows Electron stdin 兼容性差**：打包环境下 stdio transport 不稳定
 - **abort 信号误触**：`req.close` vs `res.close` 导致工具调用被意外取消
@@ -119,7 +119,7 @@ OpenClaw Gateway
         "enabled": true,
         "config": {
           "callbackUrl": "http://127.0.0.1:54321/askuser",
-          "secret": "${LOBSTER_MCP_BRIDGE_SECRET}"
+          "secret": "${WULU_MCP_BRIDGE_SECRET}"
         }
       }
     }
@@ -173,7 +173,7 @@ McpStore 记录 → OpenClaw 格式映射：
 
 **保留**：
 - ask-user-question plugin entry (改用 `getAskUserCallbackUrl`)
-- `LOBSTER_MCP_BRIDGE_SECRET` env var 注入
+- `WULU_MCP_BRIDGE_SECRET` env var 注入
 - `getMcpBridgeSecret` 依赖
 - `mcporter` disabled entry (更新注释)
 

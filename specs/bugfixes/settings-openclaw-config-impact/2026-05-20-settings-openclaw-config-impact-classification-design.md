@@ -55,7 +55,7 @@
 
 ### 场景 3：修改 Provider API Key
 
-**Given** Gateway 正在运行，provider 使用 `${LOBSTER_APIKEY_*}` 占位符  
+**Given** Gateway 正在运行，provider 使用 `${WULU_APIKEY_*}` 占位符  
 **When** 用户修改该 provider 的 API key 或 OAuth token 并保存  
 **Then** OpenClaw 配置同步后，Gateway 需要硬重启，因为运行中进程继承的 env 不会自动改变。
 
@@ -75,7 +75,7 @@
 
 **Given** Gateway 正在运行  
 **When** 用户完成微信扫码、钉钉/飞书/企微等授权或任意 IM quick setup，并产生新的账号、credential 或登录态  
-**Then** 授权结果应进入设置页的待应用配置；实现上可以先持久化到 Lobster 本地配置以避免丢失 credential，但在用户点击右下角保存前，不同步到 OpenClaw，也不触发 Gateway restart 或 channel restart。点击保存后，IM diff 与其它设置 diff 合并判断，一轮保存最多触发一次 Gateway 重启。若授权成功只改变 runtime 登录态、没有明显 config fingerprint diff，也必须记录一个「保存时重启」标记，避免保存时被误判为无变化。
+**Then** 授权结果应进入设置页的待应用配置；实现上可以先持久化到 Wulu 本地配置以避免丢失 credential，但在用户点击右下角保存前，不同步到 OpenClaw，也不触发 Gateway restart 或 channel restart。点击保存后，IM diff 与其它设置 diff 合并判断，一轮保存最多触发一次 Gateway 重启。若授权成功只改变 runtime 登录态、没有明显 config fingerprint diff，也必须记录一个「保存时重启」标记，避免保存时被误判为无变化。
 
 ### 场景 6：修改定时任务补跑策略
 
@@ -269,7 +269,7 @@ src/main/libs/openclawConfigImpact.ts
 
 普通 IM 设置控件不应直接调用会触发 Gateway sync/restart 的即时入口。启停、删除、allow list、连接模式、手动 credential 编辑等都属于设置编辑，应只更新待保存配置，最终由设置页右下角保存调用 `im:config:sync` 后统一判断影响并最多重启一次。
 
-扫码、OAuth、授权窗口和 quick setup 成功也必须遵循设置页提交语义。成功结果可以立即写入 Lobster 本地配置，避免用户完成授权后因关闭弹窗或页面刷新丢失 credential；但它仍然只是待应用配置，必须等右下角保存后才同步到 OpenClaw，并根据 IM fingerprint diff 或 restart-on-save 标记决定是否重启 Gateway。该规则适用于所有 IM 平台，不只适用于微信。
+扫码、OAuth、授权窗口和 quick setup 成功也必须遵循设置页提交语义。成功结果可以立即写入 Wulu 本地配置，避免用户完成授权后因关闭弹窗或页面刷新丢失 credential；但它仍然只是待应用配置，必须等右下角保存后才同步到 OpenClaw，并根据 IM fingerprint diff 或 restart-on-save 标记决定是否重启 Gateway。该规则适用于所有 IM 平台，不只适用于微信。
 
 对于微信这类登录态主要写入 Gateway runtime/state 的平台，扫码成功时 config fingerprint 可能不变化，仍应设置 restart-on-save 标记。这个标记只能在右下角保存时生效，不能在扫码成功时立即触发 Gateway 重启。
 

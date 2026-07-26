@@ -14,10 +14,10 @@ import modelReducer, {
 const modelA: Model = { id: 'gpt-4o', name: 'GPT-4o', providerKey: 'openai' };
 const modelB: Model = { id: 'glm-5.1', name: 'GLM 5.1', providerKey: 'zhipu' };
 const modelC: Model = { id: 'claude-3-sonnet', name: 'Claude 3 Sonnet', providerKey: 'anthropic' };
-const serverModel: Model = { id: 'server-model', name: 'Server Model', providerKey: 'lobsterai-server', isServerModel: true };
+const serverModel: Model = { id: 'server-model', name: 'Server Model', providerKey: 'WULU-server', isServerModel: true };
 const lockedServerModel: Model = { ...serverModel, accessible: false };
 const customKimiModel: Model = { id: 'kimi-k2.6', name: 'Kimi K2.6', providerKey: 'moonshot' };
-const serverKimiModel: Model = { id: 'kimi-k2.6', name: 'Kimi K2.6', providerKey: 'lobsterai-server', isServerModel: true };
+const serverKimiModel: Model = { id: 'kimi-k2.6', name: 'Kimi K2.6', providerKey: 'WULU-server', isServerModel: true };
 
 function makeState(overrides?: Partial<ReturnType<typeof modelReducer>>) {
   const base = modelReducer(undefined, { type: 'init' });
@@ -219,7 +219,7 @@ describe('selectAgentSelectedModel', () => {
       defaultSelectedModel: customKimiModel,
     });
 
-    const result = selectAgentSelectedModel(state, 'agent-1', 'lobsterai-server/kimi-k2.6');
+    const result = selectAgentSelectedModel(state, 'agent-1', 'WULU-server/kimi-k2.6');
 
     expect(result).toEqual(serverKimiModel);
   });
@@ -243,7 +243,7 @@ describe('selectAgentSelectedModel', () => {
       defaultSelectedModel: modelA,
     });
 
-    const result = selectAgentSelectedModel(state, 'agent-1', 'lobsterai-server/server-model');
+    const result = selectAgentSelectedModel(state, 'agent-1', 'WULU-server/server-model');
 
     expect(result).toEqual(modelA);
   });

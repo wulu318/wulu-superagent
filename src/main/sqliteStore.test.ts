@@ -26,7 +26,7 @@ afterEach(() => {
 });
 
 const createTempUserDataPath = (): string => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'lobsterai-sqlite-store-'));
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'WULU-sqlite-store-'));
   tempDirs.push(dir);
   return dir;
 };

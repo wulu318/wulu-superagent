@@ -15,7 +15,7 @@ import {
 const tempDirs: string[] = [];
 
 const makeTempDir = (): string => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'lobsterai-sqlite-recovery-'));
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'WULU-sqlite-recovery-'));
   tempDirs.push(dir);
   return dir;
 };

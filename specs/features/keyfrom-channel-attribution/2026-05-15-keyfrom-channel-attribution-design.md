@@ -4,7 +4,7 @@
 
 ### 1.1 问题/背景
 
-LobsterAI 需要支持渠道包投放统计。不同投放渠道在打包或开发启动时传入不同 `keyfrom`，应用安装并启动后需要把渠道来源稳定记录到本地，并在必要的服务端接口中附带该来源，为后续登录、模型、用户信息、支付、埋点和报表统计提供基础数据。
+wulu 需要支持渠道包投放统计。不同投放渠道在打包或开发启动时传入不同 `keyfrom`，应用安装并启动后需要把渠道来源稳定记录到本地，并在必要的服务端接口中附带该来源，为后续登录、模型、用户信息、支付、埋点和报表统计提供基础数据。
 
 本设计分两步推进：
 
@@ -24,8 +24,8 @@ LobsterAI 需要支持渠道包投放统计。不同投放渠道在打包或开�
 - `/api/auth/logout`
 - `/api/user/profile-summary`
 - `/api/models/available`
-- `/openapi/get/luna/hardware/lobsterai/{env}/update`
-- `/openapi/get/luna/hardware/lobsterai/{env}/update-manual`
+- `/openapi/get/luna/hardware/wulu/{env}/update`
+- `/openapi/get/luna/hardware/wulu/{env}/update-manual`
 
 ### 1.2 目标
 
@@ -118,7 +118,7 @@ LobsterAI 需要支持渠道包投放统计。不同投放渠道在打包或开�
 
 ### 场景 7: 登录换 token 时携带归因参数
 
-**Given** 用户通过浏览器登录后回到 LobsterAI
+**Given** 用户通过浏览器登录后回到 wulu
 **When** 应用调用 `/api/auth/exchange` 换取 token
 **Then** 请求 body 保留原有 `authCode`
 
@@ -368,21 +368,21 @@ KEYFROM=bilibili npm run dist:win
 
 ```text
 Mac Intel:
-LobsterAI-darwin-x64-<version>-<keyfrom>.dmg
+wulu-darwin-x64-<version>-<keyfrom>.dmg
 
 Mac Apple Silicon:
-LobsterAI-darwin-arm64-<version>-<keyfrom>.dmg
+wulu-darwin-arm64-<version>-<keyfrom>.dmg
 
 Windows x64:
-LobsterAI-Setup-x64-<version>-<keyfrom>.exe
+wulu-Setup-x64-<version>-<keyfrom>.exe
 ```
 
 示例：
 
 ```text
-LobsterAI-darwin-x64-2026.5.14-bilibili.dmg
-LobsterAI-darwin-arm64-2026.5.14-bilibili.dmg
-LobsterAI-Setup-x64-2026.5.14-bilibili.exe
+wulu-darwin-x64-2026.5.14-bilibili.dmg
+wulu-darwin-arm64-2026.5.14-bilibili.dmg
+wulu-Setup-x64-2026.5.14-bilibili.exe
 ```
 
 说明：
@@ -445,8 +445,8 @@ KEYFROM=partner_a npm run electron:dev:openclaw
 | `/api/auth/logout`                                         | `POST`       | JSON body 追加 `firstKeyfrom`、`latestKeyfrom`、`uuid`、`version`、`userId` |
 | `/api/user/profile-summary`                                | `GET`        | URL query 追加 `firstKeyfrom`、`latestKeyfrom`、`uuid`、`version`、`userId` |
 | `/api/models/available`                                    | `GET`        | URL query 追加 `firstKeyfrom`、`latestKeyfrom`、`uuid`、`version`、`userId` |
-| `/openapi/get/luna/hardware/lobsterai/{env}/update`        | `GET`        | URL query 追加 `firstKeyfrom`、`latestKeyfrom`、`uuid`、`version`、`userId` |
-| `/openapi/get/luna/hardware/lobsterai/{env}/update-manual` | `GET`        | URL query 追加 `firstKeyfrom`、`latestKeyfrom`、`uuid`、`version`、`userId` |
+| `/openapi/get/luna/hardware/wulu/{env}/update`        | `GET`        | URL query 追加 `firstKeyfrom`、`latestKeyfrom`、`uuid`、`version`、`userId` |
+| `/openapi/get/luna/hardware/wulu/{env}/update-manual` | `GET`        | URL query 追加 `firstKeyfrom`、`latestKeyfrom`、`uuid`、`version`、`userId` |
 
 POST body 示例：
 
@@ -466,8 +466,8 @@ GET query 示例：
 ```text
 /api/user/profile-summary?firstKeyfrom=bilibili&latestKeyfrom=baidu&uuid=...&version=2026.5.14&userId=...
 /api/models/available?firstKeyfrom=bilibili&latestKeyfrom=baidu&uuid=...&version=2026.5.14&userId=...
-/openapi/get/luna/hardware/lobsterai/prod/update?uuid=...&userId=...&version=...&firstKeyfrom=bilibili&latestKeyfrom=baidu
-/openapi/get/luna/hardware/lobsterai/prod/update-manual?uuid=...&userId=...&version=...&firstKeyfrom=bilibili&latestKeyfrom=baidu
+/openapi/get/luna/hardware/wulu/prod/update?uuid=...&userId=...&version=...&firstKeyfrom=bilibili&latestKeyfrom=baidu
+/openapi/get/luna/hardware/wulu/prod/update-manual?uuid=...&userId=...&version=...&firstKeyfrom=bilibili&latestKeyfrom=baidu
 ```
 
 要求：
@@ -488,7 +488,7 @@ GET query 示例：
 1. `fetchWithAuth()` 遇到 401 后自动刷新。
 2. `auth:refreshToken` IPC 主动刷新。
 3. `refreshOnce('proactive')` 主动后台刷新。
-4. `registerProxyTokenRefresher('lobsterai-server')` 代理刷新。
+4. `registerProxyTokenRefresher('wulu-server')` 代理刷新。
 
 要求：
 
@@ -502,8 +502,8 @@ GET query 示例：
 
 | 环境   | Base URL                                    |
 | ------ | ------------------------------------------- |
-| 测试服 | `https://lobsterai-server.inner.youdao.com` |
-| 正式服 | `https://lobsterai-server.youdao.com`       |
+| 测试服 | `https://wulu-server.inner.youdao.com` |
+| 正式服 | `https://wulu-server.youdao.com`       |
 
 要求：
 
@@ -796,8 +796,8 @@ const resp = await fetchWithAuth(url);
 
 更新检查接口包括：
 
-- 自动更新检查：`getUpdateCheckUrl()`，正式服为 `/lobsterai/prod/update`，测试服为 `/lobsterai/test/update`。
-- 手动更新检查：`getManualUpdateCheckUrl()`，正式服为 `/lobsterai/prod/update-manual`，测试服为 `/lobsterai/test/update-manual`。
+- 自动更新检查：`getUpdateCheckUrl()`，正式服为 `/wulu/prod/update`，测试服为 `/wulu/test/update`。
+- 手动更新检查：`getManualUpdateCheckUrl()`，正式服为 `/wulu/prod/update-manual`，测试服为 `/wulu/test/update-manual`。
 
 当前请求统一在 `AppUpdateCoordinator.fetchUpdateInfo()` 中发起，并由 `getUpdateQueryString()` 构造 query。
 
@@ -891,7 +891,7 @@ params.set('latestKeyfrom', latestKeyfrom);
 13. `/api/auth/refresh` 所有调用点请求 body 保留 `refreshToken`，并追加可用的归因参数。
 14. `/api/auth/logout` 保持 best-effort 和本地 token 清理逻辑，只在请求 body 追加可用的归因参数。
 15. `/api/user/profile-summary` 和 `/api/models/available` 保持 GET 和 Bearer 鉴权，只在 query 追加可用的归因参数。
-16. `/lobsterai/{env}/update` 和 `/lobsterai/{env}/update-manual` 保持 GET，只在 query 追加可用的归因参数。
+16. `/wulu/{env}/update` 和 `/wulu/{env}/update-manual` 保持 GET，只在 query 追加可用的归因参数。
 17. 渠道包产物文件名包含版本、平台/架构和 `keyfrom`，且 `keyfrom` 位于文件名末尾。
 18. 未传 `KEYFROM` 打包时，产物文件名使用 `official`。
 19. 测试服和正式服 URL 仍由现有 endpoints helper 决定，keyfrom 参数追加逻辑不改变环境切换。
@@ -915,9 +915,9 @@ params.set('latestKeyfrom', latestKeyfrom);
 示例：
 
 ```text
-LobsterAI-darwin-x64-2026.5.14-bilibili.dmg
-LobsterAI-darwin-arm64-2026.5.14-bilibili.dmg
-LobsterAI-Setup-x64-2026.5.14-bilibili.exe
+wulu-darwin-x64-2026.5.14-bilibili.dmg
+wulu-darwin-arm64-2026.5.14-bilibili.dmg
+wulu-Setup-x64-2026.5.14-bilibili.exe
 ```
 
 如果未传 `KEYFROM`，文件名中的渠道应为 `official`。
@@ -927,8 +927,8 @@ LobsterAI-Setup-x64-2026.5.14-bilibili.exe
 macOS：
 
 1. 双击 `.dmg` 安装包。
-2. 在弹出的挂载窗口中找到 `LobsterAI.app`。
-3. 右键 `LobsterAI.app`，选择“显示包内容”。
+2. 在弹出的挂载窗口中找到 `wulu.app`。
+3. 右键 `wulu.app`，选择“显示包内容”。
 4. 进入 `Contents/Resources/keyfrom/`。
 5. 打开 `keyfrom.json`，确认 `keyfrom` 等于本次打包传入的渠道。
 
@@ -936,7 +936,7 @@ Windows：
 
 1. 双击 `.exe` 安装包完成安装。
 2. 打开资源管理器。
-3. 在地址栏输入 `%LOCALAPPDATA%\Programs\LobsterAI\resources\keyfrom`。
+3. 在地址栏输入 `%LOCALAPPDATA%\Programs\wulu\resources\keyfrom`。
 4. 打开 `keyfrom.json`，确认 `keyfrom` 等于本次打包传入的渠道。
 
 示例内容：

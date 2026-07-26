@@ -345,8 +345,8 @@ export function registerMcpHandlers(deps: McpHandlerDeps): void {
 
   ipcMain.handle(McpIpcChannel.FetchMarketplace, async () => {
     const url = app.isPackaged
-      ? 'https://api-overmind.youdao.com/openapi/get/luna/hardware/lobsterai/prod/mcp-marketplace'
-      : 'https://api-overmind.youdao.com/openapi/get/luna/hardware/lobsterai/test/mcp-marketplace';
+      ? 'https://api-overmind.youdao.com/openapi/get/luna/hardware/wulu/prod/mcp-marketplace'
+      : 'https://api-overmind.youdao.com/openapi/get/luna/hardware/wulu/test/mcp-marketplace';
     try {
       const data = await fetchText(url);
       const json = JSON.parse(data);

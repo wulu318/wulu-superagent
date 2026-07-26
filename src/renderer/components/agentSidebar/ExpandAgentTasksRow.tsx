@@ -18,7 +18,7 @@ const ExpandAgentTasksRow: React.FC<ExpandAgentTasksRowProps> = ({
   onSecondaryClick,
 }) => {
   return (
-    <div className="-ml-[6px] flex h-7 w-[calc(100%+12px)] items-center gap-5 rounded-md pl-[38px] pr-2.5 text-[length:var(--lobster-text-sidebarCompact)] font-normal">
+    <div className="-ml-[6px] flex h-7 w-[calc(100%+12px)] items-center gap-5 rounded-md pl-[38px] pr-2.5 text-[length:var(--Wulu-text-sidebarCompact)] font-normal">
       <button
         type="button"
         onClick={onClick}

@@ -109,7 +109,7 @@ test('ManualPolicy.toWireBinding: ui_session with sessionId -> main + managed ke
   const policy = new ManualTaskPolicy();
   const result = policy.toWireBinding({ kind: BindingKind.UISession, sessionId: 'sess-x' });
   expect(result.sessionTarget).toBe(SessionTarget.Main);
-  expect(result.sessionKey).toBe('agent:main:lobsterai:sess-x');
+  expect(result.sessionKey).toBe('agent:main:WULU:sess-x');
 });
 
 test('ManualPolicy.toWireBinding: im_session with sessionId -> main + managed key', () => {
@@ -121,7 +121,7 @@ test('ManualPolicy.toWireBinding: im_session with sessionId -> main + managed ke
     sessionId: 'sess-y',
   });
   expect(result.sessionTarget).toBe(SessionTarget.Main);
-  expect(result.sessionKey).toBe('agent:main:lobsterai:sess-y');
+  expect(result.sessionKey).toBe('agent:main:WULU:sess-y');
 });
 
 test('ManualPolicy.toWireBinding: im_session without sessionId -> main + null', () => {

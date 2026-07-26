@@ -4,8 +4,8 @@ import { isAskUserQuestionCandidateSessionKey } from '../../../openclaw-extensio
 
 describe('ask-user-question session key gating', () => {
   test('allows desktop sessions across agents', () => {
-    expect(isAskUserQuestionCandidateSessionKey('agent:main:lobsterai:session-1')).toBe(true);
-    expect(isAskUserQuestionCandidateSessionKey('agent:qa-reviewer:lobsterai:session-2')).toBe(true);
+    expect(isAskUserQuestionCandidateSessionKey('agent:main:WULU:session-1')).toBe(true);
+    expect(isAskUserQuestionCandidateSessionKey('agent:qa-reviewer:WULU:session-2')).toBe(true);
   });
 
   test('allows materialized subagent session candidates', () => {
@@ -13,14 +13,14 @@ describe('ask-user-question session key gating', () => {
   });
 
   test('allows legacy desktop sessions', () => {
-    expect(isAskUserQuestionCandidateSessionKey('lobsterai:session-3')).toBe(true);
+    expect(isAskUserQuestionCandidateSessionKey('WULU:session-3')).toBe(true);
   });
 
   test('rejects channel and malformed session keys', () => {
     expect(isAskUserQuestionCandidateSessionKey('agent:qa-reviewer:feishu:direct:user-1')).toBe(false);
     expect(isAskUserQuestionCandidateSessionKey('agent:qa-reviewer:dingtalk-connector:direct:user-1')).toBe(false);
-    expect(isAskUserQuestionCandidateSessionKey('agent::lobsterai:session-4')).toBe(false);
-    expect(isAskUserQuestionCandidateSessionKey('agent:qa-reviewer:lobsterai:')).toBe(false);
+    expect(isAskUserQuestionCandidateSessionKey('agent::WULU:session-4')).toBe(false);
+    expect(isAskUserQuestionCandidateSessionKey('agent:qa-reviewer:WULU:')).toBe(false);
     expect(isAskUserQuestionCandidateSessionKey('')).toBe(false);
   });
 });

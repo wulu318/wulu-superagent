@@ -2,7 +2,7 @@
 
 ## Change Summary
 
-`lobsterai-server` no longer accepts `public` for HTML share creation or update. HTML shares now support share-code access only.
+`wulu-server` no longer accepts `public` for HTML share creation or update. HTML shares now support share-code access only.
 
 Affected endpoints:
 
@@ -46,7 +46,7 @@ Success response example:
   "message": "success",
   "data": {
     "shareId": "shr_xxxxxxxxxxxxxxxx",
-    "url": "https://lobsterai-server.youdao.com/s/shr_xxxxxxxxxxxxxxxx/",
+    "url": "https://wulu-server.youdao.com/s/shr_xxxxxxxxxxxxxxxx/",
     "accessMode": "code",
     "shareCode": "K7Q9P2",
     "shareCodeUnavailable": false,

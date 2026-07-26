@@ -6,17 +6,17 @@
 
 HTML 静态分享当前在客户端只暴露“分享码”模式，用户创建分享时不能选择公开访问。实际系统历史上曾支持 `public` 模式，数据库结构、服务端静态访问链路和管理员后台展示也仍保留了部分公开访问能力：
 
-- 客户端仓库 `/Users/admin/Documents/lobsterai/LobsterAI`
+- 客户端仓库 `/Users/admin/Documents/wulu/wulu`
   - `src/shared/htmlShare/constants.ts` 中 `HtmlShareAccessMode` 只定义了 `Code`。
   - `src/main/main.ts` 的 `validateHtmlShareAccessMode()` 只允许 `code`。
   - `uploadHtmlShare()` / `updateHtmlShare()` 调用没有把 `accessMode` 传给服务端。
   - `ArtifactPanel` 分享入口没有创建时访问方式选择，也没有已有分享的访问方式切换。
-- 服务端仓库 `/Users/admin/Documents/lobsterai/lobsterai-server`
+- 服务端仓库 `/Users/admin/Documents/wulu/wulu-server`
   - `html_shares.access_mode` 字段仍存在，schema 默认值为 `public`。
   - `HtmlShareService.ACCESS_MODES` 包含 `code` 和 `public`。
   - `HtmlShareStaticController` 只在 `isAccessCodeRequired()` 为 true 时要求分享码，因此公开访问链路本身可复用。
   - `HtmlShareAccessService.normalizeAccessMode()` 当前把空值默认成 `code`，并拒绝 `public`。
-- 管理后台仓库 `/Users/admin/Documents/lobsterai/lobsterai-admin`
+- 管理后台仓库 `/Users/admin/Documents/wulu/wulu-admin`
   - `HtmlShareListView.vue` 已能展示 `公开访问` 和 `分享码`。
   - 管理后台文档已描述分享可以是公开访问或分享码访问。
 
@@ -485,7 +485,7 @@ SHOW INDEX FROM html_shares WHERE Key_name = 'idx_html_shares_access_mode';
 
 ## 6. 涉及文件
 
-### 6.1 桌面客户端 `/Users/admin/Documents/lobsterai/LobsterAI`
+### 6.1 桌面客户端 `/Users/admin/Documents/wulu/wulu`
 
 | 文件 | 变更 |
 |------|------|
@@ -498,20 +498,20 @@ SHOW INDEX FROM html_shares WHERE Key_name = 'idx_html_shares_access_mode';
 | `src/renderer/components/artifacts/ArtifactPanel.tsx` | 新增创建选择、已有分享模式切换、复制逻辑调整 |
 | `src/renderer/services/i18n.ts` | 新增和调整分享访问方式相关中英文文案 |
 
-### 6.2 服务端 `/Users/admin/Documents/lobsterai/lobsterai-server`
+### 6.2 服务端 `/Users/admin/Documents/wulu/wulu-server`
 
 | 文件 | 变更 |
 |------|------|
-| `src/main/java/com/youdao/lobsterai/service/HtmlShareAccessService.java` | 支持 `public`，拆分创建/更新归一化语义 |
-| `src/main/java/com/youdao/lobsterai/service/HtmlShareService.java` | 创建/更新模式处理，分享码复用 helper，新增仅更新访问方式方法 |
-| `src/main/java/com/youdao/lobsterai/web/controller/HtmlShareController.java` | 新增 `PUT /api/html-shares/{shareId}/access-mode` |
-| `src/main/java/com/youdao/lobsterai/entity/dto/HtmlShareAccessModeUpdateRequest.java` | 新增请求 DTO |
-| `src/main/java/com/youdao/lobsterai/exceptions/ErrorCode.java` | 更新访问方式错误文案 |
-| `src/test/java/com/youdao/lobsterai/service/HtmlShareAccessServiceTest.java` | 更新 normalize access mode 测试 |
-| `src/test/java/com/youdao/lobsterai/service/HtmlShareServiceTest.java` | 覆盖 public 创建、更新、模式切换和分享码复用 |
-| `src/test/java/com/youdao/lobsterai/web/controller/HtmlShareStaticControllerTest.java` | 覆盖 public/code 访问行为 |
+| `src/main/java/com/youdao/wulu/service/HtmlShareAccessService.java` | 支持 `public`，拆分创建/更新归一化语义 |
+| `src/main/java/com/youdao/wulu/service/HtmlShareService.java` | 创建/更新模式处理，分享码复用 helper，新增仅更新访问方式方法 |
+| `src/main/java/com/youdao/wulu/web/controller/HtmlShareController.java` | 新增 `PUT /api/html-shares/{shareId}/access-mode` |
+| `src/main/java/com/youdao/wulu/entity/dto/HtmlShareAccessModeUpdateRequest.java` | 新增请求 DTO |
+| `src/main/java/com/youdao/wulu/exceptions/ErrorCode.java` | 更新访问方式错误文案 |
+| `src/test/java/com/youdao/wulu/service/HtmlShareAccessServiceTest.java` | 更新 normalize access mode 测试 |
+| `src/test/java/com/youdao/wulu/service/HtmlShareServiceTest.java` | 覆盖 public 创建、更新、模式切换和分享码复用 |
+| `src/test/java/com/youdao/wulu/web/controller/HtmlShareStaticControllerTest.java` | 覆盖 public/code 访问行为 |
 
-### 6.3 管理后台 `/Users/admin/Documents/lobsterai/lobsterai-admin`
+### 6.3 管理后台 `/Users/admin/Documents/wulu/wulu-admin`
 
 | 文件 | 变更 |
 |------|------|

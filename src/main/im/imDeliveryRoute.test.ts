@@ -10,7 +10,7 @@ import {
 test('managed session delivery route prefers deliveryContext over legacy last route fields', () => {
   const resolved = resolveManagedSessionDeliveryRoute('session-1', [
     {
-      key: 'agent:main:lobsterai:session-1',
+      key: 'agent:main:wulu:session-1',
       lastChannel: 'dingtalk-connector',
       lastTo: 'user:legacy-user',
       lastAccountId: 'legacy-account',
@@ -23,7 +23,7 @@ test('managed session delivery route prefers deliveryContext over legacy last ro
   ]);
 
   expect(resolved).toEqual({
-    sessionKey: 'agent:main:lobsterai:session-1',
+    sessionKey: 'agent:main:wulu:session-1',
     route: {
       channel: 'dingtalk-connector',
       to: 'group:cid-123',
@@ -39,7 +39,7 @@ test('managed session delivery route prefers deliveryContext over legacy last ro
 test('managed session delivery route falls back to last route fields', () => {
   const resolved = resolveManagedSessionDeliveryRoute('session-2', [
     {
-      key: 'agent:main:lobsterai:session-2',
+      key: 'agent:main:wulu:session-2',
       lastChannel: 'dingtalk-connector',
       lastTo: 'user:staff-42',
       lastAccountId: 'acct-1',
@@ -47,7 +47,7 @@ test('managed session delivery route falls back to last route fields', () => {
   ]);
 
   expect(resolved).toEqual({
-    sessionKey: 'agent:main:lobsterai:session-2',
+    sessionKey: 'agent:main:wulu:session-2',
     route: {
       channel: 'dingtalk-connector',
       to: 'user:staff-42',
@@ -59,7 +59,7 @@ test('managed session delivery route falls back to last route fields', () => {
 test('route lookup can match DingTalk channel session keys discovered outside the managed session namespace', () => {
   const candidateSessionKeys = [
     ...buildDingTalkSessionKeyCandidates('__default__:2459325231940374'),
-    'agent:main:lobsterai:session-3',
+    'agent:main:wulu:session-3',
   ];
 
   const resolved = resolveOpenClawDeliveryRouteForSessionKeys(candidateSessionKeys, [
@@ -84,7 +84,7 @@ test('route lookup can match DingTalk channel session keys discovered outside th
 });
 
 test('delivery route extraction ignores incomplete session rows and non-dingtalk channels', () => {
-  expect(extractOpenClawDeliveryRoute({ key: 'agent:main:lobsterai:session-3' })).toBe(null);
+  expect(extractOpenClawDeliveryRoute({ key: 'agent:main:wulu:session-3' })).toBe(null);
   expect(buildDingTalkSendParamsFromRoute({
     channel: 'telegram',
     to: 'chat:123',
