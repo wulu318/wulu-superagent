@@ -32,7 +32,7 @@ SKILLs/**/.server.log
 SKILLs/**/.server.pid
 SKILLs/**/.venv/
 
-package-lock.json
+# package-lock.json — WULU: keep lock file for CI reproducibility
 
 nul
 .work.env

@@ -1,63 +1,89 @@
 <h1 align="center">
   <img src="public/logo.png" alt="WULU" width="96"><br>
-  伍陆超级智能体 (WULU SuperAgent)
+  伍陆超级智能体
 </h1>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/macOS%20%7C%20Windows%20%7C%20Linux-FFD700?style=flat-square&labelColor=000000&color=FFD700" alt="Supported platforms" />
-  <img src="https://img.shields.io/badge/Electron-40-47848F?style=flat-square&logo=electron&logoColor=white" alt="Electron 40" />
-  <img src="https://img.shields.io/badge/React-18-61DAFB?style=flat-square&logo=react&logoColor=black" alt="React 18" />
-  <img src="https://img.shields.io/badge/License-MIT-FFD700?style=flat-square" alt="MIT License" />
-  <br>
-  <em>基于 <a href="https://github.com/netease-youdao/LobsterAI">LobsterAI</a> (NetEase Youdao) 深度定制</em>
+  <strong>7×24 小时全场景个人助理 Agent</strong>
 </p>
 
 <p align="center">
-  <strong>全场景办公助手智能体 — 7x24 小时帮你干活</strong><br/>
-  Fork from NetEase Youdao LobsterAI with WULU brand customization.
+  <img src="https://img.shields.io/badge/macOS%20%7C%20Windows%20%7C%20Linux-FFD700?style=flat-square&labelColor=000000&color=FFD700" alt="全平台" />
+  <img src="https://img.shields.io/badge/Electron-40-47848F?style=flat-square&logo=electron&logoColor=white" alt="Electron 40" />
+  <img src="https://img.shields.io/badge/React-18-61DAFB?style=flat-square&logo=react&logoColor=black" alt="React 18" />
+  <img src="https://img.shields.io/badge/License-MIT-FFD700?style=flat-square" alt="MIT" />
 </p>
 
 ---
 
-## Relationship with Upstream
+## 功能
 
-This project is forked from [netease-youdao/LobsterAI](https://github.com/netease-youdao/LobsterAI) (MIT License) with the following customizations:
+### 桌面协作会话
 
-| Customization | Details |
-|---------------|---------|
-| **Brand** | WULU SuperAgent / 伍陆超级智能体 |
-| **Icon** | Golden W lettermark on pure black with glow |
-| **Dark theme** | Pure black `#000000` + Gold `#FFD700` accent |
-| **Light theme** | White background + Deep gold accent |
-| **Platforms** | Added Windows arm64, Linux arm64, Xinchuang (deb/rpm) |
-| **Upstream sync** | GitHub Actions auto-detects upstream updates |
+在本地项目和文件上运行长任务 Agent，实时流式输出进度、保留会话历史、渲染工具输出，敏感操作前请求确认。
 
-All features are identical to upstream LobsterAI, including: Multi-Agent workflows, 28+ built-in skills, MCP protocol support, scheduled tasks, IM remote control, local memory, etc.
+### 多 Agent 工作流
 
-## Install
+创建专属 Agent，各自拥有独立身份、模型选择、技能集、工作目录和 IM 绑定。
 
-Download from [GitHub Releases](https://github.com/wulu-superagent/wulu-superagent/releases):
+### 技能系统
 
-| Platform | Format |
-|----------|--------|
-| Windows (x64/arm64) | `.exe` (NSIS) |
+内置 28+ 技能：网页搜索、Word / Excel / PPT 生成、PDF 处理、Remotion 视频生成、浏览器自动化、图片/视频生成、股票研究、内容写作、邮件、天气等。
+
+### MCP 服务器
+
+通过 Model Context Protocol 连接外部工具和数据源。
+
+### 定时任务
+
+创建周期性工作——每日新闻摘要、收件箱汇总、网站监控、周报生成等。
+
+### IM 远程控制
+
+从微信、企业微信、钉钉、飞书、QQ、Telegram、Discord 等渠道远程召唤桌面 Agent。
+
+### 富媒体输出
+
+预览和管理生成的 HTML、SVG、图片、视频、Mermaid 图表、代码、文档等。
+
+### 本地记忆与数据
+
+会话和应用数据本地 SQLite 持久化，工作区记忆跨会话传承。
+
+---
+
+## 下载安装
+
+| 平台 | 格式 |
+|------|------|
+| Windows (x64 / arm64) | `.exe` (NSIS) |
 | macOS (Apple Silicon / Intel / Universal) | `.dmg` |
-| Linux (x64/arm64) | `.AppImage` / `.deb` / `.rpm` |
+| Linux (x64 / arm64) | `.AppImage` / `.deb` / `.rpm` |
 
-For Xinchuang systems (UOS, Kylin, openEuler), use `.deb` or `.rpm` packages.
+信创系统使用 `.deb` 或 `.rpm`。
 
-## Build from Source
+---
+
+## 从源码运行
 
 ```bash
-git clone https://github.com/wulu-superagent/wulu-superagent.git
+git clone https://github.com/wulu318/wulu-superagent.git
 cd wulu-superagent
 npm install
 npm run electron:dev
 ```
 
-## License
+## 打包构建
 
-[MIT License](LICENSE)
+```bash
+npm run dist:mac
+npm run dist:win
+npm run dist:linux
+```
 
-Copyright (c) 2026 WULU  
-Copyright (c) 2025-2026 NetEase Youdao
+---
+
+## 许可证
+
+[MIT License](LICENSE)  
+Copyright (c) 2026 WULU · Copyright (c) 2025-2026 NetEase Youdao
