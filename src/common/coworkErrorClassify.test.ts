@@ -1,6 +1,6 @@
 import { expect,test } from 'vitest';
 
-import { classifyErrorKey, iswuluQuotaExhaustedError } from './coworkErrorClassify';
+import { classifyErrorKey, isWuluQuotaExhaustedError } from './coworkErrorClassify';
 
 const classifyError = (error: string) => classifyErrorKey(error) ?? error;
 
@@ -89,8 +89,8 @@ test('billing: wulu monthly quota JSON payload', () => {
 });
 
 test('billing: detects wulu quota exhausted for proxy helpers', () => {
-  expect(iswuluQuotaExhaustedError('monthly credits exhausted')).toBe(true);
-  expect(iswuluQuotaExhaustedError('Request failed with status 402')).toBe(false);
+  expect(isWuluQuotaExhaustedError('monthly credits exhausted')).toBe(true);
+  expect(isWuluQuotaExhaustedError('Request failed with status 402')).toBe(false);
 });
 
 test('billing: OpenRouter insufficient credits', () => {

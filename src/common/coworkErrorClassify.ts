@@ -20,7 +20,7 @@ export const CoworkErrorI18nKey = {
   GatewayHeapOutOfMemory: 'coworkErrorGatewayHeapOutOfMemory',
 } as const;
 
-const wulu_QUOTA_EXHAUSTED_PATTERN =
+const WULU_QUOTA_EXHAUSTED_PATTERN =
   /\b4020[0-2]\b|(?:今日)?免费额度.*(用完|耗尽)|本月积分.*(用完|耗尽)|积分额度.*(用完|耗尽)|free.*quota.*(exhausted|used up|limit)|monthly.*credits?.*(exhausted|used up|limit)/i;
 
 const API_KEY_PATTERN = String.raw`(?:api\s*key|api[_-]?key|apikey)`;
@@ -33,8 +33,8 @@ const ERROR_RULES: Array<[RegExp, string]> = [
   [/无权访问|没有权限|access denied|access.*forbidden|forbidden|permission denied|\b403\b|auth[_ ]scope/i, CoworkErrorI18nKey.ModelAccessDenied],
   // Auth: Anthropic, DeepSeek, OpenAI, Gemini, HTTP 401
   [new RegExp(`authentication[_ ](error|fails?)|${API_KEY_PATTERN}.*(invalid|expired|deleted|inactive|not[_ ]valid|not\\s+valid)|invalid.*${API_KEY_PATTERN}|incorrect.*${API_KEY_PATTERN}|unauthorized|PERMISSION_DENIED|\\b401\\b`, 'i'), CoworkErrorI18nKey.AuthInvalid],
-  // wulu plan/free quota. Must precede generic 402/billing handling.
-  [wulu_QUOTA_EXHAUSTED_PATTERN, CoworkErrorI18nKey.QuotaExhausted],
+  // Wulu plan/free quota. Must precede generic 402/billing handling.
+  [WULU_QUOTA_EXHAUSTED_PATTERN, CoworkErrorI18nKey.QuotaExhausted],
   // Rate limit: HTTP 429, Anthropic/DeepSeek overloaded, Gemini RESOURCE_EXHAUSTED
   // (must precede billing so "RESOURCE_EXHAUSTED: quota exceeded" maps to rate-limit)
   [/\b429\b|rate[_ ]limit|too many requests|overloaded|RESOURCE_EXHAUSTED/i, CoworkErrorI18nKey.RateLimit],
@@ -76,6 +76,6 @@ export function classifyErrorKey(error: string): string | null {
   return null;
 }
 
-export function iswuluQuotaExhaustedError(error: string): boolean {
-  return wulu_QUOTA_EXHAUSTED_PATTERN.test(error);
+export function isWuluQuotaExhaustedError(error: string): boolean {
+  return WULU_QUOTA_EXHAUSTED_PATTERN.test(error);
 }

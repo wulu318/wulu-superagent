@@ -76,7 +76,7 @@ need_cmd() {
 
 need_cmd node
 need_cmd npm
-need_cmd pnpm
+# pnpm is provided by corepack enable below (line ~146), no need to pre-check here
 need_cmd tar
 
 if [[ ! -d "$OPENCLAW_SRC" ]]; then

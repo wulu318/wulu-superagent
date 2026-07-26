@@ -2036,7 +2036,7 @@ const resolveSessionWorkingDirectory = (options: { cwd?: string; agentId?: strin
   return resolveAgentDefaultWorkingDirectory(options.agentId);
 };
 
-const isWULUServerModelRef = (modelRef: string): boolean => {
+const isWuluServerModelRef = (modelRef: string): boolean => {
   const normalized = modelRef.trim();
   if (!normalized) return false;
 
@@ -2052,14 +2052,14 @@ const shouldRefreshServerQuotaForSession = (sessionId: string): boolean => {
   const session = getCoworkStore().getSession(sessionId);
   const sessionModelRef = session?.modelOverride?.trim();
   if (sessionModelRef) {
-    return isWULUServerModelRef(sessionModelRef);
+    return isWuluServerModelRef(sessionModelRef);
   }
 
   const agentModelRef = session?.agentId
     ? getAgentManager().getAgent(session.agentId)?.model?.trim()
     : '';
   if (agentModelRef) {
-    return isWULUServerModelRef(agentModelRef);
+    return isWuluServerModelRef(agentModelRef);
   }
 
   const apiConfig = resolveCurrentApiConfig();
