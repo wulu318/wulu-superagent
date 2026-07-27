@@ -2725,7 +2725,7 @@ const IMSettings: React.FC = () => {
           );
         })()}
 
-        {/* NIM (NetEase IM) Settings */}
+        {/* NIM (Yunxin IM) Settings */}
         {activePlatform === 'nim' && !activeNimInstanceId && renderMultiInstanceOverview('nim')}
         {activePlatform === 'nim' && activeNimInstanceId && (() => {
           const selectedInstance = config.nim.instances.find(i => i.instanceId === activeNimInstanceId);
