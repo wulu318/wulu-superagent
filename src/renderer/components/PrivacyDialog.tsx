@@ -1,3 +1,4 @@
+/* eslint-disable simple-import-sort/imports */
 import React from 'react';
 import { i18nService } from '@/services/i18n';
 
