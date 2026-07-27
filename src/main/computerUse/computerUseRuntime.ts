@@ -33,7 +33,7 @@ export const ComputerUseHelperConfig = {
   Direction: 'ltr',
   Locale: 'zh-CN',
   EscToCancel: '按 Esc 取消',
-  UsingComputer: 'wulu正在使用你的电脑',
+  UsingComputer: 'WULU正在使用你的电脑',
 } as const;
 export type ComputerUseHelperConfig =
   typeof ComputerUseHelperConfig[keyof typeof ComputerUseHelperConfig];
