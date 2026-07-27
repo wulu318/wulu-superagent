@@ -362,12 +362,12 @@ const translations: Record<LanguageType, Record<string, string>> = {
     authInviteFriendsForCredits: '邀请好友',
     authCreditsResetAction: '订阅积分重置 1次',
     authCreditsResetActionCount: '订阅积分重置 {count}次',
-    authPromoSubscriptionAction: '限时特惠订阅'
+    authPromoSubscriptionAction: '限时特惠订阅',
     authCreditsResetFloatTitle: '你已获得一次积分重置权益',
     authCreditsResetFloatDesc: '你已获得一次订阅积分重置权益，将于7月31日后失效。',
     authCreditsResetFloatDescWithExpiry: '你已获得一次订阅积分重置权益，将于{date}后失效。',
     authCreditsResetFloatAction: '去重置',
-    authPromoSubscriptionFloatTitle: '限时特惠订阅权益'
+    authPromoSubscriptionFloatTitle: '限时特惠订阅权益',
     authPromoSubscriptionFloatDesc: '你已获得限时特惠订阅权益，将于7月31日后失效。',
     authPromoSubscriptionFloatAction: '去订阅',
     authFinalRewardAction: '领取{credits}积分奖励',
