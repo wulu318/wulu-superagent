@@ -98,7 +98,7 @@ describe('sessionDiagnosticsArchive', () => {
     expect(fileName).toBe(
       `WULU-diagnostics-CON ${'会'.repeat(36)}-session--20260703-010203.zip`,
     );
-    expect(Array.from(fileName)).toHaveLength(91);
+    expect(Array.from(fileName)).toHaveLength(86);
     expect(fileName).not.toMatch(/[<>:"/\\|?*\u0000-\u001F\u200B]/);
   });
 

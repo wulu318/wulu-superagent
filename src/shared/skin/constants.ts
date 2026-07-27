@@ -69,7 +69,7 @@ export const SkinAssetMimeType = {
 export type SkinAssetMimeType = typeof SkinAssetMimeType[keyof typeof SkinAssetMimeType];
 
 export const SkinProtocol = {
-  Scheme: 'Wulu-skin',
+  Scheme: 'wulu-skin',
   Host: 'asset',
 } as const;
 

@@ -57,12 +57,12 @@ describe('skin protocol URL', () => {
 
   test('rejects unsupported hosts, slots, traversal, credentials, and query parameters', () => {
     expect(parseSkinProtocolUrl('https://asset/skin-one/workspace.backdrop')).toBeNull();
-    expect(parseSkinProtocolUrl('Wulu-skin://other/skin-one/workspace.backdrop')).toBeNull();
-    expect(parseSkinProtocolUrl('Wulu-skin://asset/skin-one/unknown.slot')).toBeNull();
-    expect(parseSkinProtocolUrl('Wulu-skin://asset/%2e%2e/workspace.backdrop')).toBeNull();
-    expect(parseSkinProtocolUrl('Wulu-skin://asset/skin-one/workspace%2fbackdrop')).toBeNull();
-    expect(parseSkinProtocolUrl('Wulu-skin://user@asset/skin-one/workspace.backdrop')).toBeNull();
-    expect(parseSkinProtocolUrl('Wulu-skin://asset/skin-one/workspace.backdrop?path=local')).toBeNull();
+    expect(parseSkinProtocolUrl('wulu-skin://other/skin-one/workspace.backdrop')).toBeNull();
+    expect(parseSkinProtocolUrl('wulu-skin://asset/skin-one/unknown.slot')).toBeNull();
+    expect(parseSkinProtocolUrl('wulu-skin://asset/%2e%2e/workspace.backdrop')).toBeNull();
+    expect(parseSkinProtocolUrl('wulu-skin://asset/skin-one/workspace%2fbackdrop')).toBeNull();
+    expect(parseSkinProtocolUrl('wulu-skin://user@asset/skin-one/workspace.backdrop')).toBeNull();
+    expect(parseSkinProtocolUrl('wulu-skin://asset/skin-one/workspace.backdrop?path=local')).toBeNull();
   });
 });
 

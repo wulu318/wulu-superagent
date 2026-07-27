@@ -33,9 +33,9 @@ describe('OpenClaw extension manifests', () => {
 
   test('declares WULU media generation and skin agent tool contracts', () => {
     expect(readContractTools('Wulu-media-generation')).toEqual([
-      'WULU_image_generate',
-      'WULU_video_generate',
-      'WULU_skin_manage',
+      'wulu_image_generate',
+      'wulu_video_generate',
+      'wulu_skin_manage',
     ]);
   });
 
