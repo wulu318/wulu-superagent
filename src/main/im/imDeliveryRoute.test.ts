@@ -1,3 +1,4 @@
+/* eslint-disable simple-import-sort/imports */
 import { test, expect } from 'vitest';
 
 import {
