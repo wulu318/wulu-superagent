@@ -2867,7 +2867,7 @@ const translations: Record<LanguageType, Record<string, string>> = {
 
     // 隐私协议弹窗
     privacyDialogTitle: 'WULU服务协议',
-    privacyDialogDesc: '在使用WULU之前，请您仔细阅读{link}内容，并进行确认。',,
+    privacyDialogDesc: '在使用WULU之前，请您仔细阅读{link}内容，并进行确认。',
     privacyDialogLinkText: 'WULU服务协议',
     privacyDialogAccept: '我已阅读并同意',
     privacyDialogReject: '拒绝',
@@ -3133,7 +3133,7 @@ const translations: Record<LanguageType, Record<string, string>> = {
     imageVisionHint:
       'Image input is not enabled for the current model. Images will be sent as file paths. If the model supports vision, you can enable image input in the model configuration.',
     copied: 'Copied',
-    copyrightHolder: 'WULU. All rights reserved.',,
+    copyrightHolder: 'WULU. All rights reserved.',
     noModelsAvailable: 'No models available',
     addFirstModel: 'Add First Model',
     testConnection: 'Test Connection',
@@ -3369,7 +3369,7 @@ const translations: Record<LanguageType, Record<string, string>> = {
     authFinalRewardClose: 'Close the reward dialog',
     authFinalRewardClaim: 'Claim {credits} credits now',
     authFinalRewardClaimSuccess: '{credits} credits claimed. Valid until {date}',
-    authFinalRewardClaimFailed: 'Failed to claim credits',,
+    authFinalRewardClaimFailed: 'Failed to claim credits',
     authZeroCredits: '0 credits',
     planFree: 'Free',
     planStandard: 'Standard',
@@ -5980,13 +5980,13 @@ const translations: Record<LanguageType, Record<string, string>> = {
     // Privacy dialog
     privacyDialogTitle: 'WULU Terms of Service',
     privacyDialogDesc:
-      'Before using WULU, please carefully read the {link} and confirm.',,
+      'Before using WULU, please carefully read the {link} and confirm.',
     privacyDialogLinkText: 'WULU Terms of Service',
     privacyDialogAccept: 'I have read and agree',
     privacyDialogReject: 'Decline',
     welcomeTitle: 'Welcome to WULU',
     welcomeSubtitle: 'Explore a world of AI features~',
-    welcomePromo: 'New user limited-time offer, try now',,
+    welcomePromo: 'New user limited-time offer, try now',
     welcomeLogin: 'Login',
     welcomeCustomModel: 'Custom Model',
     githubCopilotAuth: 'GitHub Account Authentication',
