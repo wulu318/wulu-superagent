@@ -1791,6 +1791,112 @@ class CoworkService {
     store.dispatch(finishSessionNavigationAction(sessionId));
   }
 
+  // ─── Advanced Memory ────────────────────────────────────────────
+  async advancedMemoryListDiaryDates(): Promise<{ success: boolean; dates?: string[]; error?: string }> {
+    const api = window.electron?.cowork?.advancedMemoryListDiaryDates;
+    if (!api) return { success: false, error: 'Advanced Memory API not available' };
+    return api();
+  }
+
+  async advancedMemoryReadDiary(date: string): Promise<{
+    success: boolean;
+    entries?: Array<{ id: string; content: string; tags: string[]; layer: string; createdAt: number }>;
+    error?: string;
+  }> {
+    const api = window.electron?.cowork?.advancedMemoryReadDiary;
+    if (!api) return { success: false, error: 'Advanced Memory API not available' };
+    return api(date);
+  }
+
+  async advancedMemoryWriteDiary(input: {
+    content: string;
+    tags?: string[];
+    layer?: string;
+  }): Promise<{ success: boolean; id?: string; error?: string }> {
+    const api = window.electron?.cowork?.advancedMemoryWriteDiary;
+    if (!api) return { success: false, error: 'Advanced Memory API not available' };
+    return api(input);
+  }
+
+  async advancedMemoryWriteFutureMessage(input: {
+    content: string;
+    deliverAfter: number;
+    tags?: string[];
+  }): Promise<{ success: boolean; id?: string; error?: string }> {
+    const api = window.electron?.cowork?.advancedMemoryWriteFutureMessage;
+    if (!api) return { success: false, error: 'Advanced Memory API not available' };
+    return api(input);
+  }
+
+  async advancedMemoryGetPendingMessages(): Promise<{
+    success: boolean;
+    messages?: Array<{ id: string; content: string; deliverAfter: number; delivered: boolean; tags: string[] }>;
+    error?: string;
+  }> {
+    const api = window.electron?.cowork?.advancedMemoryGetPendingMessages;
+    if (!api) return { success: false, error: 'Advanced Memory API not available' };
+    return api();
+  }
+
+  async advancedMemorySearch(input: {
+    query: string;
+    limit?: number;
+    tagDepth?: number;
+  }): Promise<{
+    success: boolean;
+    results?: Array<{ id: string; content: string; tags: string[]; layer: string; score: number }>;
+    error?: string;
+  }> {
+    const api = window.electron?.cowork?.advancedMemorySearch;
+    if (!api) return { success: false, error: 'Advanced Memory API not available' };
+    return api(input);
+  }
+
+  // ─── NewAPI Backend ─────────────────────────────────────────────
+  async newApiLogin(input: {
+    baseUrl: string;
+    apiKey: string;
+  }): Promise<{
+    success: boolean;
+    user?: { id: number; username: string; displayName: string; email: string };
+    quota?: { usedQuota: number; totalQuota: number; requestCount: number };
+    error?: string;
+  }> {
+    const api = window.electron?.cowork?.newApiLogin;
+    if (!api) return { success: false, error: 'NewAPI Backend not available' };
+    return api(input);
+  }
+
+  async newApiFetchModels(input: {
+    baseUrl: string;
+    apiKey: string;
+  }): Promise<{
+    success: boolean;
+    models?: Array<{ id: string; name: string; ownedBy: string }>;
+    error?: string;
+  }> {
+    const api = window.electron?.cowork?.newApiFetchModels;
+    if (!api) return { success: false, error: 'NewAPI Backend not available' };
+    return api(input);
+  }
+
+  // ─── Environment Awareness ──────────────────────────────────────
+  async getEnvironmentSnapshot(): Promise<{
+    success: boolean;
+    snapshot?: {
+      time: string;
+      solarTerm?: string;
+      weather?: string;
+      systemStatus?: string;
+      calendar?: string;
+    };
+    error?: string;
+  }> {
+    const api = window.electron?.cowork?.envSnapshot;
+    if (!api) return { success: false, error: 'Environment Awareness API not available' };
+    return api();
+  }
+
   destroy(): void {
     this.cleanupListeners();
     this.openClawStatusListeners.clear();

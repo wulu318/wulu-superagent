@@ -57,6 +57,15 @@ export const CoworkIpcChannel = {
   BootstrapWrite: 'cowork:bootstrap:write',
   TempStorageUsage: 'cowork:tempStorage:usage',
   TempStorageClean: 'cowork:tempStorage:clean',
+  AdvancedMemoryListDiaryDates: 'cowork:advancedMemory:listDiaryDates',
+  AdvancedMemoryReadDiary: 'cowork:advancedMemory:readDiary',
+  AdvancedMemoryWriteDiary: 'cowork:advancedMemory:writeDiary',
+  AdvancedMemoryWriteFutureMessage: 'cowork:advancedMemory:writeFutureMessage',
+  AdvancedMemoryGetPendingMessages: 'cowork:advancedMemory:getPendingMessages',
+  AdvancedMemorySearch: 'cowork:advancedMemory:search',
+  NewApiLogin: 'cowork:newApi:login',
+  NewApiFetchModels: 'cowork:newApi:fetchModels',
+  EnvSnapshot: 'cowork:env:snapshot',
 } as const;
 export type CoworkIpcChannel = typeof CoworkIpcChannel[keyof typeof CoworkIpcChannel];
 

@@ -47,8 +47,10 @@ import type {
 } from '../types/cowork';
 import { OpenClawSessionKeepAlive as OpenClawSessionKeepAliveValues } from '../types/cowork';
 import Modal from './common/Modal';
+import AdvancedMemorySettingsSection from './cowork/AdvancedMemorySettingsSection';
 import DreamingSettingsSection from './cowork/DreamingSettingsSection';
 import EmbeddingSettingsSection from './cowork/EmbeddingSettingsSection';
+import NewApiSettingsSection from './cowork/NewApiSettingsSection';
 import ErrorMessage from './ErrorMessage';
 import BrainIcon from './icons/BrainIcon';
 import EditIcon from './icons/EditIcon';
@@ -87,7 +89,7 @@ import SkinPresentationScope from './skin/SkinPresentationScope';
 import SkinSettingsSection from './skin/SkinSettingsSection';
 import ThemedSelect from './ui/ThemedSelect';
 
-type TabType = 'general' | 'appearance' | 'coworkAgentEngine' | 'model' | 'browserWebAccess' | 'coworkMemory' | 'coworkDreaming' | 'shortcuts' | 'im' | 'email' | 'plugins' | 'about';
+type TabType = 'general' | 'appearance' | 'coworkAgentEngine' | 'model' | 'browserWebAccess' | 'coworkMemory' | 'coworkDreaming' | 'coworkAdvancedMemory' | 'coworkNewApi' | 'shortcuts' | 'im' | 'email' | 'plugins' | 'about';
 
 const waitForNextPaint = (): Promise<void> => new Promise(resolve => {
   window.requestAnimationFrame(() => {
@@ -1735,7 +1737,25 @@ const Settings: React.FC<SettingsProps> = ({
   const [dreamingFrequency, setDreamingFrequency] = useState<string>(coworkConfig.dreamingFrequency ?? '0 3 * * *');
   const [dreamingModel, setDreamingModel] = useState<string>(coworkConfig.dreamingModel ?? '');
   const [dreamingTimezone, setDreamingTimezone] = useState<string>(coworkConfig.dreamingTimezone ?? '');
-  const [memoryTab, setMemoryTab] = useState<'entries' | 'embedding'>('entries');
+  // Advanced Memory System states
+  const [advancedMemoryEnabled, setAdvancedMemoryEnabled] = useState<boolean>(coworkConfig.advancedMemoryEnabled ?? false);
+  const [layeredMemoryEnabled, setLayeredMemoryEnabled] = useState<boolean>(coworkConfig.layeredMemoryEnabled ?? false);
+  const [tagAssociationEnabled, setTagAssociationEnabled] = useState<boolean>(coworkConfig.tagAssociationEnabled ?? false);
+  const [tagAssociationDepth, setTagAssociationDepth] = useState<number>(coworkConfig.tagAssociationDepth ?? 2);
+  const [proactiveDiaryEnabled, setProactiveDiaryEnabled] = useState<boolean>(coworkConfig.proactiveDiaryEnabled ?? false);
+  const [diaryAutoTag, setDiaryAutoTag] = useState<boolean>(coworkConfig.diaryAutoTag ?? true);
+  const [futureMessageEnabled, setFutureMessageEnabled] = useState<boolean>(coworkConfig.futureMessageEnabled ?? false);
+  const [envAwarenessEnabled, setEnvAwarenessEnabled] = useState<boolean>(coworkConfig.envAwarenessEnabled ?? false);
+  const [envTimeEnabled, setEnvTimeEnabled] = useState<boolean>(coworkConfig.envTimeEnabled ?? true);
+  const [envWeatherEnabled, setEnvWeatherEnabled] = useState<boolean>(coworkConfig.envWeatherEnabled ?? false);
+  const [envWeatherCity, setEnvWeatherCity] = useState<string>(coworkConfig.envWeatherCity ?? '');
+  const [envSystemStatusEnabled, setEnvSystemStatusEnabled] = useState<boolean>(coworkConfig.envSystemStatusEnabled ?? false);
+  const [envCalendarEnabled, setEnvCalendarEnabled] = useState<boolean>(coworkConfig.envCalendarEnabled ?? false);
+  // NewAPI Backend states
+  const [newApiEnabled, setNewApiEnabled] = useState<boolean>(coworkConfig.newApiEnabled ?? false);
+  const [newApiBaseUrl, setNewApiBaseUrl] = useState<string>(coworkConfig.newApiBaseUrl ?? '');
+  const [newApiApiKey, setNewApiApiKey] = useState<string>(coworkConfig.newApiApiKey ?? '');
+  const [memoryTab, setMemoryTab] = useState<'entries' | 'embedding' | 'advancedMemory' | 'newApi'>('entries');
   const [openClawSessionKeepAlive, setOpenClawSessionKeepAlive] = useState<OpenClawSessionKeepAlive>(
     coworkConfig.openClawSessionPolicy?.keepAlive || OpenClawSessionKeepAliveValues.ThirtyDays,
   );
@@ -1778,6 +1798,24 @@ const Settings: React.FC<SettingsProps> = ({
     setDreamingModel(coworkConfig.dreamingModel ?? '');
     setDreamingTimezone(coworkConfig.dreamingTimezone ?? '');
     setOpenClawSessionKeepAlive(coworkConfig.openClawSessionPolicy?.keepAlive || OpenClawSessionKeepAliveValues.ThirtyDays);
+    // Advanced Memory System
+    setAdvancedMemoryEnabled(coworkConfig.advancedMemoryEnabled ?? false);
+    setLayeredMemoryEnabled(coworkConfig.layeredMemoryEnabled ?? false);
+    setTagAssociationEnabled(coworkConfig.tagAssociationEnabled ?? false);
+    setTagAssociationDepth(coworkConfig.tagAssociationDepth ?? 2);
+    setProactiveDiaryEnabled(coworkConfig.proactiveDiaryEnabled ?? false);
+    setDiaryAutoTag(coworkConfig.diaryAutoTag ?? true);
+    setFutureMessageEnabled(coworkConfig.futureMessageEnabled ?? false);
+    setEnvAwarenessEnabled(coworkConfig.envAwarenessEnabled ?? false);
+    setEnvTimeEnabled(coworkConfig.envTimeEnabled ?? true);
+    setEnvWeatherEnabled(coworkConfig.envWeatherEnabled ?? false);
+    setEnvWeatherCity(coworkConfig.envWeatherCity ?? '');
+    setEnvSystemStatusEnabled(coworkConfig.envSystemStatusEnabled ?? false);
+    setEnvCalendarEnabled(coworkConfig.envCalendarEnabled ?? false);
+    // NewAPI Backend
+    setNewApiEnabled(coworkConfig.newApiEnabled ?? false);
+    setNewApiBaseUrl(coworkConfig.newApiBaseUrl ?? '');
+    setNewApiApiKey(coworkConfig.newApiApiKey ?? '');
   }, [
     coworkConfig.agentEngine,
     coworkConfig.memoryEnabled,
@@ -1796,6 +1834,22 @@ const Settings: React.FC<SettingsProps> = ({
     coworkConfig.dreamingFrequency,
     coworkConfig.dreamingModel,
     coworkConfig.dreamingTimezone,
+    coworkConfig.advancedMemoryEnabled,
+    coworkConfig.layeredMemoryEnabled,
+    coworkConfig.tagAssociationEnabled,
+    coworkConfig.tagAssociationDepth,
+    coworkConfig.proactiveDiaryEnabled,
+    coworkConfig.diaryAutoTag,
+    coworkConfig.futureMessageEnabled,
+    coworkConfig.envAwarenessEnabled,
+    coworkConfig.envTimeEnabled,
+    coworkConfig.envWeatherEnabled,
+    coworkConfig.envWeatherCity,
+    coworkConfig.envSystemStatusEnabled,
+    coworkConfig.envCalendarEnabled,
+    coworkConfig.newApiEnabled,
+    coworkConfig.newApiBaseUrl,
+    coworkConfig.newApiApiKey,
   ]);
 
   const refreshTempStorageUsage = useCallback(async () => {
@@ -2811,7 +2865,23 @@ const Settings: React.FC<SettingsProps> = ({
     || embeddingRemoteBaseUrl !== (coworkConfig.embeddingRemoteBaseUrl ?? '')
     || embeddingRemoteApiKey !== (coworkConfig.embeddingRemoteApiKey ?? '')
     || dreamingEnabled !== (coworkConfig.dreamingEnabled ?? false)
-    || dreamingFrequency !== (coworkConfig.dreamingFrequency ?? '0 3 * * *');
+    || dreamingFrequency !== (coworkConfig.dreamingFrequency ?? '0 3 * * *')
+    || advancedMemoryEnabled !== (coworkConfig.advancedMemoryEnabled ?? false)
+    || layeredMemoryEnabled !== (coworkConfig.layeredMemoryEnabled ?? false)
+    || tagAssociationEnabled !== (coworkConfig.tagAssociationEnabled ?? false)
+    || tagAssociationDepth !== (coworkConfig.tagAssociationDepth ?? 2)
+    || proactiveDiaryEnabled !== (coworkConfig.proactiveDiaryEnabled ?? false)
+    || diaryAutoTag !== (coworkConfig.diaryAutoTag ?? true)
+    || futureMessageEnabled !== (coworkConfig.futureMessageEnabled ?? false)
+    || envAwarenessEnabled !== (coworkConfig.envAwarenessEnabled ?? false)
+    || envTimeEnabled !== (coworkConfig.envTimeEnabled ?? true)
+    || envWeatherEnabled !== (coworkConfig.envWeatherEnabled ?? false)
+    || envWeatherCity !== (coworkConfig.envWeatherCity ?? '')
+    || envSystemStatusEnabled !== (coworkConfig.envSystemStatusEnabled ?? false)
+    || envCalendarEnabled !== (coworkConfig.envCalendarEnabled ?? false)
+    || newApiEnabled !== (coworkConfig.newApiEnabled ?? false)
+    || newApiBaseUrl !== (coworkConfig.newApiBaseUrl ?? '')
+    || newApiApiKey !== (coworkConfig.newApiApiKey ?? '');
   const isOpenClawAgentEngine = coworkAgentEngine === 'openclaw';
 
   const openClawProgressPercent = useMemo(() => {
@@ -3490,6 +3560,22 @@ const Settings: React.FC<SettingsProps> = ({
           dreamingFrequency,
           dreamingModel,
           dreamingTimezone,
+          advancedMemoryEnabled,
+          layeredMemoryEnabled,
+          tagAssociationEnabled,
+          tagAssociationDepth,
+          proactiveDiaryEnabled,
+          diaryAutoTag,
+          futureMessageEnabled,
+          envAwarenessEnabled,
+          envTimeEnabled,
+          envWeatherEnabled,
+          envWeatherCity,
+          envSystemStatusEnabled,
+          envCalendarEnabled,
+          newApiEnabled,
+          newApiBaseUrl,
+          newApiApiKey,
         });
         if (!updated) {
           throw new Error(i18nService.t('coworkConfigSaveFailed'));
@@ -5215,6 +5301,8 @@ const Settings: React.FC<SettingsProps> = ({
         const memoryTabs = [
           { key: 'entries' as const, titleKey: 'coworkMemoryTabEntries' },
           { key: 'embedding' as const, titleKey: 'coworkMemoryTabEmbedding' },
+          { key: 'advancedMemory' as const, titleKey: 'advancedMemoryTabTitle' },
+          { key: 'newApi' as const, titleKey: 'newApiTabTitle' },
         ];
         const coworkMemoryGroups: Array<{ section?: string; entries: CoworkUserMemoryEntry[] }> = [];
         for (const entry of coworkMemoryEntries) {
@@ -5441,6 +5529,48 @@ const Settings: React.FC<SettingsProps> = ({
                   onEmbeddingVectorWeightChange={setEmbeddingVectorWeight}
                   onEmbeddingRemoteBaseUrlChange={setEmbeddingRemoteBaseUrl}
                   onEmbeddingRemoteApiKeyChange={setEmbeddingRemoteApiKey}
+                />
+              )}
+
+              {memoryTab === 'advancedMemory' && (
+                <AdvancedMemorySettingsSection
+                  advancedMemoryEnabled={advancedMemoryEnabled}
+                  layeredMemoryEnabled={layeredMemoryEnabled}
+                  tagAssociationEnabled={tagAssociationEnabled}
+                  tagAssociationDepth={tagAssociationDepth}
+                  proactiveDiaryEnabled={proactiveDiaryEnabled}
+                  diaryAutoTag={diaryAutoTag}
+                  futureMessageEnabled={futureMessageEnabled}
+                  envAwarenessEnabled={envAwarenessEnabled}
+                  envTimeEnabled={envTimeEnabled}
+                  envWeatherEnabled={envWeatherEnabled}
+                  envWeatherCity={envWeatherCity}
+                  envSystemStatusEnabled={envSystemStatusEnabled}
+                  envCalendarEnabled={envCalendarEnabled}
+                  onAdvancedMemoryEnabledChange={setAdvancedMemoryEnabled}
+                  onLayeredMemoryEnabledChange={setLayeredMemoryEnabled}
+                  onTagAssociationEnabledChange={setTagAssociationEnabled}
+                  onTagAssociationDepthChange={setTagAssociationDepth}
+                  onProactiveDiaryEnabledChange={setProactiveDiaryEnabled}
+                  onDiaryAutoTagChange={setDiaryAutoTag}
+                  onFutureMessageEnabledChange={setFutureMessageEnabled}
+                  onEnvAwarenessEnabledChange={setEnvAwarenessEnabled}
+                  onEnvTimeEnabledChange={setEnvTimeEnabled}
+                  onEnvWeatherEnabledChange={setEnvWeatherEnabled}
+                  onEnvWeatherCityChange={setEnvWeatherCity}
+                  onEnvSystemStatusEnabledChange={setEnvSystemStatusEnabled}
+                  onEnvCalendarEnabledChange={setEnvCalendarEnabled}
+                />
+              )}
+
+              {memoryTab === 'newApi' && (
+                <NewApiSettingsSection
+                  newApiEnabled={newApiEnabled}
+                  newApiBaseUrl={newApiBaseUrl}
+                  newApiApiKey={newApiApiKey}
+                  onNewApiEnabledChange={setNewApiEnabled}
+                  onNewApiBaseUrlChange={setNewApiBaseUrl}
+                  onNewApiApiKeyChange={setNewApiApiKey}
                 />
               )}
 
