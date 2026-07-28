@@ -806,6 +806,22 @@ class CoworkService {
         openClawSessionPolicy: sessionPolicyResult?.success && sessionPolicyResult.config
           ? sessionPolicyResult.config
           : { keepAlive: '30d' },
+        advancedMemoryEnabled: (cfg.advancedMemoryEnabled as boolean) ?? false,
+        layeredMemoryEnabled: (cfg.layeredMemoryEnabled as boolean) ?? false,
+        tagAssociationEnabled: (cfg.tagAssociationEnabled as boolean) ?? false,
+        tagAssociationDepth: (cfg.tagAssociationDepth as number) ?? 2,
+        proactiveDiaryEnabled: (cfg.proactiveDiaryEnabled as boolean) ?? false,
+        diaryAutoTag: (cfg.diaryAutoTag as boolean) ?? false,
+        futureMessageEnabled: (cfg.futureMessageEnabled as boolean) ?? false,
+        envAwarenessEnabled: (cfg.envAwarenessEnabled as boolean) ?? false,
+        envTimeEnabled: (cfg.envTimeEnabled as boolean) ?? true,
+        envWeatherEnabled: (cfg.envWeatherEnabled as boolean) ?? false,
+        envWeatherCity: (cfg.envWeatherCity as string) ?? '',
+        envSystemStatusEnabled: (cfg.envSystemStatusEnabled as boolean) ?? false,
+        envCalendarEnabled: (cfg.envCalendarEnabled as boolean) ?? false,
+        newApiEnabled: (cfg.newApiEnabled as boolean) ?? false,
+        newApiBaseUrl: (cfg.newApiBaseUrl as string) ?? '',
+        newApiApiKey: (cfg.newApiApiKey as string) ?? '',
       }));
     }
   }
