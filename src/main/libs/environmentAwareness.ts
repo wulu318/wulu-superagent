@@ -5,9 +5,9 @@
  * and formats it for injection into the agent's system prompt.
  */
 
-import os from 'os';
-import http from 'http';
 import https from 'https';
+import os from 'os';
+
 import { getPendingFutureMessages, type EnvironmentSnapshot } from './advancedMemory';
 
 // ── Solar terms ──────────────────────────────────────────────────────────────
@@ -58,12 +58,6 @@ interface WeatherResult {
   city: string;
   temperature: number;
   description: string;
-}
-
-function fetchWeatherSync(city: string): WeatherResult | null {
-  // Best-effort fetch using wttr.in (free, no API key)
-  // Since we can't do sync HTTP easily, return null and let async path handle it
-  return null;
 }
 
 export async function fetchWeather(city: string): Promise<WeatherResult | null> {
