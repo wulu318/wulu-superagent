@@ -628,10 +628,28 @@ export interface CoworkConfig {
   dreamingFrequency: string;
   dreamingModel: string;
   dreamingTimezone: string;
+  // Advanced Memory System
+  advancedMemoryEnabled: boolean;
+  layeredMemoryEnabled: boolean;
+  tagAssociationEnabled: boolean;
+  tagAssociationDepth: number;
+  proactiveDiaryEnabled: boolean;
+  diaryAutoTag: boolean;
+  futureMessageEnabled: boolean;
+  envAwarenessEnabled: boolean;
+  envTimeEnabled: boolean;
+  envWeatherEnabled: boolean;
+  envWeatherCity: string;
+  envSystemStatusEnabled: boolean;
+  envCalendarEnabled: boolean;
+  // NewAPI Backend
+  newApiEnabled: boolean;
+  newApiBaseUrl: string;
+  newApiApiKey: string;
 }
 
 export type CoworkConfigUpdate = Partial<Pick<
-CoworkConfig,
+  CoworkConfig,
   | 'workingDirectory'
   | 'executionMode'
   | 'agentEngine'
@@ -653,6 +671,22 @@ CoworkConfig,
   | 'dreamingFrequency'
   | 'dreamingModel'
   | 'dreamingTimezone'
+  | 'advancedMemoryEnabled'
+  | 'layeredMemoryEnabled'
+  | 'tagAssociationEnabled'
+  | 'tagAssociationDepth'
+  | 'proactiveDiaryEnabled'
+  | 'diaryAutoTag'
+  | 'futureMessageEnabled'
+  | 'envAwarenessEnabled'
+  | 'envTimeEnabled'
+  | 'envWeatherEnabled'
+  | 'envWeatherCity'
+  | 'envSystemStatusEnabled'
+  | 'envCalendarEnabled'
+  | 'newApiEnabled'
+  | 'newApiBaseUrl'
+  | 'newApiApiKey'
 >>;
 
 export type PluginSource = 'npm' | 'clawhub' | 'git' | 'local' | 'openclaw';
