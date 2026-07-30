@@ -101,6 +101,11 @@ const DEFAULT_NEW_API_ENABLED = false;
 const DEFAULT_NEW_API_BASE_URL = '';
 const DEFAULT_NEW_API_API_KEY = '';
 
+// WULU Cloud defaults
+const DEFAULT_WULU_CLOUD_ENABLED = false;
+const DEFAULT_WULU_CLOUD_EMAIL = '';
+const DEFAULT_WULU_CLOUD_TOKEN = '';
+
 function clampTagAssociationDepth(value: number): number {
   if (!Number.isFinite(value)) return DEFAULT_TAG_ASSOCIATION_DEPTH;
   return Math.max(1, Math.min(3, Math.floor(value)));
@@ -628,28 +633,10 @@ export interface CoworkConfig {
   dreamingFrequency: string;
   dreamingModel: string;
   dreamingTimezone: string;
-  // Advanced Memory System
-  advancedMemoryEnabled: boolean;
-  layeredMemoryEnabled: boolean;
-  tagAssociationEnabled: boolean;
-  tagAssociationDepth: number;
-  proactiveDiaryEnabled: boolean;
-  diaryAutoTag: boolean;
-  futureMessageEnabled: boolean;
-  envAwarenessEnabled: boolean;
-  envTimeEnabled: boolean;
-  envWeatherEnabled: boolean;
-  envWeatherCity: string;
-  envSystemStatusEnabled: boolean;
-  envCalendarEnabled: boolean;
-  // NewAPI Backend
-  newApiEnabled: boolean;
-  newApiBaseUrl: string;
-  newApiApiKey: string;
 }
 
 export type CoworkConfigUpdate = Partial<Pick<
-  CoworkConfig,
+CoworkConfig,
   | 'workingDirectory'
   | 'executionMode'
   | 'agentEngine'
@@ -671,22 +658,6 @@ export type CoworkConfigUpdate = Partial<Pick<
   | 'dreamingFrequency'
   | 'dreamingModel'
   | 'dreamingTimezone'
-  | 'advancedMemoryEnabled'
-  | 'layeredMemoryEnabled'
-  | 'tagAssociationEnabled'
-  | 'tagAssociationDepth'
-  | 'proactiveDiaryEnabled'
-  | 'diaryAutoTag'
-  | 'futureMessageEnabled'
-  | 'envAwarenessEnabled'
-  | 'envTimeEnabled'
-  | 'envWeatherEnabled'
-  | 'envWeatherCity'
-  | 'envSystemStatusEnabled'
-  | 'envCalendarEnabled'
-  | 'newApiEnabled'
-  | 'newApiBaseUrl'
-  | 'newApiApiKey'
 >>;
 
 export type PluginSource = 'npm' | 'clawhub' | 'git' | 'local' | 'openclaw';
@@ -2289,6 +2260,9 @@ export class CoworkStore {
       newApiEnabled: parseBooleanConfig(cfg.get('newApiEnabled'), DEFAULT_NEW_API_ENABLED),
       newApiBaseUrl: cfg.get('newApiBaseUrl') || DEFAULT_NEW_API_BASE_URL,
       newApiApiKey: cfg.get('newApiApiKey') || DEFAULT_NEW_API_API_KEY,
+      wuluCloudEnabled: parseBooleanConfig(cfg.get('wuluCloudEnabled'), DEFAULT_WULU_CLOUD_ENABLED),
+      wuluCloudEmail: cfg.get('wuluCloudEmail') || DEFAULT_WULU_CLOUD_EMAIL,
+      wuluCloudToken: cfg.get('wuluCloudToken') || DEFAULT_WULU_CLOUD_TOKEN,
     };
   }
 
@@ -2406,6 +2380,15 @@ export class CoworkStore {
     }
     if (config.newApiApiKey !== undefined) {
       this.upsertConfig('newApiApiKey', String(config.newApiApiKey), now);
+    }
+    if (config.wuluCloudEnabled !== undefined) {
+      this.upsertConfig('wuluCloudEnabled', config.wuluCloudEnabled ? '1' : '0', now);
+    }
+    if (config.wuluCloudEmail !== undefined) {
+      this.upsertConfig('wuluCloudEmail', String(config.wuluCloudEmail), now);
+    }
+    if (config.wuluCloudToken !== undefined) {
+      this.upsertConfig('wuluCloudToken', String(config.wuluCloudToken), now);
     }
   }
 
