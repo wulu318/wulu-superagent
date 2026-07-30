@@ -12,15 +12,15 @@ interface WuluCloudSettingsSectionProps {
 }
 
 const WuluCloudSettingsSection: React.FC<WuluCloudSettingsSectionProps> = ({
-  wuluCloudEnabled,
-  wuluCloudEmail,
+  wuluCloudEnabled: _wuluCloudEnabled,
+  wuluCloudEmail: _wuluCloudEmail,
   wuluCloudToken,
   onWuluCloudEnabledChange,
   onWuluCloudEmailChange,
   onWuluCloudTokenChange,
 }) => {
   const [mode, setMode] = useState<'login' | 'register'>('login');
-  const [email, setEmail] = useState(wuluCloudEmail || '');
+  const [email, setEmail] = useState(_wuluCloudEmail || '');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
