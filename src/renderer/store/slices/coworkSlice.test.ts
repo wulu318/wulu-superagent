@@ -127,6 +127,9 @@ test('setConfig preserves loaded OpenClaw session policy', () => {
     newApiEnabled: false,
     newApiBaseUrl: '',
     newApiApiKey: '',
+    wuluCloudEnabled: false,
+    wuluCloudEmail: '',
+    wuluCloudToken: '',
   }));
 
   expect(state.config.openClawSessionPolicy.keepAlive).toBe('365d');
