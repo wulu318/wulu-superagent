@@ -806,22 +806,6 @@ class CoworkService {
         openClawSessionPolicy: sessionPolicyResult?.success && sessionPolicyResult.config
           ? sessionPolicyResult.config
           : { keepAlive: '30d' },
-        advancedMemoryEnabled: (cfg.advancedMemoryEnabled as boolean) ?? false,
-        layeredMemoryEnabled: (cfg.layeredMemoryEnabled as boolean) ?? false,
-        tagAssociationEnabled: (cfg.tagAssociationEnabled as boolean) ?? false,
-        tagAssociationDepth: (cfg.tagAssociationDepth as number) ?? 2,
-        proactiveDiaryEnabled: (cfg.proactiveDiaryEnabled as boolean) ?? false,
-        diaryAutoTag: (cfg.diaryAutoTag as boolean) ?? false,
-        futureMessageEnabled: (cfg.futureMessageEnabled as boolean) ?? false,
-        envAwarenessEnabled: (cfg.envAwarenessEnabled as boolean) ?? false,
-        envTimeEnabled: (cfg.envTimeEnabled as boolean) ?? true,
-        envWeatherEnabled: (cfg.envWeatherEnabled as boolean) ?? false,
-        envWeatherCity: (cfg.envWeatherCity as string) ?? '',
-        envSystemStatusEnabled: (cfg.envSystemStatusEnabled as boolean) ?? false,
-        envCalendarEnabled: (cfg.envCalendarEnabled as boolean) ?? false,
-        newApiEnabled: (cfg.newApiEnabled as boolean) ?? false,
-        newApiBaseUrl: (cfg.newApiBaseUrl as string) ?? '',
-        newApiApiKey: (cfg.newApiApiKey as string) ?? '',
       }));
     }
   }
@@ -1894,6 +1878,66 @@ class CoworkService {
     const api = window.electron?.cowork?.newApiFetchModels;
     if (!api) return { success: false, error: 'NewAPI Backend not available' };
     return api(input);
+  }
+
+  // ─── WULU Cloud ──────────────────────────────────────────────────
+  async wuluCloudRegister(input: {
+    email: string;
+    password: string;
+    displayName?: string;
+  }): Promise<{
+    success: boolean;
+    token?: string;
+    user?: { id: string; email: string; displayName: string; role: string };
+    error?: string;
+  }> {
+    const api = window.electron?.cowork?.wuluCloudRegister;
+    if (!api) return { success: false, error: 'WULU Cloud not available' };
+    return api(input);
+  }
+
+  async wuluCloudLogin(input: {
+    email: string;
+    password: string;
+  }): Promise<{
+    success: boolean;
+    token?: string;
+    user?: { id: string; email: string; displayName: string; role: string; planId: string | null; quotaRemaining: number; quotaTotal: number };
+    error?: string;
+  }> {
+    const api = window.electron?.cowork?.wuluCloudLogin;
+    if (!api) return { success: false, error: 'WULU Cloud not available' };
+    return api(input);
+  }
+
+  async wuluCloudGetProfile(token: string): Promise<{
+    success: boolean;
+    user?: { id: string; email: string; displayName: string; role: string; planId: string | null; quotaRemaining: number; quotaTotal: number };
+    error?: string;
+  }> {
+    const api = window.electron?.cowork?.wuluCloudGetProfile;
+    if (!api) return { success: false, error: 'WULU Cloud not available' };
+    return api(token);
+  }
+
+  async wuluCloudGetSubscription(token: string): Promise<{
+    success: boolean;
+    subscription?: { active: boolean; planName?: string; features?: Record<string, unknown>; quotaMonthly?: number; expiresAt?: number };
+    error?: string;
+  }> {
+    const api = window.electron?.cowork?.wuluCloudGetSubscription;
+    if (!api) return { success: false, error: 'WULU Cloud not available' };
+    return api(token);
+  }
+
+  async wuluCloudRefreshToken(token: string): Promise<{
+    success: boolean;
+    token?: string;
+    error?: string;
+  }> {
+    const api = window.electron?.cowork?.wuluCloudRefreshToken;
+    if (!api) return { success: false, error: 'WULU Cloud not available' };
+    return api(token);
   }
 
   // ─── Environment Awareness ──────────────────────────────────────
