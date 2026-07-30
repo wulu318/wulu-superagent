@@ -203,8 +203,8 @@ export async function validateAndLogin(config: NewAPIConfig): Promise<NewAPILogi
   try {
     const [userInfo, quota, models] = await Promise.all([
       fetchUserInfo(config),
-      fetchQuota(config).catch(() => null),
-      fetchModels(config).catch(() => []),
+      fetchQuota(config).catch((): null => null),
+      fetchModels(config).catch((): NewAPIModel[] => []),
     ]);
 
     return {
