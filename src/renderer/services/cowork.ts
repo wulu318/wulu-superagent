@@ -806,6 +806,9 @@ class CoworkService {
         openClawSessionPolicy: sessionPolicyResult?.success && sessionPolicyResult.config
           ? sessionPolicyResult.config
           : { keepAlive: '30d' },
+        wuluCloudEnabled: (cfg.wuluCloudEnabled as boolean) ?? false,
+        wuluCloudEmail: (cfg.wuluCloudEmail as string) ?? '',
+        wuluCloudToken: (cfg.wuluCloudToken as string) ?? '',
       }));
     }
   }
