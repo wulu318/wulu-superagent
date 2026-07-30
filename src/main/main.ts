@@ -8371,6 +8371,52 @@ if (!gotTheLock) {
     }
   });
 
+  // ── WULU Cloud IPC handlers ────────────────────────────────────────────
+  ipcMain.handle(CoworkIpcChannel.WuluCloudRegister, async (_event, input: { email: string; password: string; displayName?: string }) => {
+    try {
+      const { wuluCloudRegister } = require('./libs/newApiClient') as typeof import('./libs/newApiClient');
+      return await wuluCloudRegister(input);
+    } catch (error) {
+      return { success: false, error: error instanceof Error ? error.message : 'Registration failed' };
+    }
+  });
+
+  ipcMain.handle(CoworkIpcChannel.WuluCloudLogin, async (_event, input: { email: string; password: string }) => {
+    try {
+      const { wuluCloudLogin } = require('./libs/newApiClient') as typeof import('./libs/newApiClient');
+      return await wuluCloudLogin(input);
+    } catch (error) {
+      return { success: false, error: error instanceof Error ? error.message : 'Login failed' };
+    }
+  });
+
+  ipcMain.handle(CoworkIpcChannel.WuluCloudGetProfile, async (_event, token: string) => {
+    try {
+      const { wuluCloudGetProfile } = require('./libs/newApiClient') as typeof import('./libs/newApiClient');
+      return await wuluCloudGetProfile(token);
+    } catch (error) {
+      return { success: false, error: error instanceof Error ? error.message : 'Failed' };
+    }
+  });
+
+  ipcMain.handle(CoworkIpcChannel.WuluCloudGetSubscription, async (_event, token: string) => {
+    try {
+      const { wuluCloudGetSubscription } = require('./libs/newApiClient') as typeof import('./libs/newApiClient');
+      return await wuluCloudGetSubscription(token);
+    } catch (error) {
+      return { success: false, error: error instanceof Error ? error.message : 'Failed' };
+    }
+  });
+
+  ipcMain.handle(CoworkIpcChannel.WuluCloudRefreshToken, async (_event, token: string) => {
+    try {
+      const { wuluCloudRefreshToken } = require('./libs/newApiClient') as typeof import('./libs/newApiClient');
+      return await wuluCloudRefreshToken(token);
+    } catch (error) {
+      return { success: false, error: error instanceof Error ? error.message : 'Failed' };
+    }
+  });
+
   // ── Environment Awareness IPC handler ─────────────────────────────────────
   ipcMain.handle(CoworkIpcChannel.EnvSnapshot, async () => {
     try {
