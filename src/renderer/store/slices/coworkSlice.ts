@@ -152,7 +152,6 @@ const initialState: CoworkState = {
     openClawSessionPolicy: {
       keepAlive: '30d',
     },
-    // Advanced Memory System
     advancedMemoryEnabled: false,
     layeredMemoryEnabled: false,
     tagAssociationEnabled: false,
@@ -166,10 +165,12 @@ const initialState: CoworkState = {
     envWeatherCity: '',
     envSystemStatusEnabled: false,
     envCalendarEnabled: false,
-    // NewAPI Backend
     newApiEnabled: false,
     newApiBaseUrl: '',
     newApiApiKey: '',
+    wuluCloudEnabled: false,
+    wuluCloudEmail: '',
+    wuluCloudToken: '',
   },
   mediaModels: { image: [], video: [] },
   mediaSelection: {},
