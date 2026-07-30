@@ -559,6 +559,17 @@ contextBridge.exposeInMainWorld('electron', {
       ipcRenderer.invoke(CoworkIpcChannel.NewApiLogin, config),
     newApiFetchModels: (config: { baseUrl: string; apiKey: string }) =>
       ipcRenderer.invoke(CoworkIpcChannel.NewApiFetchModels, config),
+    // WULU Cloud
+    wuluCloudRegister: (input: { email: string; password: string; displayName?: string }) =>
+      ipcRenderer.invoke(CoworkIpcChannel.WuluCloudRegister, input),
+    wuluCloudLogin: (input: { email: string; password: string }) =>
+      ipcRenderer.invoke(CoworkIpcChannel.WuluCloudLogin, input),
+    wuluCloudGetProfile: (token: string) =>
+      ipcRenderer.invoke(CoworkIpcChannel.WuluCloudGetProfile, token),
+    wuluCloudGetSubscription: (token: string) =>
+      ipcRenderer.invoke(CoworkIpcChannel.WuluCloudGetSubscription, token),
+    wuluCloudRefreshToken: (token: string) =>
+      ipcRenderer.invoke(CoworkIpcChannel.WuluCloudRefreshToken, token),
     // Environment Awareness
     getEnvSnapshot: () => ipcRenderer.invoke(CoworkIpcChannel.EnvSnapshot),
     // Stream event listeners
