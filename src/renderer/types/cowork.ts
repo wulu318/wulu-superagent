@@ -216,6 +216,10 @@ export interface CoworkConfig {
   newApiEnabled: boolean;
   newApiBaseUrl: string;
   newApiApiKey: string;
+  // WULU Cloud
+  wuluCloudEnabled: boolean;
+  wuluCloudEmail: string;
+  wuluCloudToken: string;
 }
 
 /** Per-directory `.cowork-temp` preview entry shown in the clean confirmation dialog. */
@@ -269,6 +273,9 @@ export type CoworkConfigUpdate = Partial<Pick<
   | 'newApiEnabled'
   | 'newApiBaseUrl'
   | 'newApiApiKey'
+  | 'wuluCloudEnabled'
+  | 'wuluCloudEmail'
+  | 'wuluCloudToken'
 >>;
 
 export interface CoworkApiConfig {
