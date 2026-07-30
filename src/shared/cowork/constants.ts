@@ -65,6 +65,11 @@ export const CoworkIpcChannel = {
   AdvancedMemorySearch: 'cowork:advancedMemory:search',
   NewApiLogin: 'cowork:newApi:login',
   NewApiFetchModels: 'cowork:newApi:fetchModels',
+  WuluCloudRegister: 'cowork:wuluCloud:register',
+  WuluCloudLogin: 'cowork:wuluCloud:login',
+  WuluCloudGetProfile: 'cowork:wuluCloud:getProfile',
+  WuluCloudGetSubscription: 'cowork:wuluCloud:getSubscription',
+  WuluCloudRefreshToken: 'cowork:wuluCloud:refreshToken',
   EnvSnapshot: 'cowork:env:snapshot',
 } as const;
 export type CoworkIpcChannel = typeof CoworkIpcChannel[keyof typeof CoworkIpcChannel];
