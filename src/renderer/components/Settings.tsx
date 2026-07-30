@@ -51,6 +51,7 @@ import AdvancedMemorySettingsSection from './cowork/AdvancedMemorySettingsSectio
 import DreamingSettingsSection from './cowork/DreamingSettingsSection';
 import EmbeddingSettingsSection from './cowork/EmbeddingSettingsSection';
 import NewApiSettingsSection from './cowork/NewApiSettingsSection';
+import WuluCloudSettingsSection from './cowork/WuluCloudSettingsSection';
 import ErrorMessage from './ErrorMessage';
 import BrainIcon from './icons/BrainIcon';
 import EditIcon from './icons/EditIcon';
@@ -1755,7 +1756,11 @@ const Settings: React.FC<SettingsProps> = ({
   const [newApiEnabled, setNewApiEnabled] = useState<boolean>(coworkConfig.newApiEnabled ?? false);
   const [newApiBaseUrl, setNewApiBaseUrl] = useState<string>(coworkConfig.newApiBaseUrl ?? '');
   const [newApiApiKey, setNewApiApiKey] = useState<string>(coworkConfig.newApiApiKey ?? '');
-  const [memoryTab, setMemoryTab] = useState<'entries' | 'embedding' | 'advancedMemory' | 'newApi'>('entries');
+  // WULU Cloud states
+  const [wuluCloudEnabled, setWuluCloudEnabled] = useState<boolean>(coworkConfig.wuluCloudEnabled ?? false);
+  const [wuluCloudEmail, setWuluCloudEmail] = useState<string>(coworkConfig.wuluCloudEmail ?? '');
+  const [wuluCloudToken, setWuluCloudToken] = useState<string>(coworkConfig.wuluCloudToken ?? '');
+  const [memoryTab, setMemoryTab] = useState<'entries' | 'embedding' | 'advancedMemory' | 'wuluCloud' | 'newApi'>('entries');
   const [openClawSessionKeepAlive, setOpenClawSessionKeepAlive] = useState<OpenClawSessionKeepAlive>(
     coworkConfig.openClawSessionPolicy?.keepAlive || OpenClawSessionKeepAliveValues.ThirtyDays,
   );
@@ -1816,6 +1821,10 @@ const Settings: React.FC<SettingsProps> = ({
     setNewApiEnabled(coworkConfig.newApiEnabled ?? false);
     setNewApiBaseUrl(coworkConfig.newApiBaseUrl ?? '');
     setNewApiApiKey(coworkConfig.newApiApiKey ?? '');
+    // WULU Cloud
+    setWuluCloudEnabled(coworkConfig.wuluCloudEnabled ?? false);
+    setWuluCloudEmail(coworkConfig.wuluCloudEmail ?? '');
+    setWuluCloudToken(coworkConfig.wuluCloudToken ?? '');
   }, [
     coworkConfig.agentEngine,
     coworkConfig.memoryEnabled,
@@ -1850,6 +1859,9 @@ const Settings: React.FC<SettingsProps> = ({
     coworkConfig.newApiEnabled,
     coworkConfig.newApiBaseUrl,
     coworkConfig.newApiApiKey,
+    coworkConfig.wuluCloudEnabled,
+    coworkConfig.wuluCloudEmail,
+    coworkConfig.wuluCloudToken,
   ]);
 
   const refreshTempStorageUsage = useCallback(async () => {
@@ -2881,7 +2893,10 @@ const Settings: React.FC<SettingsProps> = ({
     || envCalendarEnabled !== (coworkConfig.envCalendarEnabled ?? false)
     || newApiEnabled !== (coworkConfig.newApiEnabled ?? false)
     || newApiBaseUrl !== (coworkConfig.newApiBaseUrl ?? '')
-    || newApiApiKey !== (coworkConfig.newApiApiKey ?? '');
+    || newApiApiKey !== (coworkConfig.newApiApiKey ?? '')
+    || wuluCloudEnabled !== (coworkConfig.wuluCloudEnabled ?? false)
+    || wuluCloudEmail !== (coworkConfig.wuluCloudEmail ?? '')
+    || wuluCloudToken !== (coworkConfig.wuluCloudToken ?? '');
   const isOpenClawAgentEngine = coworkAgentEngine === 'openclaw';
 
   const openClawProgressPercent = useMemo(() => {
@@ -3576,6 +3591,9 @@ const Settings: React.FC<SettingsProps> = ({
           newApiEnabled,
           newApiBaseUrl,
           newApiApiKey,
+          wuluCloudEnabled,
+          wuluCloudEmail,
+          wuluCloudToken,
         });
         if (!updated) {
           throw new Error(i18nService.t('coworkConfigSaveFailed'));
@@ -5302,6 +5320,7 @@ const Settings: React.FC<SettingsProps> = ({
           { key: 'entries' as const, titleKey: 'coworkMemoryTabEntries' },
           { key: 'embedding' as const, titleKey: 'coworkMemoryTabEmbedding' },
           { key: 'advancedMemory' as const, titleKey: 'advancedMemoryTabTitle' },
+          { key: 'wuluCloud' as const, titleKey: 'wuluCloudTabTitle' },
           { key: 'newApi' as const, titleKey: 'newApiTabTitle' },
         ];
         const coworkMemoryGroups: Array<{ section?: string; entries: CoworkUserMemoryEntry[] }> = [];
@@ -5560,6 +5579,17 @@ const Settings: React.FC<SettingsProps> = ({
                   onEnvWeatherCityChange={setEnvWeatherCity}
                   onEnvSystemStatusEnabledChange={setEnvSystemStatusEnabled}
                   onEnvCalendarEnabledChange={setEnvCalendarEnabled}
+                />
+              )}
+
+              {memoryTab === 'wuluCloud' && (
+                <WuluCloudSettingsSection
+                  wuluCloudEnabled={wuluCloudEnabled}
+                  wuluCloudEmail={wuluCloudEmail}
+                  wuluCloudToken={wuluCloudToken}
+                  onWuluCloudEnabledChange={setWuluCloudEnabled}
+                  onWuluCloudEmailChange={setWuluCloudEmail}
+                  onWuluCloudTokenChange={setWuluCloudToken}
                 />
               )}
 
