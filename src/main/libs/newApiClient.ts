@@ -98,7 +98,7 @@ export interface WuluCloudRegisterResult {
 // ── HTTP helper ──────────────────────────────────────────────────────────────
 
 function makeRequest(url: string, headers: Record<string, string>): Promise<string> {
-  return new Promise((resolve, reject) => {
+  return new Promise<string>((resolve: (value: string) => void, reject: (reason?: unknown) => void) => {
     const mod = url.startsWith('https') ? https : http;
     const req = mod.get(url, { headers, timeout: 10000 }, (res) => {
       if (res.statusCode && res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
@@ -371,7 +371,7 @@ export async function wuluCloudRefreshToken(token: string): Promise<{ success: b
 // ── HTTP POST helper ─────────────────────────────────────────────────────────
 
 function makePostRequest(url: string, body: Record<string, unknown>, headers?: Record<string, string>): Promise<string> {
-  return new Promise((resolve, reject) => {
+  return new Promise<string>((resolve: (value: string) => void, reject: (reason?: unknown) => void) => {
     const urlObj = new URL(url);
     const mod = urlObj.protocol === 'https:' ? https : http;
     const bodyStr = JSON.stringify(body);
