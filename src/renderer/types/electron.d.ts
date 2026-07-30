@@ -1147,6 +1147,68 @@ interface IElectronAPI {
       }>;
       error?: string;
     }>;
+    // WULU Cloud
+    wuluCloudRegister: (input: {
+      email: string;
+      password: string;
+      displayName?: string;
+    }) => Promise<{
+      success: boolean;
+      token?: string;
+      user?: {
+        id: string;
+        email: string;
+        displayName: string;
+        role: string;
+      };
+      error?: string;
+    }>;
+    wuluCloudLogin: (input: {
+      email: string;
+      password: string;
+    }) => Promise<{
+      success: boolean;
+      token?: string;
+      user?: {
+        id: string;
+        email: string;
+        displayName: string;
+        role: string;
+        planId: string | null;
+        quotaRemaining: number;
+        quotaTotal: number;
+      };
+      error?: string;
+    }>;
+    wuluCloudGetProfile: (token: string) => Promise<{
+      success: boolean;
+      user?: {
+        id: string;
+        email: string;
+        displayName: string;
+        role: string;
+        planId: string | null;
+        quotaRemaining: number;
+        quotaTotal: number;
+      };
+      error?: string;
+    }>;
+    wuluCloudGetSubscription: (token: string) => Promise<{
+      success: boolean;
+      subscription?: {
+        active: boolean;
+        planName?: string;
+        features?: Record<string, unknown>;
+        quotaMonthly?: number;
+        expiresAt?: number;
+      };
+      error?: string;
+    }>;
+    wuluCloudRefreshToken: (token: string) => Promise<{
+      success: boolean;
+      token?: string;
+      error?: string;
+    }>;
     // Environment Awareness
     envSnapshot: () => Promise<{
       success: boolean;
