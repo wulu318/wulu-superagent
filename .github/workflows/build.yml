@@ -1,4 +1,4 @@
-name: Build WULU SuperAgent
+﻿name: Build WULU SuperAgent
 
 on:
   push:
@@ -34,6 +34,9 @@ jobs:
           - os: ubuntu-latest
             npm_script: dist:linux
             artifact: wulu-linux-x64
+          - os: ubuntu-latest
+            npm_script: dist:linux:arm64
+            artifact: wulu-linux-arm64
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -60,6 +63,12 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y libarchive-tools rpm libgtk-3-0 libnotify4 libnss3 libxss1 libxtst6 xdg-utils libatspi2.0-0 libuuid1 libsecret-1-0
+
+      - name: Setup QEMU (Linux ARM64 cross-compile)
+        if: matrix.artifact == 'wulu-linux-arm64'
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm64
 
       - name: Build
         run: npm run ${{ matrix.npm_script }}
@@ -89,11 +98,48 @@ jobs:
         with:
           path: dist
 
+      - name: List artifacts
+        run: find dist -type f | head -50
+
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
           files: dist/**/*
           generate_release_notes: true
           draft: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  nightly:
+    needs: [build]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+
+      - name: List artifacts
+        run: find dist -type f | head -50
+
+      - name: Update nightly release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: nightly
+          name: "Nightly Build (latest main)"
+          files: dist/**/*
+          body: |
+            Automated nightly build from the latest `main` branch.
+
+            **Commit:** ${{ github.sha }}
+            **Date:** ${{ github.event.head_commit.timestamp }}
+
+            Includes builds for:
+            - Windows x64 (installer)
+            - macOS ARM64 (DMG)
+            - Linux x64 (AppImage + deb + rpm)
+            - Linux ARM64 (AppImage + deb + rpm) - UOS/Kylin/openEuler
+          prerelease: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
