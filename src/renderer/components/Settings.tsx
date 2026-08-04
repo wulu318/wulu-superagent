@@ -1228,7 +1228,7 @@ const SendShortcutSelect: React.FC<{ value: string; onChange: (v: string) => voi
                     } hover:bg-claude-accent/10`}
                 >
                   <span>{label}</span>
-                  {isActive && <span className="text-claude-accent">鉁?/span>}
+                  {isActive && <span className="text-claude-accent">✓</span>}
                 </button>
               );
             })}
@@ -1376,7 +1376,7 @@ const Settings: React.FC<SettingsProps> = ({
     selectThemeById,
     selectThemeMode,
   } = useSkin();
-  // 鐘舵€?
+  // 状态
   const [activeTab, setActiveTab] = useState<TabType>(initialTab ?? 'general');
   const [theme, setTheme] = useState<'light' | 'dark' | 'system'>('system');
   const [themeId, setThemeId] = useState<string>(themeService.getDefaultThemeId());
@@ -1489,16 +1489,16 @@ const Settings: React.FC<SettingsProps> = ({
   const xaiIsOAuthMode = providers.xai.authType === 'oauth';
   const isBaseUrlLocked = (activeProvider === 'zhipu' && providers.zhipu.codingPlanEnabled) || (activeProvider === 'qwen' && providers.qwen.codingPlanEnabled) || (activeProvider === 'volcengine' && providers.volcengine.codingPlanEnabled) || (activeProvider === 'moonshot' && providers.moonshot.codingPlanEnabled) || (activeProvider === 'qianfan' && providers.qianfan.codingPlanEnabled) || (activeProvider === 'xiaomi' && providers.xiaomi.codingPlanEnabled) || (activeProvider === 'minimax' && minimaxIsOAuthMode) || (activeProvider === 'openai' && openaiIsOAuthMode) || (activeProvider === 'xai' && xaiIsOAuthMode);
 
-  // 鍒涘缓寮曠敤鏉ョ‘淇濆唴瀹瑰尯鍩熺殑婊氬姩
+  // 创建引用来确保内容区域的滚动
   const contentRef = useRef<HTMLDivElement>(null);
-  // 鍐呭鍖轰笅鏂逛粛鏈夋湭婊氬嚭鐨勫唴瀹规椂锛屽湪搴曢儴鎸夐挳鍖轰笂鏂规樉绀烘笎闅愰伄缃?
+  // 内容区下方仍有未滚出的内容时，在底部按钮区上方显示渐隐遮罩
   const [footerFadeVisible, setFooterFadeVisible] = useState(false);
   const importInputRef = useRef<HTMLInputElement>(null);
   const emailCopiedTimerRef = useRef<number | null>(null);
   const openClawGatewayCopiedTimerRef = useRef<number | null>(null);
   const updateCheckTimerRef = useRef<number | null>(null);
 
-  // 蹇嵎閿缃?
+  // 快捷键设置
   const [shortcuts, setShortcuts] = useState<ShortcutConfig>(() => ({ ...defaultConfig.shortcuts! }));
   const [shortcutSearchQuery, setShortcutSearchQuery] = useState('');
 
@@ -2207,12 +2207,12 @@ const Settings: React.FC<SettingsProps> = ({
       }
 
       // Load provider-specific configurations if available
-      // 鍚堝苟宸蹭繚瀛樼殑閰嶇疆鍜岄粯璁ら厤缃紝纭繚鏂版坊鍔犵殑 provider 鑳借鏄剧ず
+      // 合并已保存的配置和默认配置，确保新添加的 provider 能被显示
       if (config.providers) {
         setProviders(prev => {
           const merged = {
-            ...prev,  // 淇濈暀榛樿鐨?providers锛堝寘鎷柊娣诲姞鐨?anthropic锛?
-            ...config.providers,  // 瑕嗙洊宸蹭繚瀛樼殑閰嶇疆
+            ...prev,  // 保留默认的 providers（包括新添加的 anthropic）
+            ...config.providers,  // 覆盖已保存的配置
           };
 
           // After merging, find the first enabled provider to set as activeProvider
@@ -2257,7 +2257,7 @@ const Settings: React.FC<SettingsProps> = ({
         });
       }
 
-      // 鍔犺浇蹇嵎閿缃?
+      // 加载快捷键设置
       if (config.shortcuts) {
         setShortcuts(prev => ({
           ...prev,
@@ -2285,14 +2285,14 @@ const Settings: React.FC<SettingsProps> = ({
     };
   }, []);
 
-  // 鐩戝惉鏍囩椤靛垏鎹紝纭繚鍐呭鍖哄煙婊氬姩鍒伴《閮?
+  // 监听标签页切换，确保内容区域滚动到顶部
   useEffect(() => {
     if (contentRef.current) {
       contentRef.current.scrollTop = 0;
     }
   }, [activeTab]);
 
-  // 璺熻釜鍐呭鍖烘粴鍔?灏哄/鍐呭鍙樺寲锛屽喅瀹氬簳閮ㄦ笎闅愰伄缃╂槸鍚︽樉绀?
+  // 跟踪内容区滚动/尺寸/内容变化，决定底部渐隐遮罩是否显示
   useEffect(() => {
     const el = contentRef.current;
     if (!el) return;
@@ -2452,7 +2452,7 @@ const Settings: React.FC<SettingsProps> = ({
     setNewModelSupportsImage(false);
     setModelFormError(null);
     setActiveProvider(provider);
-    // 鍒囨崲 provider 鏃舵竻闄ゆ祴璇曠粨鏋?
+    // 切换 provider 时清除测试结果
     setIsTestResultModalOpen(false);
     setTestResult(null);
   };
@@ -2651,7 +2651,7 @@ const Settings: React.FC<SettingsProps> = ({
           return;
         }
 
-        // Still pending 鈥?back off gradually
+        // Still pending — back off gradually
         pollIntervalMs = Math.min(pollIntervalMs * 1.5, 10000);
       }
 
@@ -2743,7 +2743,7 @@ const Settings: React.FC<SettingsProps> = ({
     try {
       await window.electron.openaiCodexOAuth.cancel();
     } catch {
-      /* ignore 鈥?we still want to reset the UI */
+      /* ignore — we still want to reset the UI */
     }
     setOpenaiOAuthPhase({ kind: 'idle' });
   };
@@ -2767,7 +2767,7 @@ const Settings: React.FC<SettingsProps> = ({
     try {
       await window.electron.openaiCodexOAuth.logout();
     } catch {
-      /* ignore 鈥?file may already be gone */
+      /* ignore — file may already be gone */
     }
   };
 
@@ -2797,7 +2797,7 @@ const Settings: React.FC<SettingsProps> = ({
   const handleXaiOAuthLogin = async () => {
     setXaiOAuthPhase({ kind: 'pending' });
     // The main process falls back to the device-code flow when the loopback
-    // callback port is taken 鈥?surface the user code as soon as it arrives.
+    // callback port is taken — surface the user code as soon as it arrives.
     const unsubscribeDeviceCode = window.electron.xaiOAuth.onDeviceCode((info) => {
       setXaiOAuthPhase({
         kind: 'device_code',
@@ -2840,7 +2840,7 @@ const Settings: React.FC<SettingsProps> = ({
     try {
       await window.electron.xaiOAuth.cancel();
     } catch {
-      /* ignore 鈥?we still want to reset the UI */
+      /* ignore — we still want to reset the UI */
     }
     setXaiOAuthPhase({ kind: 'idle' });
   };
@@ -2861,7 +2861,7 @@ const Settings: React.FC<SettingsProps> = ({
     try {
       await window.electron.xaiOAuth.logout();
     } catch {
-      /* ignore 鈥?credential may already be gone */
+      /* ignore — credential may already be gone */
     }
   };
 
@@ -3299,7 +3299,7 @@ const Settings: React.FC<SettingsProps> = ({
     const isEnabling = !providerConfig.enabled;
     const hasValidAuth = hasProviderAuthConfigured(provider, providerConfig);
 
-    // GitHub Copilot requires device code auth 鈥?redirect to sign-in flow
+    // GitHub Copilot requires device code auth — redirect to sign-in flow
     if (provider === ProviderName.Copilot && isEnabling && !hasValidAuth) {
       handleCopilotSignIn();
       return;
@@ -3527,7 +3527,7 @@ const Settings: React.FC<SettingsProps> = ({
 
       applyTypographyPreferences({ uiFontSize, codeFontSize });
 
-      // 搴旂敤璇█
+      // 应用语言
       i18nService.setLanguage(language, { persist: false });
 
       // Set API with the primary provider - handle Qwen OAuth
@@ -3540,7 +3540,7 @@ const Settings: React.FC<SettingsProps> = ({
         baseUrl: baseUrlToUse,
       });
 
-      // 鏇存柊 Redux store 涓殑鍙敤妯″瀷鍒楄〃
+      // 更新 Redux store 中的可用模型列表
       const allModels: { id: string; name: string; provider?: string; providerKey?: string; openClawProviderId?: string; supportsImage?: boolean }[] = [];
       Object.entries(normalizedProviders).forEach(([providerName, config]) => {
         if (config.enabled && config.models) {
@@ -3749,7 +3749,7 @@ const Settings: React.FC<SettingsProps> = ({
     }
   };
 
-  // 鏍囩椤靛垏鎹㈠鐞?
+  // 标签页切换处理
   const doTabChange = useCallback((tab: TabType) => {
     if (tab !== 'model') {
       setIsAddingModel(false);
@@ -3805,7 +3805,7 @@ const Settings: React.FC<SettingsProps> = ({
       .filter(group => group.commands.length > 0);
   }, [shortcutSearchQuery, shortcuts]);
 
-  // 蹇嵎閿洿鏂板鐞?
+  // 快捷键更新处理
   const handleShortcutChange = (key: ShortcutAction, value: string) => {
     const normalizedValue = value.trim();
     // Check for conflicts with other shortcuts
@@ -3839,7 +3839,7 @@ const Settings: React.FC<SettingsProps> = ({
     setShortcuts({ ...defaultConfig.shortcuts! });
   };
 
-  // 闃绘鐐瑰嚮璁剧疆绐楀彛鏃朵簨浠朵紶鎾埌鑳屾櫙
+  // 阻止点击设置窗口时事件传播到背景
   const handleSettingsClick = (e: React.MouseEvent) => {
     e.stopPropagation();
   };
@@ -4017,7 +4017,7 @@ const Settings: React.FC<SettingsProps> = ({
     setIsTestResultModalOpen(true);
   };
 
-  // 娴嬭瘯 API 杩炴帴
+  // 测试 API 连接
   const handleTestConnection = async () => {
     const testingProvider = activeProvider;
     const providerConfig = providers[testingProvider];
@@ -4038,7 +4038,7 @@ const Settings: React.FC<SettingsProps> = ({
       return;
     }
 
-    // 鑾峰彇绗竴涓彲鐢ㄦā鍨?- use a shallow copy to avoid mutating state
+    // 获取第一个可用模型 - use a shallow copy to avoid mutating state
     const originalModel = providerConfig.models?.[0];
     if (!originalModel) {
       reportCustomModelConnectionTested(testingProvider, testingApiFormat, 'failed', {
@@ -4105,7 +4105,7 @@ const Settings: React.FC<SettingsProps> = ({
       }
 
       // Determine format after all overrides (OAuth may switch to openai)
-      // 缁熶竴涓轰袱绉嶅崗璁牸寮忥細
+      // 统一为两种协议格式：
       // - anthropic: /v1/messages
       // - openai provider: /v1/responses
       // - other openai-compatible providers: /v1/chat/completions
@@ -4178,7 +4178,7 @@ const Settings: React.FC<SettingsProps> = ({
         showTestResultModal({ success: true, message: i18nService.t('connectionSuccess') }, testingProvider);
       } else {
         const data = response.data || {};
-        // 鎻愬彇閿欒淇℃伅
+        // 提取错误信息
         const errorMessage = data.error?.message || data.message || `${i18nService.t('connectionFailed')}: ${response.status}`;
         if (typeof errorMessage === 'string' && errorMessage.toLowerCase().includes('model output limit was reached')) {
           enableProvider(testingProvider);
@@ -4501,7 +4501,7 @@ const Settings: React.FC<SettingsProps> = ({
     }
   };
 
-  // 娓叉煋鏍囩椤?
+  // 渲染标签页
   const sidebarTabs: { key: TabType; label: string; icon: React.ReactNode }[] = (() => {
     const allTabs = [
       { key: 'general' as TabType,        label: i18nService.t('general'),        icon: <SettingsSlidersIcon className="h-5 w-5" /> },
@@ -4520,7 +4520,7 @@ const Settings: React.FC<SettingsProps> = ({
     ];
     // Filter out tabs hidden by enterprise config
     // Filter out tabs with 'hide' action in enterprise config
-    // e.g., ui: { "settings.im": "hide" } 鈫?hide the 'im' tab
+    // e.g., ui: { "settings.im": "hide" } → hide the 'im' tab
     const ui = enterpriseConfig?.ui;
     if (ui) {
       return allTabs.filter(tab => ui[`settings.${tab.key}`] !== 'hide');
