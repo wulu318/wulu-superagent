@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 import { i18nService } from '../../services/i18n';
 
@@ -10,12 +10,6 @@ interface AdvancedMemorySettingsSectionProps {
   proactiveDiaryEnabled: boolean;
   diaryAutoTag: boolean;
   futureMessageEnabled: boolean;
-  envAwarenessEnabled: boolean;
-  envTimeEnabled: boolean;
-  envWeatherEnabled: boolean;
-  envWeatherCity: string;
-  envSystemStatusEnabled: boolean;
-  envCalendarEnabled: boolean;
   onAdvancedMemoryEnabledChange: (value: boolean) => void;
   onLayeredMemoryEnabledChange: (value: boolean) => void;
   onTagAssociationEnabledChange: (value: boolean) => void;
@@ -23,12 +17,6 @@ interface AdvancedMemorySettingsSectionProps {
   onProactiveDiaryEnabledChange: (value: boolean) => void;
   onDiaryAutoTagChange: (value: boolean) => void;
   onFutureMessageEnabledChange: (value: boolean) => void;
-  onEnvAwarenessEnabledChange: (value: boolean) => void;
-  onEnvTimeEnabledChange: (value: boolean) => void;
-  onEnvWeatherEnabledChange: (value: boolean) => void;
-  onEnvWeatherCityChange: (value: string) => void;
-  onEnvSystemStatusEnabledChange: (value: boolean) => void;
-  onEnvCalendarEnabledChange: (value: boolean) => void;
 }
 
 const ToggleSwitch: React.FC<{
@@ -70,12 +58,6 @@ const AdvancedMemorySettingsSection: React.FC<AdvancedMemorySettingsSectionProps
   proactiveDiaryEnabled,
   diaryAutoTag,
   futureMessageEnabled,
-  envAwarenessEnabled,
-  envTimeEnabled,
-  envWeatherEnabled,
-  envWeatherCity,
-  envSystemStatusEnabled,
-  envCalendarEnabled,
   onAdvancedMemoryEnabledChange,
   onLayeredMemoryEnabledChange,
   onTagAssociationEnabledChange,
@@ -83,15 +65,7 @@ const AdvancedMemorySettingsSection: React.FC<AdvancedMemorySettingsSectionProps
   onProactiveDiaryEnabledChange,
   onDiaryAutoTagChange,
   onFutureMessageEnabledChange,
-  onEnvAwarenessEnabledChange,
-  onEnvTimeEnabledChange,
-  onEnvWeatherEnabledChange,
-  onEnvWeatherCityChange,
-  onEnvSystemStatusEnabledChange,
-  onEnvCalendarEnabledChange,
 }) => {
-  const [showEnvDetails, setShowEnvDetails] = useState(false);
-
   return (
     <div className="space-y-4">
       {/* Master Switch */}
@@ -178,67 +152,6 @@ const AdvancedMemorySettingsSection: React.FC<AdvancedMemorySettingsSectionProps
               description={i18nService.t('futureMessageEnabledHint')}
               onChange={onFutureMessageEnabledChange}
             />
-          </div>
-
-          {/* Environment Awareness */}
-          <div className="space-y-3 rounded-xl border px-4 py-4 border-border">
-            <ToggleSwitch
-              checked={envAwarenessEnabled}
-              label={i18nService.t('envAwarenessEnabled')}
-              description={i18nService.t('envAwarenessEnabledHint')}
-              onChange={onEnvAwarenessEnabledChange}
-            />
-            {envAwarenessEnabled && (
-              <div className="pt-2 space-y-3">
-                <button
-                  type="button"
-                  onClick={() => setShowEnvDetails(!showEnvDetails)}
-                  className="text-xs font-medium text-primary hover:underline"
-                >
-                  {showEnvDetails
-                    ? i18nService.t('envDetailsHide')
-                    : i18nService.t('envDetailsShow')}
-                </button>
-                {showEnvDetails && (
-                  <div className="space-y-3 pt-1">
-                    <ToggleSwitch
-                      checked={envTimeEnabled}
-                      label={i18nService.t('envTimeEnabled')}
-                      onChange={onEnvTimeEnabledChange}
-                    />
-                    <ToggleSwitch
-                      checked={envWeatherEnabled}
-                      label={i18nService.t('envWeatherEnabled')}
-                      onChange={onEnvWeatherEnabledChange}
-                    />
-                    {envWeatherEnabled && (
-                      <div className="pl-2">
-                        <label className="block text-xs font-medium text-foreground mb-1">
-                          {i18nService.t('envWeatherCity')}
-                        </label>
-                        <input
-                          type="text"
-                          value={envWeatherCity}
-                          onChange={(e) => onEnvWeatherCityChange(e.target.value)}
-                          placeholder="Beijing"
-                          className="w-full rounded-lg border px-3 py-2 text-sm border-border bg-surface"
-                        />
-                      </div>
-                    )}
-                    <ToggleSwitch
-                      checked={envSystemStatusEnabled}
-                      label={i18nService.t('envSystemStatusEnabled')}
-                      onChange={onEnvSystemStatusEnabledChange}
-                    />
-                    <ToggleSwitch
-                      checked={envCalendarEnabled}
-                      label={i18nService.t('envCalendarEnabled')}
-                      onChange={onEnvCalendarEnabledChange}
-                    />
-                  </div>
-                )}
-              </div>
-            )}
           </div>
         </>
       )}
