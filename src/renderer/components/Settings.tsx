@@ -945,7 +945,7 @@ interface ProvidersImportPayload {
   providers?: Record<string, ProvidersImportEntry>;
 }
 
-const ABOUT_CONTACT_EMAIL = 'contact@wulu-superagent.com';
+const ABOUT_CONTACT_EMAIL = 'ai@ai.005656.xyz';
 const ABOUT_USER_MANUAL_URL = 'https://ai.005656.xyz/docs/WULU_user_manual/';
 const ABOUT_USER_COMMUNITY_URL = 'https://ai.005656.xyz/about/';
 const ABOUT_SERVICE_TERMS_URL = 'https://ai.005656.xyz/terms.html';
