@@ -946,9 +946,9 @@ interface ProvidersImportPayload {
 }
 
 const ABOUT_CONTACT_EMAIL = 'contact@wulu-superagent.com';
-const ABOUT_USER_MANUAL_URL = 'https://wulu-superagent.com/#/docs/WULU_user_manual';
-const ABOUT_USER_COMMUNITY_URL = 'https://wulu-superagent.com/#/about';
-const ABOUT_SERVICE_TERMS_URL = 'https://wulu-superagent.com/terms.html';
+const ABOUT_USER_MANUAL_URL = 'https://ai.005656.xyz/docs/WULU_user_manual/';
+const ABOUT_USER_COMMUNITY_URL = 'https://ai.005656.xyz/about/';
+const ABOUT_SERVICE_TERMS_URL = 'https://ai.005656.xyz/terms.html';
 
 // MiniMax Portal OAuth constants
 const MINIMAX_OAUTH_CLIENT_ID = '78257093-7e40-4613-99e0-527b14b39113';
