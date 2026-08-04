@@ -73,7 +73,7 @@
     "target": [
       "dmg"
     ],
-    "icon": "build/icons/mac/icon.icns",
+    "icon": "build/icons/mac/icon.png",
     "category": "public.app-category.productivity",
     "hardenedRuntime": true,
     "gatekeeperAssess": false,
