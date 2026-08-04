@@ -1708,9 +1708,9 @@ const translations: Record<LanguageType, Record<string, string>> = {
     coworkErrorOAuthInvalid: 'OAuth 授权已失效或权限不足，请重新授权后重试。',
     coworkErrorModelAccessDenied: '当前账号无权访问该模型，请切换模型或检查服务商账号权限。',
     coworkErrorQuotaExhausted:
-      '积分额度已用完，请升级套餐后继续使用。[立即升级/充值](https://wulu-superagent.com/portal#/pricing)',
+      '积分额度已用完，请升级套餐后继续使用。[立即升级/充值](https://ai.005656.xyz/portal#/pricing)',
     coworkErrorFreeQuotaExhausted:
-      '积分额度已用完，请升级套餐后继续使用。[立即升级/充值](https://wulu-superagent.com/portal#/pricing)',
+      '积分额度已用完，请升级套餐后继续使用。[立即升级/充值](https://ai.005656.xyz/portal#/pricing)',
     coworkErrorInsufficientBalance: 'API 余额不足，请充值后重试。',
     coworkErrorInputTooLong: '输入内容过长，超出模型上下文限制，请缩短对话内容后重试。',
     coworkErrorMessageTooLarge:
@@ -4816,9 +4816,9 @@ const translations: Record<LanguageType, Record<string, string>> = {
     coworkErrorModelAccessDenied:
       'This account is not allowed to access the selected model. Switch models or check provider account permissions.',
     coworkErrorQuotaExhausted:
-      'Your credits have been used up. Upgrade your plan to continue.\n\n[Upgrade or recharge](https://wulu-superagent.com/portal#/pricing)',
+      'Your credits have been used up. Upgrade your plan to continue.\n\n[Upgrade or recharge](https://ai.005656.xyz/portal#/pricing)',
     coworkErrorFreeQuotaExhausted:
-      'Your credits have been used up. Upgrade your plan to continue.\n\n[Upgrade or recharge](https://wulu-superagent.com/portal#/pricing)',
+      'Your credits have been used up. Upgrade your plan to continue.\n\n[Upgrade or recharge](https://ai.005656.xyz/portal#/pricing)',
     coworkErrorInsufficientBalance: 'Insufficient API balance. Please top up and try again.',
     coworkErrorInputTooLong:
       'Input too long, exceeding model context limit. Please shorten the conversation and try again.',
