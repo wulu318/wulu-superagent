@@ -20,8 +20,8 @@ export const getManualUpdateCheckUrl = () => isTestModeEnabled()
   : 'https://ai.005656.xyz/api/update/check-manual';
 
 export const getFallbackDownloadUrl = () => isTestModeEnabled()
-  ? 'https://wulu-superagent.com/#/download-list'
-  : 'https://wulu-superagent.com/#/download-list';
+  ? 'https://ai.005656.xyz/download-list'
+  : 'https://ai.005656.xyz/download-list';
 
 // Skill 商店
 export const getSkillStoreUrl = () => isTestModeEnabled()
@@ -39,8 +39,8 @@ export const getLoginOvermindUrl = () => isTestModeEnabled()
   : 'https://ai.005656.xyz/api/auth/login-url';
 
 // Portal 页面
-const PORTAL_BASE_TEST = 'https://wulu-superagent.com/portal#';
-const PORTAL_BASE_PROD = 'https://wulu-superagent.com/portal#';
+const PORTAL_BASE_TEST = 'https://ai.005656.xyz/portal#';
+const PORTAL_BASE_PROD = 'https://ai.005656.xyz/portal#';
 
 const getPortalBase = () => isTestModeEnabled() ? PORTAL_BASE_TEST : PORTAL_BASE_PROD;
 
