@@ -12,9 +12,9 @@ export const ComputerUseRuntime = {
   Platform: 'win32',
   Arch: 'x64',
   ArchiveName: 'wulu-computer-use-runtime-win-x64-1.0.7.zip',
-  DownloadUrl: 'https://ydhardwarebusiness.nosdn.127.net/806b908f1ba20905cc5c99495bccc69c.zip',
-  Sha256: 'd43c15cd69e10f0fbffe62f6c5ec947b4e61c5df84efbce46b6f73e28c9de30e',
-  SizeBytes: 540139,
+  DownloadUrl: 'https://ai.005656.xyz/runtime/wulu-computer-use-runtime-win-x64-1.0.7.zip',
+  Sha256: '07a526a916082d113db6404753e0249aadc0051333dc4b7ae3f1a1869add7479',
+  SizeBytes: 540125,
 } as const;
 export type ComputerUseRuntime =
   typeof ComputerUseRuntime[keyof typeof ComputerUseRuntime];
