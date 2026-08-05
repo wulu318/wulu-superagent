@@ -190,6 +190,7 @@
         "arch": ["x64", "arm64"]
       }
     ],
+    "artifactName": "WULU-${version}-${arch}.${ext}",
     "icon": "build/icons/png",
     "category": "Utility",
     "extraResources": [
