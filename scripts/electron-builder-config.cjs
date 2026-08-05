@@ -109,12 +109,21 @@ delete config.extraResources;
 
 config.dmg = {
   ...(config.dmg || {}),
-  artifactName: `wulu-darwin-\${arch}-\${version}-${keyfrom}.\${ext}`,
+  artifactName: `WULU-darwin-\${arch}-\${version}-${keyfrom}.\${ext}`,
 };
 
 config.nsis = {
   ...(config.nsis || {}),
-  artifactName: `wulu-Setup-\${arch}-\${version}-${keyfrom}.\${ext}`,
+  artifactName: `WULU-Setup-\${arch}-\${version}-${keyfrom}.\${ext}`,
+};
+
+// Linux artifacts use explicit ASCII names so AppImage/deb/rpm filenames do
+// not contain the Chinese productName. Non-ASCII filenames break the
+// softprops/action-gh-release asset-metadata API (404 on update) during the
+// nightly release upload.
+config.linux = {
+  ...(config.linux || {}),
+  artifactName: `WULU-\${version}-\${arch}.\${ext}`,
 };
 
 if (isWebInstallerEnabled()) {
