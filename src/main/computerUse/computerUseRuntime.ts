@@ -13,11 +13,39 @@ export const ComputerUseRuntime = {
   Arch: 'x64',
   ArchiveName: 'wulu-computer-use-runtime-win-x64-1.0.7.zip',
   DownloadUrl: 'https://ai.005656.xyz/runtime/wulu-computer-use-runtime-win-x64-1.0.7.zip',
-  Sha256: '07a526a916082d113db6404753e0249aadc0051333dc4b7ae3f1a1869add7479',
-  SizeBytes: 540125,
+  Sha256: '404d7a4b24cf8ac5fb67855499e19dacc004b33935550c0f5e0e7ffb04d0ed37',
+  SizeBytes: 556309,
 } as const;
 export type ComputerUseRuntime =
   typeof ComputerUseRuntime[keyof typeof ComputerUseRuntime];
+
+// ─── Admin-overridable values (fetched from the WULU backend) ─────
+// The backend exposes GET /api/config; keys may be overridden from the
+// admin dashboard. When absent, the built-in defaults above are used.
+
+import { getCachedClientRemoteConfig } from '../libs/clientRemoteConfig';
+
+export function resolveRuntimeDownloadUrl(): string {
+  const remote = getCachedClientRemoteConfig();
+  return remote?.RUNTIME_COMPUTER_USE_URL?.trim() || ComputerUseRuntime.DownloadUrl;
+}
+
+export function resolveRuntimeSha256(): string {
+  const remote = getCachedClientRemoteConfig();
+  return remote?.RUNTIME_COMPUTER_USE_SHA256?.trim() || ComputerUseRuntime.Sha256;
+}
+
+export function resolveRuntimeSizeBytes(): number {
+  const remote = getCachedClientRemoteConfig();
+  const value = remote?.RUNTIME_COMPUTER_USE_SIZE?.trim();
+  if (value) {
+    const parsed = Number(value);
+    if (Number.isFinite(parsed) && parsed > 0) {
+      return Math.round(parsed);
+    }
+  }
+  return ComputerUseRuntime.SizeBytes;
+}
 
 export const ComputerUseRuntimeStatus = {
   Unsupported: 'unsupported',
@@ -252,7 +280,7 @@ async function downloadRuntimeArchive(
   archivePath: string,
   onProgress?: (progress: ComputerUseRuntimeDownloadProgress) => void,
 ): Promise<void> {
-  const response = await session.defaultSession.fetch(ComputerUseRuntime.DownloadUrl);
+  const response = await session.defaultSession.fetch(resolveRuntimeDownloadUrl());
   if (!response.ok) {
     throw new Error(`Computer Use runtime download failed with HTTP ${response.status}`);
   }
@@ -298,7 +326,7 @@ export async function installComputerUseRuntime(
   try {
     await downloadRuntimeArchive(archivePath, onProgress);
     const actualSha256 = await sha256File(archivePath);
-    if (actualSha256 !== ComputerUseRuntime.Sha256) {
+    if (actualSha256 !== resolveRuntimeSha256()) {
       throw new Error('Computer Use runtime checksum verification failed');
     }
 
