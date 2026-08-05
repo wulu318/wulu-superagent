@@ -1,4 +1,4 @@
-﻿name: Build WULU SuperAgent
+name: Build WULU SuperAgent
 
 on:
   push:
@@ -102,7 +102,7 @@ jobs:
         run: find dist -type f | head -50
 
       - name: Create Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: dist/**/*
           generate_release_notes: true
@@ -124,11 +124,12 @@ jobs:
         run: find dist -type f | head -50
 
       - name: Update nightly release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: nightly
           name: "Nightly Build (latest main)"
           files: dist/**/*
+          overwrite_files: true
           body: |
             Automated nightly build from the latest `main` branch.
 
