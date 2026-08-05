@@ -461,7 +461,7 @@ registerTool('activate_window', 'Bring a target window to the foreground.', {
   return successText('Window activated.');
 });
 
-registerTool('click', 'Click a coordinate or accessibility element in a target window.', {
+registerTool('click', 'Click a coordinate or accessibility element in a target window. Coordinates are window-relative pixels; for element_index clicks the runtime clicks the element center. For raw coordinate clicks, pass the center of the target element, not its top-left corner.', {
   window: WindowSchema,
   x: z.number().optional(),
   y: z.number().optional(),
