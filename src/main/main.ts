@@ -206,6 +206,7 @@ import {
   setStoreGetter,
   updateServerModelMetadata,
 } from './libs/claudeSettings';
+import { fetchClientRemoteConfig } from './libs/clientRemoteConfig';
 import {
   clearCopilotTokenState,
   initCopilotTokenManager,
@@ -11499,6 +11500,10 @@ if (!gotTheLock) {
     console.log('[Main] initApp: store initialized');
     initializeKeyfromAttribution(store);
     refreshEndpointsTestMode(store);
+    // Fetch admin-overridable client config (runtime URLs, checksums, kit
+    // icons) from the WULU backend. Non-blocking; the client keeps its
+    // built-in defaults until the fetch resolves.
+    void fetchClientRemoteConfig().catch(() => {});
     sqliteBackupManager = new SqliteBackupManager(app.getPath('userData'));
 
     const startSqliteBackupLoop = async (): Promise<void> => {
