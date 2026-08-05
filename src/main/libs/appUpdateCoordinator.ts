@@ -14,6 +14,7 @@ import {
 } from '../../shared/appUpdate/constants';
 import type { SqliteStore } from '../sqliteStore';
 import {
+  applyIncrementalPatch,
   cancelActiveDownload,
   downloadUpdate,
   installUpdate,
@@ -452,6 +453,59 @@ export class AppUpdateCoordinator {
       console.log(
         `[AppUpdate] download completed, flowId=${flowId}, source=${source}, version=${info.latestVersion}, filePath=${filePath}, fileHash=${fileHash}`,
       );
+
+      // Incremental patch: apply immediately (replace app.asar + relaunch).
+      // No "Ready -> install" user step is needed for patch flows.
+      if (info.incremental?.url?.trim()) {
+        console.log('[AppUpdate] applying incremental patch after download');
+        try {
+          await applyIncrementalPatch(filePath);
+          this.clearStoredReadyFile(source);
+          return this.setState({
+            status: AppUpdateStatus.Idle,
+            source: null,
+            info: null,
+            progress: null,
+            readyFilePath: null,
+            readyFileHash: null,
+            errorMessage: null,
+          });
+        } catch (patchError) {
+          console.error('[AppUpdate] incremental patch failed, falling back to full package:', patchError);
+          // Fall through to the full-package ready flow using info.url
+          this.setState({
+            ...this.state,
+            status: AppUpdateStatus.Checking,
+            errorMessage: null,
+          });
+          const fullUrl = info.url;
+          const fullPath = await downloadUpdate(fullUrl, source, progress => {
+            if (!this.isFlowActive(flowId, source)) return;
+            this.setState({
+              ...this.state,
+              status: AppUpdateStatus.Downloading,
+              source,
+              info,
+              progress,
+              errorMessage: null,
+            });
+          });
+          const fullHash = await this.computeFileHash(fullPath);
+          this.setStoredReadyFile({ version: info.latestVersion, filePath: fullPath, fileHash: fullHash, info });
+          await this.pruneCachedInstallerFiles(source, [fullPath]);
+          this.autoOpenReadyModal = true;
+          return this.setState({
+            status: AppUpdateStatus.Ready,
+            source,
+            info,
+            progress: null,
+            readyFilePath: fullPath,
+            readyFileHash: fullHash,
+            errorMessage: null,
+          });
+        }
+      }
+
       this.setStoredReadyFile({
         version: info.latestVersion,
         filePath,
