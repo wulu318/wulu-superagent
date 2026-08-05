@@ -7,8 +7,6 @@ import https from 'https';
 import path from 'path';
 
 import {
-  ComputerUseKitBundle,
-  ComputerUseKitBundleIntegrity,
   ComputerUseKitId,
 } from '../../../shared/computerUse/constants';
 import type {
@@ -24,6 +22,9 @@ import {
   getInstalledKitsMap,
   isComputerUseKitSupportedPlatform,
   removeComputerUseSkillArtifacts,
+  resolveComputerUseKitBundleSha256,
+  resolveComputerUseKitBundleSize,
+  resolveComputerUseKitBundleUrl,
 } from '../../computerUse/computerUseKit';
 import {
   installComputerUseRuntime,
@@ -278,7 +279,7 @@ export function registerKitHandlers(deps: KitHandlerDeps): void {
     let skillWatchingStopped = false;
     let skillWatchingRestarted = false;
     try {
-      if (isComputerUseKit && bundleUrl !== ComputerUseKitBundle.BuiltIn) {
+      if (isComputerUseKit && bundleUrl !== resolveComputerUseKitBundleUrl()) {
         throw new Error('Computer Use kit bundle URL does not match the built-in catalog entry');
       }
       if (isComputerUseKit && !isComputerUseKitSupportedPlatform()) {
@@ -293,10 +294,10 @@ export function registerKitHandlers(deps: KitHandlerDeps): void {
       tempRoot = fs.mkdtempSync(path.join(app.getPath('temp'), 'wulu-kit-'));
       const buffer = await downloadBuffer(bundleUrl);
       if (isComputerUseKit) {
-        if (buffer.length !== ComputerUseKitBundleIntegrity.SizeBytes) {
+        if (buffer.length !== resolveComputerUseKitBundleSize()) {
           throw new Error('Computer Use kit bundle size verification failed');
         }
-        if (sha256Buffer(buffer) !== ComputerUseKitBundleIntegrity.Sha256) {
+        if (sha256Buffer(buffer) !== resolveComputerUseKitBundleSha256()) {
           throw new Error('Computer Use kit bundle checksum verification failed');
         }
       }
