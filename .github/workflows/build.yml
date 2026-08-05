@@ -123,13 +123,23 @@ jobs:
       - name: List artifacts
         run: find dist -type f | head -50
 
+      - name: Delete existing nightly release
+        run: |
+          # Cleanly remove the previous nightly release so assets are
+          # re-uploaded from scratch, avoiding GitHub API race conditions
+          # when overwriting same-named assets in place.
+          if gh release view nightly --repo ${{ github.repository }} >/dev/null 2>&1; then
+            gh release delete nightly --repo ${{ github.repository }} --yes --cleanup-tag || true
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Update nightly release
         uses: softprops/action-gh-release@v3
         with:
           tag_name: nightly
           name: "Nightly Build (latest main)"
           files: dist/**/*
-          overwrite_files: true
           body: |
             Automated nightly build from the latest `main` branch.
 
