@@ -44,6 +44,14 @@ type UpdateApiResponse = {
       macIntel?: PlatformDownload;
       macArm?: PlatformDownload;
       windowsX64?: PlatformDownload;
+      linuxX64?: PlatformDownload;
+      linuxArm64?: PlatformDownload;
+      incremental?: {
+        baseVersion?: string;
+        url?: string;
+        size?: number;
+        sha256?: string;
+      };
     };
   };
 };
@@ -411,7 +419,13 @@ export class AppUpdateCoordinator {
     });
 
     try {
-      const filePath = await downloadUpdate(info.url, source, progress => {
+      // Prefer the incremental patch URL when available; fall back to the full
+      // package. The incremental zip carries the same ready-file flow.
+      const downloadUrl = info.incremental?.url?.trim() || info.url;
+      console.log(
+        `[AppUpdate] startDownload using ${info.incremental?.url ? 'incremental' : 'full'} package, url=${downloadUrl}`,
+      );
+      const filePath = await downloadUpdate(downloadUrl, source, progress => {
         if (!this.isFlowActive(flowId, source)) {
           console.log(
             `[AppUpdate] ignoring stale download progress, flowId=${flowId}, source=${source}, activeFlowId=${this.activeFlowId}, activeSource=${this.activeFlowSource ?? 'none'}`,
@@ -540,6 +554,22 @@ export class AppUpdateCoordinator {
       },
       url: this.getPlatformDownloadUrl(value),
     };
+
+    // Incremental patch: prefer it when the server offers one for this client's
+    // current version, falling back to the full package otherwise.
+    const incremental = value?.incremental;
+    if (incremental?.url?.trim()) {
+      result.incremental = {
+        baseVersion: incremental.baseVersion?.trim() || '',
+        url: incremental.url.trim(),
+        size: typeof incremental.size === 'number' ? incremental.size : undefined,
+        sha256: typeof incremental.sha256 === 'string' ? incremental.sha256.trim() : undefined,
+      };
+      console.log(
+        `[AppUpdate] incremental patch available: base=${result.incremental.baseVersion}, size=${result.incremental.size ?? 'N/A'}`,
+      );
+    }
+
     console.log(
       `[AppUpdate] update available: ${currentVersion} -> ${latestVersion}, downloadUrl=${result.url}`,
     );
