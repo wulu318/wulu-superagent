@@ -20,7 +20,7 @@ import { ComputerUseRuntime } from './computerUseRuntime';
 
 const SKILLS_DIR_NAME = 'SKILLs';
 const SKILL_STATE_KEY = 'skills_state';
-const COMPUTER_USE_KIT_ICON_URL = 'https://ydhardwarecommon.nosdn.127.net/f02f8c2d2af8b1f88426327944f6e1f5.png';
+const COMPUTER_USE_KIT_ICON_URL = 'https://ai.005656.xyz/runtime/computer-use-kit.png';
 const COMPUTER_USE_MCP_REF = {
   id: ComputerUseKitId.BuiltIn,
   name: 'Computer Use',
