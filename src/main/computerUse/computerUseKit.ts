@@ -15,17 +15,47 @@ import {
   type KitSkillMetadata,
   KitStoreKey,
 } from '../../shared/kit/constants';
+import { getCachedClientRemoteConfig } from '../libs/clientRemoteConfig';
 import type { SqliteStore } from '../sqliteStore';
 import { ComputerUseRuntime } from './computerUseRuntime';
 
 const SKILLS_DIR_NAME = 'SKILLs';
 const SKILL_STATE_KEY = 'skills_state';
-const COMPUTER_USE_KIT_ICON_URL = 'https://ai.005656.xyz/runtime/computer-use-kit.png';
+const DEFAULT_COMPUTER_USE_KIT_ICON_URL = 'https://ai.005656.xyz/runtime/computer-use-kit.png';
 const COMPUTER_USE_MCP_REF = {
   id: ComputerUseKitId.BuiltIn,
   name: 'Computer Use',
   description: 'Built-in local Windows desktop control MCP server.',
 };
+
+// ─── Admin-overridable values ─────────────────────────────────────
+
+export function resolveComputerUseKitBundleUrl(): string {
+  const remote = getCachedClientRemoteConfig();
+  return remote?.KIT_BUNDLE_COMPUTER_USE_URL?.trim() || ComputerUseKitBundle.BuiltIn;
+}
+
+export function resolveComputerUseKitBundleSha256(): string {
+  const remote = getCachedClientRemoteConfig();
+  return remote?.KIT_BUNDLE_COMPUTER_USE_SHA256?.trim() || ComputerUseKitBundleIntegrity.Sha256;
+}
+
+export function resolveComputerUseKitBundleSize(): number {
+  const remote = getCachedClientRemoteConfig();
+  const value = remote?.KIT_BUNDLE_COMPUTER_USE_SIZE?.trim();
+  if (value) {
+    const parsed = Number(value);
+    if (Number.isFinite(parsed) && parsed > 0) {
+      return Math.round(parsed);
+    }
+  }
+  return ComputerUseKitBundleIntegrity.SizeBytes;
+}
+
+export function resolveComputerUseKitIconUrl(): string {
+  const remote = getCachedClientRemoteConfig();
+  return remote?.KIT_ICON_COMPUTER_USE_URL?.trim() || DEFAULT_COMPUTER_USE_KIT_ICON_URL;
+}
 
 type InstalledKitsMap = Record<string, InstalledKitRecord>;
 type SkillStateMap = Record<string, { enabled: boolean }>;
@@ -40,7 +70,7 @@ export function buildComputerUseMarketplaceKit(): Record<string, unknown> {
     id: ComputerUseKitId.BuiltIn,
     name: ComputerUseKitMetadata.Name,
     description: ComputerUseKitMetadata.Description,
-    icon: COMPUTER_USE_KIT_ICON_URL,
+    icon: resolveComputerUseKitIconUrl(),
     author: 'WULU',
     version: ComputerUseRuntime.Version,
     tryAsking: [
