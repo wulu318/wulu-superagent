@@ -52,6 +52,13 @@ export interface AppUpdateInfo {
   date: string;
   changeLog: { zh: ChangeLogEntry; en: ChangeLogEntry };
   url: string;
+  /** Incremental patch info when the client's current version matches the declared base version. */
+  incremental?: {
+    baseVersion: string;
+    url: string;
+    size?: number;
+    sha256?: string;
+  };
 }
 
 export interface AppUpdateRuntimeState {
