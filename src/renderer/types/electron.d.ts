@@ -1055,6 +1055,172 @@ interface IElectronAPI {
       content: string,
       options?: { agentId?: string },
     ) => Promise<{ success: boolean; error?: string }>;
+    // Advanced Memory
+    advancedMemoryListDiaryDates: () => Promise<{
+      success: boolean;
+      dates?: string[];
+      error?: string;
+    }>;
+    advancedMemoryReadDiary: (date: string) => Promise<{
+      success: boolean;
+      entries?: Array<{
+        id: string;
+        content: string;
+        tags: string[];
+        layer: string;
+        createdAt: number;
+      }>;
+      error?: string;
+    }>;
+    advancedMemoryWriteDiary: (input: {
+      content: string;
+      tags?: string[];
+      layer?: string;
+    }) => Promise<{
+      success: boolean;
+      id?: string;
+      error?: string;
+    }>;
+    advancedMemoryWriteFutureMessage: (input: {
+      content: string;
+      deliverAfter: number;
+      tags?: string[];
+    }) => Promise<{
+      success: boolean;
+      id?: string;
+      error?: string;
+    }>;
+    advancedMemoryGetPendingMessages: () => Promise<{
+      success: boolean;
+      messages?: Array<{
+        id: string;
+        content: string;
+        deliverAfter: number;
+        delivered: boolean;
+        tags: string[];
+      }>;
+      error?: string;
+    }>;
+    advancedMemorySearch: (input: {
+      query: string;
+      limit?: number;
+      tagDepth?: number;
+    }) => Promise<{
+      success: boolean;
+      results?: Array<{
+        id: string;
+        content: string;
+        tags: string[];
+        layer: string;
+        score: number;
+      }>;
+      error?: string;
+    }>;
+    // NewAPI Backend
+    newApiLogin: (input: {
+      baseUrl: string;
+      apiKey: string;
+    }) => Promise<{
+      success: boolean;
+      user?: {
+        id: number;
+        username: string;
+        displayName: string;
+        email: string;
+      };
+      quota?: {
+        usedQuota: number;
+        totalQuota: number;
+        requestCount: number;
+      };
+      error?: string;
+    }>;
+    newApiFetchModels: (input: {
+      baseUrl: string;
+      apiKey: string;
+    }) => Promise<{
+      success: boolean;
+      models?: Array<{
+        id: string;
+        name: string;
+        ownedBy: string;
+      }>;
+      error?: string;
+    }>;
+    // WULU Cloud
+    wuluCloudRegister: (input: {
+      email: string;
+      password: string;
+      displayName?: string;
+    }) => Promise<{
+      success: boolean;
+      token?: string;
+      user?: {
+        id: string;
+        email: string;
+        displayName: string;
+        role: string;
+      };
+      error?: string;
+    }>;
+    wuluCloudLogin: (input: {
+      email: string;
+      password: string;
+    }) => Promise<{
+      success: boolean;
+      token?: string;
+      user?: {
+        id: string;
+        email: string;
+        displayName: string;
+        role: string;
+        planId: string | null;
+        quotaRemaining: number;
+        quotaTotal: number;
+      };
+      error?: string;
+    }>;
+    wuluCloudGetProfile: (token: string) => Promise<{
+      success: boolean;
+      user?: {
+        id: string;
+        email: string;
+        displayName: string;
+        role: string;
+        planId: string | null;
+        quotaRemaining: number;
+        quotaTotal: number;
+      };
+      error?: string;
+    }>;
+    wuluCloudGetSubscription: (token: string) => Promise<{
+      success: boolean;
+      subscription?: {
+        active: boolean;
+        planName?: string;
+        features?: Record<string, unknown>;
+        quotaMonthly?: number;
+        expiresAt?: number;
+      };
+      error?: string;
+    }>;
+    wuluCloudRefreshToken: (token: string) => Promise<{
+      success: boolean;
+      token?: string;
+      error?: string;
+    }>;
+    // Environment Awareness
+    envSnapshot: () => Promise<{
+      success: boolean;
+      snapshot?: {
+        time: string;
+        solarTerm?: string;
+        weather?: string;
+        systemStatus?: string;
+        calendar?: string;
+      };
+      error?: string;
+    }>;
     onStreamMessage: (
       callback: (data: { sessionId: string; message: CoworkMessage; beforeMessageId?: string }) => void,
     ) => () => void;

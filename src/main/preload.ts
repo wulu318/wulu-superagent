@@ -545,6 +545,33 @@ contextBridge.exposeInMainWorld('electron', {
       ipcRenderer.invoke(CoworkIpcChannel.BootstrapRead, filename, options),
     writeBootstrapFile: (filename: string, content: string, options?: { agentId?: string }) =>
       ipcRenderer.invoke(CoworkIpcChannel.BootstrapWrite, filename, content, options),
+    // Advanced Memory
+    listDiaryDates: () => ipcRenderer.invoke(CoworkIpcChannel.AdvancedMemoryListDiaryDates),
+    readDiary: (date: string) => ipcRenderer.invoke(CoworkIpcChannel.AdvancedMemoryReadDiary, date),
+    writeDiary: (content: string, options: { date?: string; tags?: string[]; category?: string }) =>
+      ipcRenderer.invoke(CoworkIpcChannel.AdvancedMemoryWriteDiary, content, options),
+    writeFutureMessage: (targetDate: string, content: string, options: { tags?: string[] }) =>
+      ipcRenderer.invoke(CoworkIpcChannel.AdvancedMemoryWriteFutureMessage, targetDate, content, options),
+    getPendingFutureMessages: () => ipcRenderer.invoke(CoworkIpcChannel.AdvancedMemoryGetPendingMessages),
+    advancedMemorySearch: (query: string) => ipcRenderer.invoke(CoworkIpcChannel.AdvancedMemorySearch, query),
+    // NewAPI Backend
+    newApiLogin: (config: { baseUrl: string; apiKey: string }) =>
+      ipcRenderer.invoke(CoworkIpcChannel.NewApiLogin, config),
+    newApiFetchModels: (config: { baseUrl: string; apiKey: string }) =>
+      ipcRenderer.invoke(CoworkIpcChannel.NewApiFetchModels, config),
+    // WULU Cloud
+    wuluCloudRegister: (input: { email: string; password: string; displayName?: string }) =>
+      ipcRenderer.invoke(CoworkIpcChannel.WuluCloudRegister, input),
+    wuluCloudLogin: (input: { email: string; password: string }) =>
+      ipcRenderer.invoke(CoworkIpcChannel.WuluCloudLogin, input),
+    wuluCloudGetProfile: (token: string) =>
+      ipcRenderer.invoke(CoworkIpcChannel.WuluCloudGetProfile, token),
+    wuluCloudGetSubscription: (token: string) =>
+      ipcRenderer.invoke(CoworkIpcChannel.WuluCloudGetSubscription, token),
+    wuluCloudRefreshToken: (token: string) =>
+      ipcRenderer.invoke(CoworkIpcChannel.WuluCloudRefreshToken, token),
+    // Environment Awareness
+    getEnvSnapshot: () => ipcRenderer.invoke(CoworkIpcChannel.EnvSnapshot),
     // Stream event listeners
     onStreamMessage: (callback: (data: { sessionId: string; message: any; beforeMessageId?: string }) => void) => {
       const handler = (_event: any, data: { sessionId: string; message: any; beforeMessageId?: string }) => callback(data);

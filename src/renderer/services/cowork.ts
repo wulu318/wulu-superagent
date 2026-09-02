@@ -57,6 +57,7 @@ import {
 import { clearActiveSkills, setActiveSkillIds } from '../store/slices/skillSlice';
 import type {
   CoworkApiConfig,
+  CoworkConfig,
   CoworkConfigUpdate,
   CoworkContextUsage,
   CoworkContinueOptions,
@@ -806,7 +807,26 @@ class CoworkService {
         openClawSessionPolicy: sessionPolicyResult?.success && sessionPolicyResult.config
           ? sessionPolicyResult.config
           : { keepAlive: '30d' },
-      }));
+        advancedMemoryEnabled: (cfg.advancedMemoryEnabled as boolean) ?? false,
+        layeredMemoryEnabled: (cfg.layeredMemoryEnabled as boolean) ?? false,
+        tagAssociationEnabled: (cfg.tagAssociationEnabled as boolean) ?? false,
+        tagAssociationDepth: (cfg.tagAssociationDepth as number) ?? 2,
+        proactiveDiaryEnabled: (cfg.proactiveDiaryEnabled as boolean) ?? false,
+        diaryAutoTag: (cfg.diaryAutoTag as boolean) ?? false,
+        futureMessageEnabled: (cfg.futureMessageEnabled as boolean) ?? false,
+        envAwarenessEnabled: (cfg.envAwarenessEnabled as boolean) ?? false,
+        envTimeEnabled: (cfg.envTimeEnabled as boolean) ?? true,
+        envWeatherEnabled: (cfg.envWeatherEnabled as boolean) ?? false,
+        envWeatherCity: (cfg.envWeatherCity as string) ?? '',
+        envSystemStatusEnabled: (cfg.envSystemStatusEnabled as boolean) ?? false,
+        envCalendarEnabled: (cfg.envCalendarEnabled as boolean) ?? false,
+        newApiEnabled: (cfg.newApiEnabled as boolean) ?? false,
+        newApiBaseUrl: (cfg.newApiBaseUrl as string) ?? '',
+        newApiApiKey: (cfg.newApiApiKey as string) ?? '',
+        wuluCloudEnabled: (cfg.wuluCloudEnabled as boolean) ?? false,
+        wuluCloudEmail: (cfg.wuluCloudEmail as string) ?? '',
+        wuluCloudToken: (cfg.wuluCloudToken as string) ?? '',
+      } as CoworkConfig));
     }
   }
 
@@ -1789,6 +1809,172 @@ class CoworkService {
 
   finishSessionNavigation(sessionId: string): void {
     store.dispatch(finishSessionNavigationAction(sessionId));
+  }
+
+  // ─── Advanced Memory ────────────────────────────────────────────
+  async advancedMemoryListDiaryDates(): Promise<{ success: boolean; dates?: string[]; error?: string }> {
+    const api = window.electron?.cowork?.advancedMemoryListDiaryDates;
+    if (!api) return { success: false, error: 'Advanced Memory API not available' };
+    return api();
+  }
+
+  async advancedMemoryReadDiary(date: string): Promise<{
+    success: boolean;
+    entries?: Array<{ id: string; content: string; tags: string[]; layer: string; createdAt: number }>;
+    error?: string;
+  }> {
+    const api = window.electron?.cowork?.advancedMemoryReadDiary;
+    if (!api) return { success: false, error: 'Advanced Memory API not available' };
+    return api(date);
+  }
+
+  async advancedMemoryWriteDiary(input: {
+    content: string;
+    tags?: string[];
+    layer?: string;
+  }): Promise<{ success: boolean; id?: string; error?: string }> {
+    const api = window.electron?.cowork?.advancedMemoryWriteDiary;
+    if (!api) return { success: false, error: 'Advanced Memory API not available' };
+    return api(input);
+  }
+
+  async advancedMemoryWriteFutureMessage(input: {
+    content: string;
+    deliverAfter: number;
+    tags?: string[];
+  }): Promise<{ success: boolean; id?: string; error?: string }> {
+    const api = window.electron?.cowork?.advancedMemoryWriteFutureMessage;
+    if (!api) return { success: false, error: 'Advanced Memory API not available' };
+    return api(input);
+  }
+
+  async advancedMemoryGetPendingMessages(): Promise<{
+    success: boolean;
+    messages?: Array<{ id: string; content: string; deliverAfter: number; delivered: boolean; tags: string[] }>;
+    error?: string;
+  }> {
+    const api = window.electron?.cowork?.advancedMemoryGetPendingMessages;
+    if (!api) return { success: false, error: 'Advanced Memory API not available' };
+    return api();
+  }
+
+  async advancedMemorySearch(input: {
+    query: string;
+    limit?: number;
+    tagDepth?: number;
+  }): Promise<{
+    success: boolean;
+    results?: Array<{ id: string; content: string; tags: string[]; layer: string; score: number }>;
+    error?: string;
+  }> {
+    const api = window.electron?.cowork?.advancedMemorySearch;
+    if (!api) return { success: false, error: 'Advanced Memory API not available' };
+    return api(input);
+  }
+
+  // ─── NewAPI Backend ─────────────────────────────────────────────
+  async newApiLogin(input: {
+    baseUrl: string;
+    apiKey: string;
+  }): Promise<{
+    success: boolean;
+    user?: { id: number; username: string; displayName: string; email: string };
+    quota?: { usedQuota: number; totalQuota: number; requestCount: number };
+    error?: string;
+  }> {
+    const api = window.electron?.cowork?.newApiLogin;
+    if (!api) return { success: false, error: 'NewAPI Backend not available' };
+    return api(input);
+  }
+
+  async newApiFetchModels(input: {
+    baseUrl: string;
+    apiKey: string;
+  }): Promise<{
+    success: boolean;
+    models?: Array<{ id: string; name: string; ownedBy: string }>;
+    error?: string;
+  }> {
+    const api = window.electron?.cowork?.newApiFetchModels;
+    if (!api) return { success: false, error: 'NewAPI Backend not available' };
+    return api(input);
+  }
+
+  // ─── WULU Cloud ──────────────────────────────────────────────────
+  async wuluCloudRegister(input: {
+    email: string;
+    password: string;
+    displayName?: string;
+  }): Promise<{
+    success: boolean;
+    token?: string;
+    user?: { id: string; email: string; displayName: string; role: string };
+    error?: string;
+  }> {
+    const api = window.electron?.cowork?.wuluCloudRegister;
+    if (!api) return { success: false, error: 'WULU Cloud not available' };
+    return api(input);
+  }
+
+  async wuluCloudLogin(input: {
+    email: string;
+    password: string;
+  }): Promise<{
+    success: boolean;
+    token?: string;
+    user?: { id: string; email: string; displayName: string; role: string; planId: string | null; quotaRemaining: number; quotaTotal: number };
+    error?: string;
+  }> {
+    const api = window.electron?.cowork?.wuluCloudLogin;
+    if (!api) return { success: false, error: 'WULU Cloud not available' };
+    return api(input);
+  }
+
+  async wuluCloudGetProfile(token: string): Promise<{
+    success: boolean;
+    user?: { id: string; email: string; displayName: string; role: string; planId: string | null; quotaRemaining: number; quotaTotal: number };
+    error?: string;
+  }> {
+    const api = window.electron?.cowork?.wuluCloudGetProfile;
+    if (!api) return { success: false, error: 'WULU Cloud not available' };
+    return api(token);
+  }
+
+  async wuluCloudGetSubscription(token: string): Promise<{
+    success: boolean;
+    subscription?: { active: boolean; planName?: string; features?: Record<string, unknown>; quotaMonthly?: number; expiresAt?: number };
+    error?: string;
+  }> {
+    const api = window.electron?.cowork?.wuluCloudGetSubscription;
+    if (!api) return { success: false, error: 'WULU Cloud not available' };
+    return api(token);
+  }
+
+  async wuluCloudRefreshToken(token: string): Promise<{
+    success: boolean;
+    token?: string;
+    error?: string;
+  }> {
+    const api = window.electron?.cowork?.wuluCloudRefreshToken;
+    if (!api) return { success: false, error: 'WULU Cloud not available' };
+    return api(token);
+  }
+
+  // ─── Environment Awareness ──────────────────────────────────────
+  async getEnvironmentSnapshot(): Promise<{
+    success: boolean;
+    snapshot?: {
+      time: string;
+      solarTerm?: string;
+      weather?: string;
+      systemStatus?: string;
+      calendar?: string;
+    };
+    error?: string;
+  }> {
+    const api = window.electron?.cowork?.envSnapshot;
+    if (!api) return { success: false, error: 'Environment Awareness API not available' };
+    return api();
   }
 
   destroy(): void {

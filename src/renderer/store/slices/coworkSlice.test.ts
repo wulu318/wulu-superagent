@@ -111,6 +111,25 @@ test('setConfig preserves loaded OpenClaw session policy', () => {
     openClawSessionPolicy: {
       keepAlive: '365d',
     },
+    advancedMemoryEnabled: false,
+    layeredMemoryEnabled: false,
+    tagAssociationEnabled: false,
+    tagAssociationDepth: 2,
+    proactiveDiaryEnabled: false,
+    diaryAutoTag: false,
+    futureMessageEnabled: false,
+    envAwarenessEnabled: false,
+    envTimeEnabled: true,
+    envWeatherEnabled: false,
+    envWeatherCity: '',
+    envSystemStatusEnabled: false,
+    envCalendarEnabled: false,
+    newApiEnabled: false,
+    newApiBaseUrl: '',
+    newApiApiKey: '',
+    wuluCloudEnabled: false,
+    wuluCloudEmail: '',
+    wuluCloudToken: '',
   }));
 
   expect(state.config.openClawSessionPolicy.keepAlive).toBe('365d');

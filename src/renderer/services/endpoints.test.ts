@@ -23,28 +23,28 @@ afterEach(() => {
 test('portal account urls use production base when test mode is disabled', () => {
   mockTestMode(false);
 
-  expect(getPortalProfileUrl()).toBe('https://WULU.youdao.com/portal#/profile');
-  expect(getPortalRechargeUrl()).toBe('https://WULU.youdao.com/portal#/');
-  expect(getPortalInvitationUrl()).toBe('https://WULU.youdao.com/portal#/invitation');
-  expect(getPortalCreditsResetActivityUrl()).toBe('https://WULU.youdao.com/portal#/profile?activity=credits_reset');
+  expect(getPortalProfileUrl()).toBe('https://ai.005656.xyz/portal#/profile');
+  expect(getPortalRechargeUrl()).toBe('https://ai.005656.xyz/portal#/');
+  expect(getPortalInvitationUrl()).toBe('https://ai.005656.xyz/portal#/invitation');
+  expect(getPortalCreditsResetActivityUrl()).toBe('https://ai.005656.xyz/portal#/profile?activity=credits_reset');
   expect(getPortalCreditsResetActivityUrl('credits_final_reward_2026_07')).toBe(
-    'https://WULU.youdao.com/portal#/profile?activity=credits_reset&campaignCode=credits_final_reward_2026_07',
+    'https://ai.005656.xyz/portal#/profile?activity=credits_reset&campaignCode=credits_final_reward_2026_07',
   );
 });
 
 test('portal account urls use test base when test mode is enabled', () => {
   mockTestMode(true);
 
-  expect(getPortalProfileUrl()).toBe('https://WULU.inner.youdao.com/portal#/profile');
-  expect(getPortalRechargeUrl()).toBe('https://WULU.inner.youdao.com/portal#/');
-  expect(getPortalInvitationUrl()).toBe('https://WULU.inner.youdao.com/portal#/invitation');
-  expect(getPortalCreditsResetActivityUrl()).toBe('https://WULU.inner.youdao.com/portal#/profile?activity=credits_reset');
+  expect(getPortalProfileUrl()).toBe('https://ai.005656.xyz/portal#/profile');
+  expect(getPortalRechargeUrl()).toBe('https://ai.005656.xyz/portal#/');
+  expect(getPortalInvitationUrl()).toBe('https://ai.005656.xyz/portal#/invitation');
+  expect(getPortalCreditsResetActivityUrl()).toBe('https://ai.005656.xyz/portal#/profile?activity=credits_reset');
 });
 
 test('portal pricing url can include html share keyfrom', () => {
   mockTestMode(false);
 
   expect(getPortalPricingUrl(PortalPricingKeyfrom.HtmlShare)).toBe(
-    'https://WULU.youdao.com/portal#/pricing?keyfrom=html_share',
+    'https://ai.005656.xyz/portal#/pricing?keyfrom=html_share',
   );
 });

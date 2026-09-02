@@ -198,6 +198,28 @@ export interface CoworkConfig {
   dreamingModel: string;
   dreamingTimezone: string;
   openClawSessionPolicy: OpenClawSessionPolicyConfig;
+  // Advanced Memory System
+  advancedMemoryEnabled: boolean;
+  layeredMemoryEnabled: boolean;
+  tagAssociationEnabled: boolean;
+  tagAssociationDepth: number;
+  proactiveDiaryEnabled: boolean;
+  diaryAutoTag: boolean;
+  futureMessageEnabled: boolean;
+  envAwarenessEnabled: boolean;
+  envTimeEnabled: boolean;
+  envWeatherEnabled: boolean;
+  envWeatherCity: string;
+  envSystemStatusEnabled: boolean;
+  envCalendarEnabled: boolean;
+  // NewAPI Backend
+  newApiEnabled: boolean;
+  newApiBaseUrl: string;
+  newApiApiKey: string;
+  // WULU Cloud
+  wuluCloudEnabled: boolean;
+  wuluCloudEmail: string;
+  wuluCloudToken: string;
 }
 
 /** Per-directory `.cowork-temp` preview entry shown in the clean confirmation dialog. */
@@ -235,6 +257,25 @@ export type CoworkConfigUpdate = Partial<Pick<
   | 'dreamingFrequency'
   | 'dreamingModel'
   | 'dreamingTimezone'
+  | 'advancedMemoryEnabled'
+  | 'layeredMemoryEnabled'
+  | 'tagAssociationEnabled'
+  | 'tagAssociationDepth'
+  | 'proactiveDiaryEnabled'
+  | 'diaryAutoTag'
+  | 'futureMessageEnabled'
+  | 'envAwarenessEnabled'
+  | 'envTimeEnabled'
+  | 'envWeatherEnabled'
+  | 'envWeatherCity'
+  | 'envSystemStatusEnabled'
+  | 'envCalendarEnabled'
+  | 'newApiEnabled'
+  | 'newApiBaseUrl'
+  | 'newApiApiKey'
+  | 'wuluCloudEnabled'
+  | 'wuluCloudEmail'
+  | 'wuluCloudToken'
 >>;
 
 export interface CoworkApiConfig {
@@ -485,4 +526,66 @@ export interface CoworkStreamEvent {
     error?: string;
     claudeSessionId?: string;
   };
+}
+
+// ── Advanced Memory Types ────────────────────────────────────────────────────
+
+export type MemoryLayer = 'core' | 'working' | 'knowledge' | 'diary-index';
+
+export interface AdvancedMemoryEntry {
+  id: string;
+  text: string;
+  section?: string;
+  layer: MemoryLayer;
+  tags: string[];
+}
+
+export interface DiarySummary {
+  date: string;
+  entryCount: number;
+  tags: string[];
+  preview: string;
+}
+
+export interface FutureMessageSummary {
+  targetDate: string;
+  messageCount: number;
+  preview: string;
+}
+
+// ── NewAPI Backend Types ────────────────────────────────────────────────────
+
+export interface NewAPIUserInfo {
+  username: string;
+  email: string;
+  status: number;
+  quota: number;
+  usedQuota: number;
+  requestCount: number;
+}
+
+export interface NewAPIQuotaInfo {
+  remainQuota: number;
+  usedQuota: number;
+  totalQuota: number;
+}
+
+export interface NewAPILoginResult {
+  success: boolean;
+  userInfo?: NewAPIUserInfo;
+  quota?: NewAPIQuotaInfo;
+  models?: { id: string; owned_by: string }[];
+  error?: string;
+}
+
+export interface EnvironmentSnapshotForUI {
+  timestamp: number;
+  date: string;
+  weekday: string;
+  time: string;
+  solarTerm?: string;
+  weather?: { city: string; temperature: number; description: string };
+  systemStatus?: { cpuPercent: number; memoryPercent: number; diskFreeGB: number };
+  pendingFutureMessages: number;
+  lastConversationAgo?: string;
 }
