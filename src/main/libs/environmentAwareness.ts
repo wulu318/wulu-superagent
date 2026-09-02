@@ -1,4 +1,3 @@
-/* eslint-disable simple-import-sort/imports */
 /**
  * WULU Environment Awareness Engine
  *

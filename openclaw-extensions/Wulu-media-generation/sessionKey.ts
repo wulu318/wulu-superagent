@@ -23,7 +23,11 @@ export function iswuluDesktopSessionKey(sessionKey: string | undefined | null): 
   const agentId = parts[1]?.trim() ?? '';
   const source = parts[2]?.trim() ?? '';
   const sessionId = parts.slice(3).join(':').trim();
+  // The desktop app builds managed session keys as `agent:{agentId}:WULU:{sessionId}`
+  // (uppercase marker, see src/main/libs/openclawChannelSessionSync.ts). Compare
+  // case-insensitively so this plugin registers tools for desktop sessions.
+  const normalizedSource = source.toLowerCase();
   return agentId.length > 0
     && sessionId.length > 0
-    && (source === wulu_SESSION_MARKER || source === SUBAGENT_SESSION_MARKER);
+    && (normalizedSource === wulu_SESSION_MARKER || source === SUBAGENT_SESSION_MARKER);
 }

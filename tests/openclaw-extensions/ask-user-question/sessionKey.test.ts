@@ -8,6 +8,13 @@ describe('ask-user-question session key gating', () => {
     expect(isAskUserQuestionCandidateSessionKey('agent:qa-reviewer:wulu:session-2')).toBe(true);
   });
 
+  test('allows uppercase WULU desktop sessions (production format)', () => {
+    // The desktop app builds managed session keys with the uppercase WULU marker
+    // (src/main/libs/openclawChannelSessionSync.ts). The tool must register for them.
+    expect(isAskUserQuestionCandidateSessionKey('agent:main:WULU:session-1')).toBe(true);
+    expect(isAskUserQuestionCandidateSessionKey('agent:qa-reviewer:WULU:session-2')).toBe(true);
+  });
+
   test('allows materialized subagent session candidates', () => {
     expect(isAskUserQuestionCandidateSessionKey('agent:qa-reviewer:subagent:run-1')).toBe(true);
   });

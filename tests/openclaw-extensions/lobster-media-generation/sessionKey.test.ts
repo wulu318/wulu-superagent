@@ -7,6 +7,13 @@ describe('Wulu-media-generation session key gating', () => {
     expect(iswuluDesktopSessionKey('agent:main:wulu:session-1')).toBe(true);
   });
 
+  test('allows uppercase WULU desktop sessions (production format)', () => {
+    // The desktop app builds managed session keys with the uppercase WULU marker
+    // (src/main/libs/openclawChannelSessionSync.ts). The tool must register for them.
+    expect(iswuluDesktopSessionKey('agent:main:WULU:session-1')).toBe(true);
+    expect(iswuluDesktopSessionKey('agent:creative-agent:WULU:session-2')).toBe(true);
+  });
+
   test('allows non-main agent desktop sessions', () => {
     expect(iswuluDesktopSessionKey('agent:creative-agent:wulu:session-2')).toBe(true);
   });
