@@ -203,7 +203,10 @@ jobs:
           version: 10
 
       - name: Install publish deps
-        run: npm install --no-save archiver extract-zip
+        # archiver v8 (latest) switched to named exports and breaks
+        # `const archiver = require('archiver')`; pin to v5 to match
+        # publish-release.cjs and the local node_modules (5.3.2).
+        run: npm install --no-save archiver@5 extract-zip
 
       - name: Download all artifacts
         uses: actions/download-artifact@v4
