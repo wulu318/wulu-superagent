@@ -8,7 +8,7 @@
 import https from 'https';
 import os from 'os';
 
-import { getPendingFutureMessages, type EnvironmentSnapshot } from './advancedMemory';
+import { type EnvironmentSnapshot,getPendingFutureMessages } from './advancedMemory';
 
 // ── Solar terms ──────────────────────────────────────────────────────────────
 

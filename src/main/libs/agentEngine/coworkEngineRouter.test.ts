@@ -1,5 +1,4 @@
 import { EventEmitter } from 'events';
-
 import { describe, expect, test, vi } from 'vitest';
 
 import { CoworkEngineRouter } from './coworkEngineRouter';

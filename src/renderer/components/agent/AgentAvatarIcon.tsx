@@ -23,7 +23,6 @@ import headphonesIconUrl from '../../assets/agent-avatars/headphones.svg';
 import heartIconUrl from '../../assets/agent-avatars/heart.svg';
 import inspirationIconUrl from '../../assets/agent-avatars/inspiration.svg';
 import lightningIconUrl from '../../assets/agent-avatars/lightning.svg';
-import WULUIconUrl from '../../assets/agent-avatars/Wulu.svg';
 import meditationIconUrl from '../../assets/agent-avatars/meditation.svg';
 import musicIconUrl from '../../assets/agent-avatars/music.svg';
 import petIconUrl from '../../assets/agent-avatars/pet.svg';
@@ -35,6 +34,7 @@ import tagIconUrl from '../../assets/agent-avatars/tag.svg';
 import translationIconUrl from '../../assets/agent-avatars/translation.svg';
 import translationAltIconUrl from '../../assets/agent-avatars/translation-alt.svg';
 import travelIconUrl from '../../assets/agent-avatars/travel.svg';
+import WULUIconUrl from '../../assets/agent-avatars/Wulu.svg';
 
 export const AGENT_AVATAR_SVG_OPTIONS: Array<{ svg: AgentAvatarSvg; labelKey: string }> = [
   { svg: AgentAvatarSvg.Wulu, labelKey: 'agentAvatarSvgWULU' },

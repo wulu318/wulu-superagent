@@ -60,3 +60,6 @@ inspect-runtime.cjs
 rebuild-runtime.cjs
 rebuild-runtime2.cjs
 verify-final-runtime.cjs
+
+# Local agent scratch dir
+.temp/
