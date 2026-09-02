@@ -403,6 +403,39 @@ const MANAGED_MEMORY_POLICY_PROMPT = [
   '- Do not split a single fact across multiple top-level bullets.',
 ].join('\n');
 
+const MANAGED_ADVANCED_MEMORY_POLICY_PROMPT = [
+  '## Advanced Memory',
+  '',
+  'When Advanced Memory is enabled, use these enhanced memory features:',
+  '',
+  '**Layers.** MEMORY.md is organized into layers:',
+  '- `核心记忆 (Core)` — permanent facts, identity, critical decisions. Rarely changed.',
+  '- `工作记忆 (Working)` — current tasks, progress, short-term context. High turnover.',
+  '- `知识库 (Knowledge)` — learned lessons, accumulated experience. Medium stability.',
+  '- `日记索引 (Diary Index)` — pointers to daily diary files.',
+  '',
+  '**Tags.** Add `::tags:tag1,tag2` at the end of a memory entry to create semantic associations.',
+  'Tags form an associative network: entries sharing a tag are linked, and search expands along',
+  'tag paths to find related memories you might not have directly queried.',
+  '',
+  '**Proactive Diary.** You can write diary entries proactively during conversation:',
+  '- Write to `memory/YYYY-MM-DD.md` using the daily note convention.',
+  '- Categorize entries: `observation`, `decision`, `reflection`, `task`.',
+  '- Auto-tag diary entries with relevant topics.',
+  '',
+  '**Future Messages.** Leave messages for your future self in `memory/future/YYYY-MM-DD.md`.',
+  'On the target date, these messages surface in your environment context automatically.',
+].join('\n');
+
+const MANAGED_ENV_AWARENESS_POLICY_PROMPT = [
+  '## Environment Awareness',
+  '',
+  'The `[环境感知]` block at the top of your context is injected automatically by the system.',
+  'It may contain: current time, weather, system status, pending future messages, and time since',
+  'last conversation. You do NOT need to query these — they are already part of your awareness.',
+  'Use this information naturally, as a human would use their senses.',
+].join('\n');
+
 const MANAGED_HEARTBEAT_POLICY_PROMPT = [
   '## Heartbeat Policy',
   '',
@@ -3226,6 +3259,8 @@ loopDetection: MANAGED_TOOL_LOOP_DETECTION,
       sections.push(MANAGED_EXEC_SAFETY_PROMPT);
       sections.push(MANAGED_DELIVERABLE_LINKS_PROMPT);
       sections.push(MANAGED_MEMORY_POLICY_PROMPT);
+      sections.push(MANAGED_ADVANCED_MEMORY_POLICY_PROMPT);
+      sections.push(MANAGED_ENV_AWARENESS_POLICY_PROMPT);
       sections.push(MANAGED_HEARTBEAT_POLICY_PROMPT);
       sections.push(buildManagedSkillCreationPrompt(resolveSkillCreationPath()));
 

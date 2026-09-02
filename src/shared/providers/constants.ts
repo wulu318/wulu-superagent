@@ -346,8 +346,8 @@ const PROVIDER_DEFINITIONS = [
   {
     id: ProviderName.Youdaozhiyun,
     label: 'WULU AI',
-    website: 'https://wulu-superagent.com',
-    apiKeyUrl: 'https://wulu-superagent.com/console',
+    website: 'https://ai.005656.xyz',
+    apiKeyUrl: 'https://ai.005656.xyz/console',
     openClawProviderId: OpenClawProviderId.Youdaozhiyun,
     defaultBaseUrl: 'https://openapi.youdao.com/llmgateway/api/v1/chat/completions',
     defaultApiFormat: ApiFormat.OpenAI,

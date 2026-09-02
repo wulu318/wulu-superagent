@@ -81,6 +81,36 @@ const DEFAULT_DREAMING_FREQUENCY = '0 3 * * *';
 const DEFAULT_DREAMING_MODEL = '';
 const DEFAULT_DREAMING_TIMEZONE = '';
 
+// Advanced Memory System defaults
+const DEFAULT_ADVANCED_MEMORY_ENABLED = false;
+const DEFAULT_LAYERED_MEMORY_ENABLED = true;
+const DEFAULT_TAG_ASSOCIATION_ENABLED = true;
+const DEFAULT_TAG_ASSOCIATION_DEPTH = 2;
+const DEFAULT_PROACTIVE_DIARY_ENABLED = true;
+const DEFAULT_DIARY_AUTO_TAG = true;
+const DEFAULT_FUTURE_MESSAGE_ENABLED = true;
+const DEFAULT_ENV_AWARENESS_ENABLED = true;
+const DEFAULT_ENV_TIME_ENABLED = true;
+const DEFAULT_ENV_WEATHER_ENABLED = false;
+const DEFAULT_ENV_WEATHER_CITY = '';
+const DEFAULT_ENV_SYSTEM_STATUS_ENABLED = false;
+const DEFAULT_ENV_CALENDAR_ENABLED = true;
+
+// NewAPI Backend defaults
+const DEFAULT_NEW_API_ENABLED = false;
+const DEFAULT_NEW_API_BASE_URL = '';
+const DEFAULT_NEW_API_API_KEY = '';
+
+// WULU Cloud defaults
+const DEFAULT_WULU_CLOUD_ENABLED = false;
+const DEFAULT_WULU_CLOUD_EMAIL = '';
+const DEFAULT_WULU_CLOUD_TOKEN = '';
+
+function clampTagAssociationDepth(value: number): number {
+  if (!Number.isFinite(value)) return DEFAULT_TAG_ASSOCIATION_DEPTH;
+  return Math.max(1, Math.min(3, Math.floor(value)));
+}
+
 // Regexes and helper inlined from the removed coworkMemoryExtractor module.
 // Used only by shouldAutoDeleteMemoryText() during startup memory cleanup.
 const CHINESE_QUESTION_PREFIX_RE = /^(?:请问|问下|问一下|是否|能否|可否|为什么|为何|怎么|如何|谁|什么|哪(?:里|儿|个)?|几|多少|要不要|会不会|是不是|能不能|可不可以|行不行|对不对|好不好)/u;
@@ -603,6 +633,29 @@ export interface CoworkConfig {
   dreamingFrequency: string;
   dreamingModel: string;
   dreamingTimezone: string;
+  // Advanced Memory System
+  advancedMemoryEnabled: boolean;
+  layeredMemoryEnabled: boolean;
+  tagAssociationEnabled: boolean;
+  tagAssociationDepth: number;
+  proactiveDiaryEnabled: boolean;
+  diaryAutoTag: boolean;
+  futureMessageEnabled: boolean;
+  // Environment Awareness
+  envAwarenessEnabled: boolean;
+  envTimeEnabled: boolean;
+  envWeatherEnabled: boolean;
+  envWeatherCity: string;
+  envSystemStatusEnabled: boolean;
+  envCalendarEnabled: boolean;
+  // NewAPI Backend
+  newApiEnabled: boolean;
+  newApiBaseUrl: string;
+  newApiApiKey: string;
+  // WULU Cloud
+  wuluCloudEnabled: boolean;
+  wuluCloudEmail: string;
+  wuluCloudToken: string;
 }
 
 export type CoworkConfigUpdate = Partial<Pick<
@@ -628,6 +681,25 @@ CoworkConfig,
   | 'dreamingFrequency'
   | 'dreamingModel'
   | 'dreamingTimezone'
+  | 'advancedMemoryEnabled'
+  | 'layeredMemoryEnabled'
+  | 'tagAssociationEnabled'
+  | 'tagAssociationDepth'
+  | 'proactiveDiaryEnabled'
+  | 'diaryAutoTag'
+  | 'futureMessageEnabled'
+  | 'envAwarenessEnabled'
+  | 'envTimeEnabled'
+  | 'envWeatherEnabled'
+  | 'envWeatherCity'
+  | 'envSystemStatusEnabled'
+  | 'envCalendarEnabled'
+  | 'newApiEnabled'
+  | 'newApiBaseUrl'
+  | 'newApiApiKey'
+  | 'wuluCloudEnabled'
+  | 'wuluCloudEmail'
+  | 'wuluCloudToken'
 >>;
 
 export type PluginSource = 'npm' | 'clawhub' | 'git' | 'local' | 'openclaw';
@@ -2214,6 +2286,25 @@ export class CoworkStore {
       dreamingFrequency: cfg.get('dreamingFrequency') || DEFAULT_DREAMING_FREQUENCY,
       dreamingModel: cfg.get('dreamingModel') || DEFAULT_DREAMING_MODEL,
       dreamingTimezone: cfg.get('dreamingTimezone') || DEFAULT_DREAMING_TIMEZONE,
+      advancedMemoryEnabled: parseBooleanConfig(cfg.get('advancedMemoryEnabled'), DEFAULT_ADVANCED_MEMORY_ENABLED),
+      layeredMemoryEnabled: parseBooleanConfig(cfg.get('layeredMemoryEnabled'), DEFAULT_LAYERED_MEMORY_ENABLED),
+      tagAssociationEnabled: parseBooleanConfig(cfg.get('tagAssociationEnabled'), DEFAULT_TAG_ASSOCIATION_ENABLED),
+      tagAssociationDepth: clampTagAssociationDepth(parseInt(cfg.get('tagAssociationDepth'), 10) || DEFAULT_TAG_ASSOCIATION_DEPTH),
+      proactiveDiaryEnabled: parseBooleanConfig(cfg.get('proactiveDiaryEnabled'), DEFAULT_PROACTIVE_DIARY_ENABLED),
+      diaryAutoTag: parseBooleanConfig(cfg.get('diaryAutoTag'), DEFAULT_DIARY_AUTO_TAG),
+      futureMessageEnabled: parseBooleanConfig(cfg.get('futureMessageEnabled'), DEFAULT_FUTURE_MESSAGE_ENABLED),
+      envAwarenessEnabled: parseBooleanConfig(cfg.get('envAwarenessEnabled'), DEFAULT_ENV_AWARENESS_ENABLED),
+      envTimeEnabled: parseBooleanConfig(cfg.get('envTimeEnabled'), DEFAULT_ENV_TIME_ENABLED),
+      envWeatherEnabled: parseBooleanConfig(cfg.get('envWeatherEnabled'), DEFAULT_ENV_WEATHER_ENABLED),
+      envWeatherCity: cfg.get('envWeatherCity') || DEFAULT_ENV_WEATHER_CITY,
+      envSystemStatusEnabled: parseBooleanConfig(cfg.get('envSystemStatusEnabled'), DEFAULT_ENV_SYSTEM_STATUS_ENABLED),
+      envCalendarEnabled: parseBooleanConfig(cfg.get('envCalendarEnabled'), DEFAULT_ENV_CALENDAR_ENABLED),
+      newApiEnabled: parseBooleanConfig(cfg.get('newApiEnabled'), DEFAULT_NEW_API_ENABLED),
+      newApiBaseUrl: cfg.get('newApiBaseUrl') || DEFAULT_NEW_API_BASE_URL,
+      newApiApiKey: cfg.get('newApiApiKey') || DEFAULT_NEW_API_API_KEY,
+      wuluCloudEnabled: parseBooleanConfig(cfg.get('wuluCloudEnabled'), DEFAULT_WULU_CLOUD_ENABLED),
+      wuluCloudEmail: cfg.get('wuluCloudEmail') || DEFAULT_WULU_CLOUD_EMAIL,
+      wuluCloudToken: cfg.get('wuluCloudToken') || DEFAULT_WULU_CLOUD_TOKEN,
     };
   }
 
@@ -2282,6 +2373,64 @@ export class CoworkStore {
     }
     if (config.dreamingTimezone !== undefined) {
       this.upsertConfig('dreamingTimezone', String(config.dreamingTimezone), now);
+    }
+    // Advanced Memory System
+    if (config.advancedMemoryEnabled !== undefined) {
+      this.upsertConfig('advancedMemoryEnabled', config.advancedMemoryEnabled ? '1' : '0', now);
+    }
+    if (config.layeredMemoryEnabled !== undefined) {
+      this.upsertConfig('layeredMemoryEnabled', config.layeredMemoryEnabled ? '1' : '0', now);
+    }
+    if (config.tagAssociationEnabled !== undefined) {
+      this.upsertConfig('tagAssociationEnabled', config.tagAssociationEnabled ? '1' : '0', now);
+    }
+    if (config.tagAssociationDepth !== undefined) {
+      this.upsertConfig('tagAssociationDepth', String(clampTagAssociationDepth(config.tagAssociationDepth)), now);
+    }
+    if (config.proactiveDiaryEnabled !== undefined) {
+      this.upsertConfig('proactiveDiaryEnabled', config.proactiveDiaryEnabled ? '1' : '0', now);
+    }
+    if (config.diaryAutoTag !== undefined) {
+      this.upsertConfig('diaryAutoTag', config.diaryAutoTag ? '1' : '0', now);
+    }
+    if (config.futureMessageEnabled !== undefined) {
+      this.upsertConfig('futureMessageEnabled', config.futureMessageEnabled ? '1' : '0', now);
+    }
+    if (config.envAwarenessEnabled !== undefined) {
+      this.upsertConfig('envAwarenessEnabled', config.envAwarenessEnabled ? '1' : '0', now);
+    }
+    if (config.envTimeEnabled !== undefined) {
+      this.upsertConfig('envTimeEnabled', config.envTimeEnabled ? '1' : '0', now);
+    }
+    if (config.envWeatherEnabled !== undefined) {
+      this.upsertConfig('envWeatherEnabled', config.envWeatherEnabled ? '1' : '0', now);
+    }
+    if (config.envWeatherCity !== undefined) {
+      this.upsertConfig('envWeatherCity', String(config.envWeatherCity), now);
+    }
+    if (config.envSystemStatusEnabled !== undefined) {
+      this.upsertConfig('envSystemStatusEnabled', config.envSystemStatusEnabled ? '1' : '0', now);
+    }
+    if (config.envCalendarEnabled !== undefined) {
+      this.upsertConfig('envCalendarEnabled', config.envCalendarEnabled ? '1' : '0', now);
+    }
+    if (config.newApiEnabled !== undefined) {
+      this.upsertConfig('newApiEnabled', config.newApiEnabled ? '1' : '0', now);
+    }
+    if (config.newApiBaseUrl !== undefined) {
+      this.upsertConfig('newApiBaseUrl', String(config.newApiBaseUrl), now);
+    }
+    if (config.newApiApiKey !== undefined) {
+      this.upsertConfig('newApiApiKey', String(config.newApiApiKey), now);
+    }
+    if (config.wuluCloudEnabled !== undefined) {
+      this.upsertConfig('wuluCloudEnabled', config.wuluCloudEnabled ? '1' : '0', now);
+    }
+    if (config.wuluCloudEmail !== undefined) {
+      this.upsertConfig('wuluCloudEmail', String(config.wuluCloudEmail), now);
+    }
+    if (config.wuluCloudToken !== undefined) {
+      this.upsertConfig('wuluCloudToken', String(config.wuluCloudToken), now);
     }
   }
 
