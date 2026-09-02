@@ -79,7 +79,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.artifact }}
           path: |
@@ -96,7 +96,7 @@ jobs:
 
       # Upload app.asar as a standalone artifact for incremental patch generation
       - name: Upload app.asar for incremental patches
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: wulu-asar-${{ matrix.artifact }}
           path: |
