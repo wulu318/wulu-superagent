@@ -31,6 +31,9 @@ jobs:
           - os: macos-latest
             npm_script: dist:mac
             artifact: wulu-mac-arm64
+          - os: macos-latest
+            npm_script: dist:mac:x64
+            artifact: wulu-mac-x64
           - os: ubuntu-latest
             npm_script: dist:linux
             artifact: wulu-linux-x64
@@ -88,6 +91,7 @@ jobs:
             release/*.tar.gz
             release/win-unpacked/resources/app.asar
             release/mac-arm64/*.app/Contents/Resources/app.asar
+            release/mac/*.app/Contents/Resources/app.asar
           retention-days: 30
 
       # Upload app.asar as a standalone artifact for incremental patch generation
@@ -98,6 +102,7 @@ jobs:
           path: |
             release/win-unpacked/resources/app.asar
             release/mac-arm64/*.app/Contents/Resources/app.asar
+            release/mac/*.app/Contents/Resources/app.asar
           retention-days: 30
 
   release:
@@ -161,6 +166,7 @@ jobs:
             Includes builds for:
             - Windows x64 (installer)
             - macOS ARM64 (DMG)
+            - macOS x64 Intel (DMG)
             - Linux x64 (AppImage + deb + rpm)
             - Linux ARM64 (AppImage + deb + rpm) - UOS/Kylin/openEuler
           prerelease: true
