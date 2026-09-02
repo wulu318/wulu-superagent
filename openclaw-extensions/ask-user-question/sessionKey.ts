@@ -27,5 +27,10 @@ export function isAskUserQuestionCandidateSessionKey(sessionKey: string | undefi
     return false;
   }
 
-  return source === wulu_SESSION_MARKER || source === SUBAGENT_SESSION_MARKER;
+  // The desktop app builds managed session keys as `agent:{agentId}:WULU:{sessionId}`
+  // (uppercase marker, see src/main/libs/openclawChannelSessionSync.ts), while this
+  // plugin historically matched the lowercase `wulu` marker. Compare case-insensitively
+  // so the AskUserQuestion tool registers for desktop sessions in both formats.
+  const normalizedSource = source.toLowerCase();
+  return normalizedSource === wulu_SESSION_MARKER || source === SUBAGENT_SESSION_MARKER;
 }
