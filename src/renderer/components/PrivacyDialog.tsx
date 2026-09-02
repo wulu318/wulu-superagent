@@ -2,7 +2,7 @@
 import React from 'react';
 import { i18nService } from '@/services/i18n';
 
-const PRIVACY_URL = 'https://wulu-superagent.com/terms.html';
+const PRIVACY_URL = 'https://ai.005656.xyz/terms.html';
 
 interface PrivacyDialogProps {
   onAccept: () => void;

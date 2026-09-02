@@ -42,7 +42,7 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-test('builds a Youdao Analyzer URL with common action parameters', () => {
+test('builds a WULU analytics URL with common action parameters', () => {
   const result = new URL(buildLogUrl(
     {
       action: `${LogReporterActionPrefix.WULU}skill_enabled`,
@@ -62,7 +62,7 @@ test('builds a Youdao Analyzer URL with common action parameters', () => {
     },
   ));
 
-  expect(result.origin + result.pathname).toBe(LogReporterEndpoint.YoudaoAnalyzer);
+  expect(result.origin + result.pathname).toBe(LogReporterEndpoint.WuluAnalytics);
   expect(result.searchParams.get('_npid')).toBe(LogReporterProduct.WULU);
   expect(result.searchParams.get('_ncat')).toBe(LogReporterCategory.Actions);
   expect(result.searchParams.get('app_version')).toBe('2026.6.18');

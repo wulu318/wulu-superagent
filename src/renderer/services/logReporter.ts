@@ -3,7 +3,7 @@ import { configService } from './config';
 import { getInstallationId } from './installationId';
 
 export const LogReporterEndpoint = {
-  YoudaoAnalyzer: 'https://rlogs.youdao.com/rlog.php',
+  WuluAnalytics: 'https://ai.005656.xyz/api/analytics/events',
 } as const;
 
 export const LogReporterProduct = {
@@ -202,7 +202,7 @@ export const buildLogUrl = (
   params: LogEventParams,
   options: BuildLogUrlOptions = {},
 ): string => {
-  const url = new URL(LogReporterEndpoint.YoudaoAnalyzer);
+  const url = new URL(LogReporterEndpoint.WuluAnalytics);
   const config = configService.getConfig();
   const userId = options.userId ?? store.getState().auth.user?.yid ?? '';
   const firstKeyfrom = options.firstKeyfrom ?? cachedKeyfromAttribution?.firstKeyfrom;
