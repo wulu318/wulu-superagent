@@ -53,3 +53,10 @@ sandbox/
 openspec/
 .superpowers/
 .diagram/
+
+# Local debug/runtime scratch dirs
+.test-computer-use-runtime/
+inspect-runtime.cjs
+rebuild-runtime.cjs
+rebuild-runtime2.cjs
+verify-final-runtime.cjs
