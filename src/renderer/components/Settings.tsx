@@ -47,14 +47,19 @@ import type {
 } from '../types/cowork';
 import { OpenClawSessionKeepAlive as OpenClawSessionKeepAliveValues } from '../types/cowork';
 import Modal from './common/Modal';
+import AdvancedMemorySettingsSection from './cowork/AdvancedMemorySettingsSection';
 import DreamingSettingsSection from './cowork/DreamingSettingsSection';
 import EmbeddingSettingsSection from './cowork/EmbeddingSettingsSection';
+import EnvAwarenessSettingsSection from './cowork/EnvAwarenessSettingsSection';
+import NewApiSettingsSection from './cowork/NewApiSettingsSection';
+import WuluCloudSettingsSection from './cowork/WuluCloudSettingsSection';
 import ErrorMessage from './ErrorMessage';
 import BrainIcon from './icons/BrainIcon';
 import EditIcon from './icons/EditIcon';
 import MessageCopyIcon from './icons/MessageCopyIcon';
 import PlugIcon from './icons/PlugIcon';
 import PlusCircleIcon from './icons/PlusCircleIcon';
+import UserAvatarIcon from './icons/UserAvatarIcon';
 import IMSettings from './im/IMSettings';
 import PluginsSettings, { type PluginPendingChanges, type PluginsSettingsHandle } from './plugins/PluginsSettings';
 import BrowserWebAccessSettings from './settings/BrowserWebAccessSettings';
@@ -87,7 +92,7 @@ import SkinPresentationScope from './skin/SkinPresentationScope';
 import SkinSettingsSection from './skin/SkinSettingsSection';
 import ThemedSelect from './ui/ThemedSelect';
 
-type TabType = 'general' | 'appearance' | 'coworkAgentEngine' | 'model' | 'browserWebAccess' | 'coworkMemory' | 'coworkDreaming' | 'shortcuts' | 'im' | 'email' | 'plugins' | 'about';
+type TabType = 'general' | 'appearance' | 'coworkAgentEngine' | 'model' | 'account' | 'browserWebAccess' | 'coworkMemory' | 'coworkDreaming' | 'shortcuts' | 'im' | 'email' | 'plugins' | 'about';
 
 const waitForNextPaint = (): Promise<void> => new Promise(resolve => {
   window.requestAnimationFrame(() => {
@@ -942,10 +947,10 @@ interface ProvidersImportPayload {
   providers?: Record<string, ProvidersImportEntry>;
 }
 
-const ABOUT_CONTACT_EMAIL = 'contact@wulu-superagent.com';
-const ABOUT_USER_MANUAL_URL = 'https://wulu-superagent.com/#/docs/WULU_user_manual';
-const ABOUT_USER_COMMUNITY_URL = 'https://wulu-superagent.com/#/about';
-const ABOUT_SERVICE_TERMS_URL = 'https://wulu-superagent.com/terms.html';
+const ABOUT_CONTACT_EMAIL = 'ai@ai.005656.xyz';
+const ABOUT_USER_MANUAL_URL = 'https://ai.005656.xyz/docs/WULU_user_manual/';
+const ABOUT_USER_COMMUNITY_URL = 'https://ai.005656.xyz/about/';
+const ABOUT_SERVICE_TERMS_URL = 'https://ai.005656.xyz/terms.html';
 
 // MiniMax Portal OAuth constants
 const MINIMAX_OAUTH_CLIENT_ID = '78257093-7e40-4613-99e0-527b14b39113';
@@ -1735,7 +1740,29 @@ const Settings: React.FC<SettingsProps> = ({
   const [dreamingFrequency, setDreamingFrequency] = useState<string>(coworkConfig.dreamingFrequency ?? '0 3 * * *');
   const [dreamingModel, setDreamingModel] = useState<string>(coworkConfig.dreamingModel ?? '');
   const [dreamingTimezone, setDreamingTimezone] = useState<string>(coworkConfig.dreamingTimezone ?? '');
-  const [memoryTab, setMemoryTab] = useState<'entries' | 'embedding'>('entries');
+  // Advanced Memory System states
+  const [advancedMemoryEnabled, setAdvancedMemoryEnabled] = useState<boolean>(coworkConfig.advancedMemoryEnabled ?? false);
+  const [layeredMemoryEnabled, setLayeredMemoryEnabled] = useState<boolean>(coworkConfig.layeredMemoryEnabled ?? false);
+  const [tagAssociationEnabled, setTagAssociationEnabled] = useState<boolean>(coworkConfig.tagAssociationEnabled ?? false);
+  const [tagAssociationDepth, setTagAssociationDepth] = useState<number>(coworkConfig.tagAssociationDepth ?? 2);
+  const [proactiveDiaryEnabled, setProactiveDiaryEnabled] = useState<boolean>(coworkConfig.proactiveDiaryEnabled ?? false);
+  const [diaryAutoTag, setDiaryAutoTag] = useState<boolean>(coworkConfig.diaryAutoTag ?? true);
+  const [futureMessageEnabled, setFutureMessageEnabled] = useState<boolean>(coworkConfig.futureMessageEnabled ?? false);
+  const [envAwarenessEnabled, setEnvAwarenessEnabled] = useState<boolean>(coworkConfig.envAwarenessEnabled ?? false);
+  const [envTimeEnabled, setEnvTimeEnabled] = useState<boolean>(coworkConfig.envTimeEnabled ?? true);
+  const [envWeatherEnabled, setEnvWeatherEnabled] = useState<boolean>(coworkConfig.envWeatherEnabled ?? false);
+  const [envWeatherCity, setEnvWeatherCity] = useState<string>(coworkConfig.envWeatherCity ?? '');
+  const [envSystemStatusEnabled, setEnvSystemStatusEnabled] = useState<boolean>(coworkConfig.envSystemStatusEnabled ?? false);
+  const [envCalendarEnabled, setEnvCalendarEnabled] = useState<boolean>(coworkConfig.envCalendarEnabled ?? false);
+  // NewAPI Backend states
+  const [newApiEnabled, setNewApiEnabled] = useState<boolean>(coworkConfig.newApiEnabled ?? false);
+  const [newApiBaseUrl, setNewApiBaseUrl] = useState<string>(coworkConfig.newApiBaseUrl ?? '');
+  const [newApiApiKey, setNewApiApiKey] = useState<string>(coworkConfig.newApiApiKey ?? '');
+  // WULU Cloud states
+  const [wuluCloudEnabled, setWuluCloudEnabled] = useState<boolean>(coworkConfig.wuluCloudEnabled ?? false);
+  const [wuluCloudEmail, setWuluCloudEmail] = useState<string>(coworkConfig.wuluCloudEmail ?? '');
+  const [wuluCloudToken, setWuluCloudToken] = useState<string>(coworkConfig.wuluCloudToken ?? '');
+  const [memoryTab, setMemoryTab] = useState<'entries' | 'embedding' | 'advancedMemory'>('entries');
   const [openClawSessionKeepAlive, setOpenClawSessionKeepAlive] = useState<OpenClawSessionKeepAlive>(
     coworkConfig.openClawSessionPolicy?.keepAlive || OpenClawSessionKeepAliveValues.ThirtyDays,
   );
@@ -1778,6 +1805,28 @@ const Settings: React.FC<SettingsProps> = ({
     setDreamingModel(coworkConfig.dreamingModel ?? '');
     setDreamingTimezone(coworkConfig.dreamingTimezone ?? '');
     setOpenClawSessionKeepAlive(coworkConfig.openClawSessionPolicy?.keepAlive || OpenClawSessionKeepAliveValues.ThirtyDays);
+    // Advanced Memory System
+    setAdvancedMemoryEnabled(coworkConfig.advancedMemoryEnabled ?? false);
+    setLayeredMemoryEnabled(coworkConfig.layeredMemoryEnabled ?? false);
+    setTagAssociationEnabled(coworkConfig.tagAssociationEnabled ?? false);
+    setTagAssociationDepth(coworkConfig.tagAssociationDepth ?? 2);
+    setProactiveDiaryEnabled(coworkConfig.proactiveDiaryEnabled ?? false);
+    setDiaryAutoTag(coworkConfig.diaryAutoTag ?? true);
+    setFutureMessageEnabled(coworkConfig.futureMessageEnabled ?? false);
+    setEnvAwarenessEnabled(coworkConfig.envAwarenessEnabled ?? false);
+    setEnvTimeEnabled(coworkConfig.envTimeEnabled ?? true);
+    setEnvWeatherEnabled(coworkConfig.envWeatherEnabled ?? false);
+    setEnvWeatherCity(coworkConfig.envWeatherCity ?? '');
+    setEnvSystemStatusEnabled(coworkConfig.envSystemStatusEnabled ?? false);
+    setEnvCalendarEnabled(coworkConfig.envCalendarEnabled ?? false);
+    // NewAPI Backend
+    setNewApiEnabled(coworkConfig.newApiEnabled ?? false);
+    setNewApiBaseUrl(coworkConfig.newApiBaseUrl ?? '');
+    setNewApiApiKey(coworkConfig.newApiApiKey ?? '');
+    // WULU Cloud
+    setWuluCloudEnabled(coworkConfig.wuluCloudEnabled ?? false);
+    setWuluCloudEmail(coworkConfig.wuluCloudEmail ?? '');
+    setWuluCloudToken(coworkConfig.wuluCloudToken ?? '');
   }, [
     coworkConfig.agentEngine,
     coworkConfig.memoryEnabled,
@@ -1796,6 +1845,25 @@ const Settings: React.FC<SettingsProps> = ({
     coworkConfig.dreamingFrequency,
     coworkConfig.dreamingModel,
     coworkConfig.dreamingTimezone,
+    coworkConfig.advancedMemoryEnabled,
+    coworkConfig.layeredMemoryEnabled,
+    coworkConfig.tagAssociationEnabled,
+    coworkConfig.tagAssociationDepth,
+    coworkConfig.proactiveDiaryEnabled,
+    coworkConfig.diaryAutoTag,
+    coworkConfig.futureMessageEnabled,
+    coworkConfig.envAwarenessEnabled,
+    coworkConfig.envTimeEnabled,
+    coworkConfig.envWeatherEnabled,
+    coworkConfig.envWeatherCity,
+    coworkConfig.envSystemStatusEnabled,
+    coworkConfig.envCalendarEnabled,
+    coworkConfig.newApiEnabled,
+    coworkConfig.newApiBaseUrl,
+    coworkConfig.newApiApiKey,
+    coworkConfig.wuluCloudEnabled,
+    coworkConfig.wuluCloudEmail,
+    coworkConfig.wuluCloudToken,
   ]);
 
   const refreshTempStorageUsage = useCallback(async () => {
@@ -2811,7 +2879,26 @@ const Settings: React.FC<SettingsProps> = ({
     || embeddingRemoteBaseUrl !== (coworkConfig.embeddingRemoteBaseUrl ?? '')
     || embeddingRemoteApiKey !== (coworkConfig.embeddingRemoteApiKey ?? '')
     || dreamingEnabled !== (coworkConfig.dreamingEnabled ?? false)
-    || dreamingFrequency !== (coworkConfig.dreamingFrequency ?? '0 3 * * *');
+    || dreamingFrequency !== (coworkConfig.dreamingFrequency ?? '0 3 * * *')
+    || advancedMemoryEnabled !== (coworkConfig.advancedMemoryEnabled ?? false)
+    || layeredMemoryEnabled !== (coworkConfig.layeredMemoryEnabled ?? false)
+    || tagAssociationEnabled !== (coworkConfig.tagAssociationEnabled ?? false)
+    || tagAssociationDepth !== (coworkConfig.tagAssociationDepth ?? 2)
+    || proactiveDiaryEnabled !== (coworkConfig.proactiveDiaryEnabled ?? false)
+    || diaryAutoTag !== (coworkConfig.diaryAutoTag ?? true)
+    || futureMessageEnabled !== (coworkConfig.futureMessageEnabled ?? false)
+    || envAwarenessEnabled !== (coworkConfig.envAwarenessEnabled ?? false)
+    || envTimeEnabled !== (coworkConfig.envTimeEnabled ?? true)
+    || envWeatherEnabled !== (coworkConfig.envWeatherEnabled ?? false)
+    || envWeatherCity !== (coworkConfig.envWeatherCity ?? '')
+    || envSystemStatusEnabled !== (coworkConfig.envSystemStatusEnabled ?? false)
+    || envCalendarEnabled !== (coworkConfig.envCalendarEnabled ?? false)
+    || newApiEnabled !== (coworkConfig.newApiEnabled ?? false)
+    || newApiBaseUrl !== (coworkConfig.newApiBaseUrl ?? '')
+    || newApiApiKey !== (coworkConfig.newApiApiKey ?? '')
+    || wuluCloudEnabled !== (coworkConfig.wuluCloudEnabled ?? false)
+    || wuluCloudEmail !== (coworkConfig.wuluCloudEmail ?? '')
+    || wuluCloudToken !== (coworkConfig.wuluCloudToken ?? '');
   const isOpenClawAgentEngine = coworkAgentEngine === 'openclaw';
 
   const openClawProgressPercent = useMemo(() => {
@@ -3490,6 +3577,25 @@ const Settings: React.FC<SettingsProps> = ({
           dreamingFrequency,
           dreamingModel,
           dreamingTimezone,
+          advancedMemoryEnabled,
+          layeredMemoryEnabled,
+          tagAssociationEnabled,
+          tagAssociationDepth,
+          proactiveDiaryEnabled,
+          diaryAutoTag,
+          futureMessageEnabled,
+          envAwarenessEnabled,
+          envTimeEnabled,
+          envWeatherEnabled,
+          envWeatherCity,
+          envSystemStatusEnabled,
+          envCalendarEnabled,
+          newApiEnabled,
+          newApiBaseUrl,
+          newApiApiKey,
+          wuluCloudEnabled,
+          wuluCloudEmail,
+          wuluCloudToken,
         });
         if (!updated) {
           throw new Error(i18nService.t('coworkConfigSaveFailed'));
@@ -4402,6 +4508,7 @@ const Settings: React.FC<SettingsProps> = ({
       { key: 'appearance' as TabType,     label: i18nService.t('appearance'),     icon: <SunIcon className="h-5 w-5" /> },
       { key: 'coworkAgentEngine' as TabType, label: i18nService.t('coworkAgentEngine'), icon: <CpuChipIcon className="h-5 w-5" /> },
       { key: 'model' as TabType,          label: i18nService.t('settingsCustomModel'), icon: <CubeIcon className="h-5 w-5" /> },
+      { key: 'account' as TabType,        label: i18nService.t('accountTabTitle'), icon: <UserAvatarIcon className="h-5 w-5" /> },
       { key: 'im' as TabType,             label: i18nService.t('imBot'),          icon: <ChatBubbleLeftIcon className="h-5 w-5" /> },
       { key: 'browserWebAccess' as TabType, label: i18nService.t('browserWebAccessTab'), icon: <GlobeAltIcon className="h-5 w-5" /> },
       { key: 'email' as TabType,          label: i18nService.t('emailTab'),       icon: <EnvelopeIcon className="h-5 w-5" /> },
@@ -4930,6 +5037,27 @@ const Settings: React.FC<SettingsProps> = ({
                 />
               </SettingsRow>
             </SettingsGroup>
+
+            {/* Group: Environment awareness */}
+            <section className="space-y-2.5">
+              <h4 className="px-1 text-xs font-semibold uppercase tracking-wider text-secondary">
+                {i18nService.t('envAwarenessGroupTitle')}
+              </h4>
+              <EnvAwarenessSettingsSection
+                envAwarenessEnabled={envAwarenessEnabled}
+                envTimeEnabled={envTimeEnabled}
+                envWeatherEnabled={envWeatherEnabled}
+                envWeatherCity={envWeatherCity}
+                envSystemStatusEnabled={envSystemStatusEnabled}
+                envCalendarEnabled={envCalendarEnabled}
+                onEnvAwarenessEnabledChange={setEnvAwarenessEnabled}
+                onEnvTimeEnabledChange={setEnvTimeEnabled}
+                onEnvWeatherEnabledChange={setEnvWeatherEnabled}
+                onEnvWeatherCityChange={setEnvWeatherCity}
+                onEnvSystemStatusEnabledChange={setEnvSystemStatusEnabled}
+                onEnvCalendarEnabledChange={setEnvCalendarEnabled}
+              />
+            </section>
           </div>
         );
 
@@ -5215,6 +5343,7 @@ const Settings: React.FC<SettingsProps> = ({
         const memoryTabs = [
           { key: 'entries' as const, titleKey: 'coworkMemoryTabEntries' },
           { key: 'embedding' as const, titleKey: 'coworkMemoryTabEmbedding' },
+          { key: 'advancedMemory' as const, titleKey: 'advancedMemoryTabTitle' },
         ];
         const coworkMemoryGroups: Array<{ section?: string; entries: CoworkUserMemoryEntry[] }> = [];
         for (const entry of coworkMemoryEntries) {
@@ -5444,6 +5573,25 @@ const Settings: React.FC<SettingsProps> = ({
                 />
               )}
 
+              {memoryTab === 'advancedMemory' && (
+                <AdvancedMemorySettingsSection
+                  advancedMemoryEnabled={advancedMemoryEnabled}
+                  layeredMemoryEnabled={layeredMemoryEnabled}
+                  tagAssociationEnabled={tagAssociationEnabled}
+                  tagAssociationDepth={tagAssociationDepth}
+                  proactiveDiaryEnabled={proactiveDiaryEnabled}
+                  diaryAutoTag={diaryAutoTag}
+                  futureMessageEnabled={futureMessageEnabled}
+                  onAdvancedMemoryEnabledChange={setAdvancedMemoryEnabled}
+                  onLayeredMemoryEnabledChange={setLayeredMemoryEnabled}
+                  onTagAssociationEnabledChange={setTagAssociationEnabled}
+                  onTagAssociationDepthChange={setTagAssociationDepth}
+                  onProactiveDiaryEnabledChange={setProactiveDiaryEnabled}
+                  onDiaryAutoTagChange={setDiaryAutoTag}
+                  onFutureMessageEnabledChange={setFutureMessageEnabled}
+                />
+              )}
+
             </div>
           </div>
         );
@@ -5471,64 +5619,88 @@ const Settings: React.FC<SettingsProps> = ({
 
       case 'model':
         return (
-          <ModelSettingsSection
-            providers={providers}
-            activeProvider={activeProvider}
-            visibleProviders={visibleProviders}
-            showApiKey={showApiKey}
-            setShowApiKey={setShowApiKey}
-            isImportingProviders={isImportingProviders}
-            isExportingProviders={isExportingProviders}
-            minimaxIsOAuthMode={minimaxIsOAuthMode}
-            openaiIsOAuthMode={openaiIsOAuthMode}
-            isBaseUrlLocked={isBaseUrlLocked}
-            minimaxOAuthPhase={minimaxOAuthPhase}
-            minimaxOAuthRegion={minimaxOAuthRegion}
-            setMinimaxOAuthRegion={setMinimaxOAuthRegion}
-            setMinimaxOAuthPhase={setMinimaxOAuthPhase}
-            openaiOAuthPhase={openaiOAuthPhase}
-            setOpenaiOAuthPhase={setOpenaiOAuthPhase}
-            openaiOAuthStatus={openaiOAuthStatus}
-            xaiIsOAuthMode={xaiIsOAuthMode}
-            xaiOAuthPhase={xaiOAuthPhase}
-            setXaiOAuthPhase={setXaiOAuthPhase}
-            xaiOAuthStatus={xaiOAuthStatus}
-            copilotAuthStatus={copilotAuthStatus}
-            copilotUserCode={copilotUserCode}
-            copilotVerificationUri={copilotVerificationUri}
-            copilotGithubUser={copilotGithubUser}
-            copilotError={copilotError}
-            isTesting={isTesting}
-            testResult={testResult}
-            isTestResultModalOpen={isTestResultModalOpen}
-            setIsTestResultModalOpen={setIsTestResultModalOpen}
-            importInputRef={importInputRef}
-            handleImportProvidersClick={handleImportProvidersClick}
-            handleExportProviders={handleExportProviders}
-            handleImportProviders={handleImportProviders}
-            handleProviderChange={handleProviderChange}
-            toggleProviderEnabled={toggleProviderEnabled}
-            handleAddCustomProvider={handleAddCustomProvider}
-            handleDeleteCustomProvider={handleDeleteCustomProvider}
-            handleProviderConfigChange={handleProviderConfigChange}
-            setProviders={setProviders}
-            handleMiniMaxDeviceLogin={handleMiniMaxDeviceLogin}
-            handleCancelMiniMaxLogin={handleCancelMiniMaxLogin}
-            handleMiniMaxOAuthLogout={handleMiniMaxOAuthLogout}
-            handleOpenAIOAuthLogin={handleOpenAIOAuthLogin}
-            handleCancelOpenAIOAuthLogin={handleCancelOpenAIOAuthLogin}
-            handleOpenAIOAuthLogout={handleOpenAIOAuthLogout}
-            handleXaiOAuthLogin={handleXaiOAuthLogin}
-            handleCancelXaiOAuthLogin={handleCancelXaiOAuthLogin}
-            handleXaiOAuthLogout={handleXaiOAuthLogout}
-            handleCopilotSignIn={handleCopilotSignIn}
-            handleCopilotSignOut={handleCopilotSignOut}
-            handleCopilotCancelAuth={handleCopilotCancelAuth}
-            handleTestConnection={handleTestConnection}
-            handleAddModel={handleAddModel}
-            handleEditModel={handleEditModel}
-            handleDeleteModel={handleDeleteModel}
-          />
+          <div className="space-y-4">
+            <ModelSettingsSection
+              providers={providers}
+              activeProvider={activeProvider}
+              visibleProviders={visibleProviders}
+              showApiKey={showApiKey}
+              setShowApiKey={setShowApiKey}
+              isImportingProviders={isImportingProviders}
+              isExportingProviders={isExportingProviders}
+              minimaxIsOAuthMode={minimaxIsOAuthMode}
+              openaiIsOAuthMode={openaiIsOAuthMode}
+              isBaseUrlLocked={isBaseUrlLocked}
+              minimaxOAuthPhase={minimaxOAuthPhase}
+              minimaxOAuthRegion={minimaxOAuthRegion}
+              setMinimaxOAuthRegion={setMinimaxOAuthRegion}
+              setMinimaxOAuthPhase={setMinimaxOAuthPhase}
+              openaiOAuthPhase={openaiOAuthPhase}
+              setOpenaiOAuthPhase={setOpenaiOAuthPhase}
+              openaiOAuthStatus={openaiOAuthStatus}
+              xaiIsOAuthMode={xaiIsOAuthMode}
+              xaiOAuthPhase={xaiOAuthPhase}
+              setXaiOAuthPhase={setXaiOAuthPhase}
+              xaiOAuthStatus={xaiOAuthStatus}
+              copilotAuthStatus={copilotAuthStatus}
+              copilotUserCode={copilotUserCode}
+              copilotVerificationUri={copilotVerificationUri}
+              copilotGithubUser={copilotGithubUser}
+              copilotError={copilotError}
+              isTesting={isTesting}
+              testResult={testResult}
+              isTestResultModalOpen={isTestResultModalOpen}
+              setIsTestResultModalOpen={setIsTestResultModalOpen}
+              importInputRef={importInputRef}
+              handleImportProvidersClick={handleImportProvidersClick}
+              handleExportProviders={handleExportProviders}
+              handleImportProviders={handleImportProviders}
+              handleProviderChange={handleProviderChange}
+              toggleProviderEnabled={toggleProviderEnabled}
+              handleAddCustomProvider={handleAddCustomProvider}
+              handleDeleteCustomProvider={handleDeleteCustomProvider}
+              handleProviderConfigChange={handleProviderConfigChange}
+              setProviders={setProviders}
+              handleMiniMaxDeviceLogin={handleMiniMaxDeviceLogin}
+              handleCancelMiniMaxLogin={handleCancelMiniMaxLogin}
+              handleMiniMaxOAuthLogout={handleMiniMaxOAuthLogout}
+              handleOpenAIOAuthLogin={handleOpenAIOAuthLogin}
+              handleCancelOpenAIOAuthLogin={handleCancelOpenAIOAuthLogin}
+              handleOpenAIOAuthLogout={handleOpenAIOAuthLogout}
+              handleXaiOAuthLogin={handleXaiOAuthLogin}
+              handleCancelXaiOAuthLogin={handleCancelXaiOAuthLogin}
+              handleXaiOAuthLogout={handleXaiOAuthLogout}
+              handleCopilotSignIn={handleCopilotSignIn}
+              handleCopilotSignOut={handleCopilotSignOut}
+              handleCopilotCancelAuth={handleCopilotCancelAuth}
+              handleTestConnection={handleTestConnection}
+              handleAddModel={handleAddModel}
+              handleEditModel={handleEditModel}
+              handleDeleteModel={handleDeleteModel}
+            />
+            <NewApiSettingsSection
+              newApiEnabled={newApiEnabled}
+              newApiBaseUrl={newApiBaseUrl}
+              newApiApiKey={newApiApiKey}
+              onNewApiEnabledChange={setNewApiEnabled}
+              onNewApiBaseUrlChange={setNewApiBaseUrl}
+              onNewApiApiKeyChange={setNewApiApiKey}
+            />
+          </div>
+        );
+
+      case 'account':
+        return (
+          <div className="space-y-4">
+            <WuluCloudSettingsSection
+              wuluCloudEnabled={wuluCloudEnabled}
+              wuluCloudEmail={wuluCloudEmail}
+              wuluCloudToken={wuluCloudToken}
+              onWuluCloudEnabledChange={setWuluCloudEnabled}
+              onWuluCloudEmailChange={setWuluCloudEmail}
+              onWuluCloudTokenChange={setWuluCloudToken}
+            />
+          </div>
         );
 
       case 'shortcuts':

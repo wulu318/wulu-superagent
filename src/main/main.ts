@@ -206,6 +206,7 @@ import {
   setStoreGetter,
   updateServerModelMetadata,
 } from './libs/claudeSettings';
+import { fetchClientRemoteConfig } from './libs/clientRemoteConfig';
 import {
   clearCopilotTokenState,
   initCopilotTokenManager,
@@ -8265,6 +8266,177 @@ if (!gotTheLock) {
     }
   });
 
+  // ── Advanced Memory IPC handlers ──────────────────────────────────────────
+  ipcMain.handle(CoworkIpcChannel.AdvancedMemoryListDiaryDates, async () => {
+    try {
+      const workspace = resolveExistingAgentWorkspacePath();
+      const { listDiaryDates } = require('./libs/advancedMemory') as typeof import('./libs/advancedMemory');
+      return { success: true, dates: listDiaryDates(workspace) };
+    } catch (error) {
+      return { success: false, dates: [], error: error instanceof Error ? error.message : 'Failed' };
+    }
+  });
+
+  ipcMain.handle(CoworkIpcChannel.AdvancedMemoryReadDiary, async (_event, date: string) => {
+    try {
+      const workspace = resolveExistingAgentWorkspacePath();
+      const { readDiaryEntries } = require('./libs/advancedMemory') as typeof import('./libs/advancedMemory');
+      const content = readDiaryEntries(workspace, date);
+      return { success: true, content };
+    } catch (error) {
+      return { success: false, content: null, error: error instanceof Error ? error.message : 'Failed' };
+    }
+  });
+
+  ipcMain.handle(CoworkIpcChannel.AdvancedMemoryWriteDiary, async (
+    _event,
+    content: string,
+    options: { date?: string; tags?: string[]; category?: string },
+  ) => {
+    try {
+      const workspace = resolveExistingAgentWorkspacePath();
+      const { writeDiaryEntry } = require('./libs/advancedMemory') as typeof import('./libs/advancedMemory');
+      const entry = writeDiaryEntry(workspace, content, options);
+      return { success: true, entry };
+    } catch (error) {
+      return { success: false, error: error instanceof Error ? error.message : 'Failed' };
+    }
+  });
+
+  ipcMain.handle(CoworkIpcChannel.AdvancedMemoryWriteFutureMessage, async (
+    _event,
+    targetDate: string,
+    content: string,
+    options: { tags?: string[] },
+  ) => {
+    try {
+      const workspace = resolveExistingAgentWorkspacePath();
+      const { writeFutureMessage } = require('./libs/advancedMemory') as typeof import('./libs/advancedMemory');
+      const msg = writeFutureMessage(workspace, targetDate, content, options);
+      return { success: true, message: msg };
+    } catch (error) {
+      return { success: false, error: error instanceof Error ? error.message : 'Failed' };
+    }
+  });
+
+  ipcMain.handle(CoworkIpcChannel.AdvancedMemoryGetPendingMessages, async () => {
+    try {
+      const workspace = resolveExistingAgentWorkspacePath();
+      const { getPendingFutureMessages } = require('./libs/advancedMemory') as typeof import('./libs/advancedMemory');
+      const messages = getPendingFutureMessages(workspace);
+      return { success: true, messages };
+    } catch (error) {
+      return { success: false, messages: [], error: error instanceof Error ? error.message : 'Failed' };
+    }
+  });
+
+  ipcMain.handle(CoworkIpcChannel.AdvancedMemorySearch, async (_event, query: string) => {
+    try {
+      const workspace = resolveExistingAgentWorkspacePath();
+      const memoryPath = resolveMemoryFilePath(workspace);
+      const { readMemoryEntries } = require('./libs/openclawMemoryFile') as typeof import('./libs/openclawMemoryFile');
+      const { searchWithTagAssociation, extractTags, detectLayerFromSection } = require('./libs/advancedMemory') as typeof import('./libs/advancedMemory');
+      const rawEntries = readMemoryEntries(memoryPath);
+      const entries = rawEntries.map(e => ({
+        id: e.id,
+        text: e.text,
+        section: e.section,
+        layer: detectLayerFromSection(e.section),
+        tags: extractTags(e.text).tags,
+      }));
+      const results = searchWithTagAssociation(entries, query);
+      return { success: true, results };
+    } catch (error) {
+      return { success: false, results: [], error: error instanceof Error ? error.message : 'Failed' };
+    }
+  });
+
+  // ── NewAPI Backend IPC handlers ───────────────────────────────────────────
+  ipcMain.handle(CoworkIpcChannel.NewApiLogin, async (_event, config: { baseUrl: string; apiKey: string }) => {
+    try {
+      const { validateAndLogin } = require('./libs/newApiClient') as typeof import('./libs/newApiClient');
+      const result = await validateAndLogin({ enabled: true, ...config });
+      return result;
+    } catch (error) {
+      return { success: false, error: error instanceof Error ? error.message : 'Connection failed' };
+    }
+  });
+
+  ipcMain.handle(CoworkIpcChannel.NewApiFetchModels, async (_event, config: { baseUrl: string; apiKey: string }) => {
+    try {
+      const { fetchModels } = require('./libs/newApiClient') as typeof import('./libs/newApiClient');
+      const models = await fetchModels({ enabled: true, ...config });
+      return { success: true, models };
+    } catch (error) {
+      return { success: false, models: [], error: error instanceof Error ? error.message : 'Failed' };
+    }
+  });
+
+  // ── WULU Cloud IPC handlers ────────────────────────────────────────────
+  ipcMain.handle(CoworkIpcChannel.WuluCloudRegister, async (_event, input: { email: string; password: string; displayName?: string }) => {
+    try {
+      const { wuluCloudRegister } = require('./libs/newApiClient') as typeof import('./libs/newApiClient');
+      return await wuluCloudRegister(input);
+    } catch (error) {
+      return { success: false, error: error instanceof Error ? error.message : 'Registration failed' };
+    }
+  });
+
+  ipcMain.handle(CoworkIpcChannel.WuluCloudLogin, async (_event, input: { email: string; password: string }) => {
+    try {
+      const { wuluCloudLogin } = require('./libs/newApiClient') as typeof import('./libs/newApiClient');
+      return await wuluCloudLogin(input);
+    } catch (error) {
+      return { success: false, error: error instanceof Error ? error.message : 'Login failed' };
+    }
+  });
+
+  ipcMain.handle(CoworkIpcChannel.WuluCloudGetProfile, async (_event, token: string) => {
+    try {
+      const { wuluCloudGetProfile } = require('./libs/newApiClient') as typeof import('./libs/newApiClient');
+      return await wuluCloudGetProfile(token);
+    } catch (error) {
+      return { success: false, error: error instanceof Error ? error.message : 'Failed' };
+    }
+  });
+
+  ipcMain.handle(CoworkIpcChannel.WuluCloudGetSubscription, async (_event, token: string) => {
+    try {
+      const { wuluCloudGetSubscription } = require('./libs/newApiClient') as typeof import('./libs/newApiClient');
+      return await wuluCloudGetSubscription(token);
+    } catch (error) {
+      return { success: false, error: error instanceof Error ? error.message : 'Failed' };
+    }
+  });
+
+  ipcMain.handle(CoworkIpcChannel.WuluCloudRefreshToken, async (_event, token: string) => {
+    try {
+      const { wuluCloudRefreshToken } = require('./libs/newApiClient') as typeof import('./libs/newApiClient');
+      return await wuluCloudRefreshToken(token);
+    } catch (error) {
+      return { success: false, error: error instanceof Error ? error.message : 'Failed' };
+    }
+  });
+
+  // ── Environment Awareness IPC handler ─────────────────────────────────────
+  ipcMain.handle(CoworkIpcChannel.EnvSnapshot, async () => {
+    try {
+      const config = coworkStore.getConfig();
+      const { buildFullEnvironmentSnapshot, formatEnvironmentForPrompt } = require('./libs/environmentAwareness') as typeof import('./libs/environmentAwareness');
+      const snapshot = await buildFullEnvironmentSnapshot({
+        includeTime: config.envTimeEnabled,
+        includeWeather: config.envWeatherEnabled,
+        includeSystem: config.envSystemStatusEnabled,
+        includeCalendar: config.envCalendarEnabled,
+        weatherCity: config.envWeatherCity,
+        workspaceDir: config.workingDirectory,
+      });
+      return { success: true, snapshot, formatted: formatEnvironmentForPrompt(snapshot) };
+    } catch (error) {
+      return { success: false, error: error instanceof Error ? error.message : 'Failed' };
+    }
+  });
+
   const VALID_EMBEDDING_PROVIDERS = [
     'local',
     'openai',
@@ -11328,6 +11500,10 @@ if (!gotTheLock) {
     console.log('[Main] initApp: store initialized');
     initializeKeyfromAttribution(store);
     refreshEndpointsTestMode(store);
+    // Fetch admin-overridable client config (runtime URLs, checksums, kit
+    // icons) from the WULU backend. Non-blocking; the client keeps its
+    // built-in defaults until the fetch resolves.
+    void fetchClientRemoteConfig().catch(() => {});
     sqliteBackupManager = new SqliteBackupManager(app.getPath('userData'));
 
     const startSqliteBackupLoop = async (): Promise<void> => {
