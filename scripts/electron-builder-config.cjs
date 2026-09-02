@@ -91,6 +91,18 @@ function mergeExtraResources(platformName) {
 
 const keyfrom = readBuildKeyfrom();
 
+// CI secrets that are unset expand to empty strings, and app-builder-lib's
+// getCscLink() treats an empty CSC_LINK/WIN_CSC_LINK as a real value and
+// later fails with "cannot resolve ... not a file". Strip empty signing
+// envs before electron-builder reads them; ad-hoc/unsigned fallbacks in
+// this config take over from there.
+for (const signEnv of ['CSC_LINK', 'WIN_CSC_LINK', 'CSC_KEY_PASSWORD', 'WIN_CSC_KEY_PASSWORD']) {
+  const value = process.env[signEnv];
+  if (value != null && value.trim() === '') {
+    delete process.env[signEnv];
+  }
+}
+
 for (const platformName of ['mac', 'win', 'linux']) {
   mergeExtraResources(platformName);
 }
