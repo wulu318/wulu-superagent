@@ -105,6 +105,8 @@
     "dist:win:web": "node scripts/dist-win-web.cjs",
     "predist:linux": "npm run openclaw:runtime:linux-x64",
     "dist:linux": "npm run build && npm run compile:electron && npm run build:skills && electron-builder --linux --config scripts/electron-builder-config.cjs",
+    "predist:linux:arm64": "npm run openclaw:runtime:linux-arm64",
+    "dist:linux:arm64": "npm run build && npm run compile:electron && npm run build:skills && electron-builder --linux --arm64 --config scripts/electron-builder-config.cjs",
     "clean:release": "rimraf release",
     "generate:tray-icons": "node scripts/generate-tray-icons.js",
     "setup:mingit": "node scripts/setup-mingit.js",

@@ -31,40 +31,78 @@ jobs:
       - name: Check for changes
         id: check
         run: |
-          LOCAL=$(git rev-parse HEAD)
-          UPSTREAM=$(git rev-parse upstream/main)
-          if [ "$LOCAL" = "$UPSTREAM" ]; then
+          LOCAL=$(git merge-base --is-ancestor upstream/main HEAD && echo "same" || echo "different")
+          if [ "$LOCAL" = "same" ]; then
             echo "changed=false" >> $GITHUB_OUTPUT
             echo "No upstream changes detected."
           else
             echo "changed=true" >> $GITHUB_OUTPUT
-            echo "Upstream has new commits: $UPSTREAM"
+            UPSTREAM_SHA=$(git rev-parse upstream/main)
+            echo "Upstream has new commits: $UPSTREAM_SHA"
           fi
 
       - name: Merge upstream
         if: steps.check.outputs.changed == 'true'
+        id: merge
         run: |
-          git checkout -b upstream-sync/${{ github.run_number }}
-          git merge upstream/main --no-edit || true
+          BRANCH="upstream-sync-$(date +%Y%m%d)"
+          git checkout -b "$BRANCH"
 
-          # 自动保留 WULU 品牌文件（解决冲突时优先使用我们的版本）
+          MERGE_RESULT=0
+          git merge upstream/main --no-commit --no-ff || MERGE_RESULT=$?
+
           BRAND_FILES=(
             "src/brand.ts"
             "src/renderer/styles/wulu-theme.css"
-            "LICENSE"
             ".github/workflows/upstream-sync.yml"
+            ".github/workflows/build.yml"
+            "electron-builder.json"
+            "package.json"
+            "README.md"
+            "LICENSE"
           )
+
+          BRAND_FILES+=(
+            "src/renderer/services/i18n.ts"
+            "src/renderer/components/Settings.tsx"
+            "src/renderer/components/PrivacyDialog.tsx"
+            "src/renderer/components/cowork/CoworkSessionDetail.tsx"
+            "src/renderer/services/endpoints.ts"
+            "src/shared/providers/constants.ts"
+            "src/shared/platform/constants.ts"
+            "src/renderer/components/icons/providers/YouDaoZhiYunIcon.tsx"
+            "src/renderer/components/im/IMSettings.tsx"
+            "src/main/libs/openclawMemoryFile.ts"
+          )
+
+          BRAND_FILES+=(
+            "src/main/appConstants.ts"
+            "src/main/libs/openclawChannelSessionSync.ts"
+            "src/shared/skin/constants.ts"
+            "src/renderer/services/artifactParser.ts"
+            "scripts/electron-builder-hooks.cjs"
+            "scripts/openclaw-worker-shims.cjs"
+          )
+
           for f in "${BRAND_FILES[@]}"; do
-            if [ -f "$f" ]; then
-              git checkout --ours "$f" 2>/dev/null || true
+            if git diff --name-only --diff-filter=U | grep -q "^${f}$"; then
+              echo "Resolving conflict in $f (keeping WULU version)"
+              git checkout --ours "$f"
+              git add "$f"
             fi
           done
 
-          # 检查是否还有未解决的冲突
-          if git diff --name-only --diff-filter=U | grep -q .; then
-            echo "::warning::Unresolved conflicts in: $(git diff --name-only --diff-filter=U | tr '\n' ' ')"
-            # 标记冲突文件，在 PR 中提示手动解决
+          CONFLICTS=$(git diff --name-only --diff-filter=U || true)
+          if [ -n "$CONFLICTS" ]; then
+            echo "::warning::Unresolved conflicts in: $CONFLICTS"
             echo "has_conflicts=true" >> $GITHUB_OUTPUT
+            echo "$CONFLICTS" | while read -r cf; do
+              if [ -n "$cf" ]; then
+                echo "Auto-resolving remaining conflict in $cf (keeping WULU version)"
+                git checkout --ours "$cf" 2>/dev/null || true
+                git add "$cf" 2>/dev/null || true
+              fi
+            done
           else
             echo "has_conflicts=false" >> $GITHUB_OUTPUT
           fi
@@ -76,7 +114,7 @@ jobs:
         if: steps.check.outputs.changed == 'true'
         uses: peter-evans/create-pull-request@v6
         with:
-          branch: upstream-sync/${{ github.run_number }}
+          branch: upstream-sync-${{ github.run_number }}
           title: 'chore: sync upstream LobsterAI'
           body: |
             ## 上游同步
@@ -84,16 +122,19 @@ jobs:
             自动检测到 [netease-youdao/LobsterAI](https://github.com/netease-youdao/LobsterAI) 上游有新提交，已自动合并。
 
             ### 品牌文件自动保留
-            以下文件已自动保留 WULU 版本，无需手动处理：
-            - `src/brand.ts`
-            - `src/renderer/styles/wulu-theme.css`
-            - `LICENSE`
-            - `.github/workflows/upstream-sync.yml`
+            以下 WULU 品牌定制文件在合并冲突时已自动保留我们的版本：
+            - **核心品牌**: `src/brand.ts`, `wulu-theme.css`, `LICENSE`, `README.md`
+            - **构建配置**: `electron-builder.json`, `package.json`, `build.yml`
+            - **前端品牌**: `i18n.ts`, `Settings.tsx`, `PrivacyDialog.tsx`, `endpoints.ts`, `CoworkSessionDetail.tsx`, `YouDaoZhiYunIcon.tsx`, `IMSettings.tsx`
+            - **Provider/IM**: `providers/constants.ts`, `platform/constants.ts`
+            - **内部常量**: `appConstants.ts`, `openclawChannelSessionSync.ts`, `skin/constants.ts`, `artifactParser.ts`
+            - **构建脚本**: `electron-builder-hooks.cjs`, `openclaw-worker-shims.cjs`
+            - **工作流**: `upstream-sync.yml`
 
             ### 操作指引
-            1. 检查变更内容
-            2. 如有冲突文件，手动解决后合并
-            3. 测试通过后合并此 PR
+            1. 审查变更内容，特别是自动合并的非品牌文件
+            2. 检查是否有遗漏的品牌定制需要重新应用
+            3. 确认 CI 通过后合并此 PR
           labels: |
             upstream-sync
             automated

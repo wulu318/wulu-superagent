@@ -34,6 +34,9 @@ jobs:
           - os: ubuntu-latest
             npm_script: dist:linux
             artifact: wulu-linux-x64
+          - os: ubuntu-latest
+            npm_script: dist:linux:arm64
+            artifact: wulu-linux-arm64
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -61,6 +64,12 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libarchive-tools rpm libgtk-3-0 libnotify4 libnss3 libxss1 libxtst6 xdg-utils libatspi2.0-0 libuuid1 libsecret-1-0
 
+      - name: Setup QEMU (Linux ARM64 cross-compile)
+        if: matrix.artifact == 'wulu-linux-arm64'
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm64
+
       - name: Build
         run: npm run ${{ matrix.npm_script }}
         env:
@@ -77,6 +86,18 @@ jobs:
             release/*.deb
             release/*.rpm
             release/*.tar.gz
+            release/win-unpacked/resources/app.asar
+            release/mac-arm64/*.app/Contents/Resources/app.asar
+          retention-days: 30
+
+      # Upload app.asar as a standalone artifact for incremental patch generation
+      - name: Upload app.asar for incremental patches
+        uses: actions/upload-artifact@v4
+        with:
+          name: wulu-asar-${{ matrix.artifact }}
+          path: |
+            release/win-unpacked/resources/app.asar
+            release/mac-arm64/*.app/Contents/Resources/app.asar
           retention-days: 30
 
   release:
@@ -89,11 +110,114 @@ jobs:
         with:
           path: dist
 
+      - name: List artifacts
+        run: find dist -type f | head -50
+
       - name: Create Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: dist/**/*
           generate_release_notes: true
           draft: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  nightly:
+    needs: [build]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+
+      - name: List artifacts
+        run: find dist -type f | head -50
+
+      - name: Delete existing nightly release
+        run: |
+          # Cleanly remove the previous nightly release so assets are
+          # re-uploaded from scratch, avoiding GitHub API race conditions
+          # when overwriting same-named assets in place.
+          if gh release view nightly --repo ${{ github.repository }} >/dev/null 2>&1; then
+            gh release delete nightly --repo ${{ github.repository }} --yes --cleanup-tag || true
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update nightly release
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: nightly
+          name: "Nightly Build (latest main)"
+          files: dist/**/*
+          body: |
+            Automated nightly build from the latest `main` branch.
+
+            **Commit:** ${{ github.sha }}
+            **Date:** ${{ github.event.head_commit.timestamp }}
+
+            Includes builds for:
+            - Windows x64 (installer)
+            - macOS ARM64 (DMG)
+            - Linux x64 (AppImage + deb + rpm)
+            - Linux ARM64 (AppImage + deb + rpm) - UOS/Kylin/openEuler
+          prerelease: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ─── 全自动发布：打 tag (v*) 时自动生成增量包 + 上传安装包 + 填版本 ───
+  auto-publish:
+    needs: [build]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Install publish deps
+        run: npm install --no-save archiver extract-zip
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+
+      - name: Extract version from tag
+        id: version
+        run: echo "version=${GITHUB_REF#refs/tags/v}" >> "$GITHUB_OUTPUT"
+
+      - name: List artifacts
+        run: find dist -type f | head -50
+
+      - name: Stage installers into release/
+        run: |
+          mkdir -p release
+          find dist -type f \( -name '*.exe' -o -name '*.dmg' -o -name '*.AppImage' -o -name '*.deb' -o -name '*.rpm' \) -exec cp {} release/ \;
+          # Locate app.asar (windows unpacked or mac bundle)
+          ASAR_FILE=$(find dist -name 'app.asar' -not -path '*app.asar.unpacked*' | head -1)
+          echo "asar: ${ASAR_FILE:-not-found}"
+          if [ -n "$ASAR_FILE" ]; then cp "$ASAR_FILE" release/app.asar; fi
+          ls -la release/
+
+      - name: Run auto publish
+        env:
+          WULU_BACKEND_URL: https://ai.005656.xyz
+          WULU_ADMIN_EMAIL: ai@ai.005656.xyz
+          WULU_ADMIN_PASS: ${{ secrets.WULU_ADMIN_PASS }}
+          WULU_RELEASE_TITLE: WULU SuperAgent v${{ steps.version.outputs.version }}
+          WULU_PATCH_BASE_VERSION: ${{ secrets.WULU_PATCH_BASE_VERSION }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          node scripts/publish-release.cjs ${{ steps.version.outputs.version }} --asar release/app.asar
