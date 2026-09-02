@@ -31,9 +31,6 @@ jobs:
           - os: macos-latest
             npm_script: dist:mac
             artifact: wulu-mac-arm64
-          - os: macos-13
-            npm_script: dist:mac:x64
-            artifact: wulu-mac-x64
           - os: ubuntu-latest
             npm_script: dist:linux
             artifact: wulu-linux-x64

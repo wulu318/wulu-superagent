@@ -25,6 +25,9 @@ on:
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
+permissions:
+  contents: write
+
 jobs:
   # ========== macOS 构建 ==========
   build-macos:
