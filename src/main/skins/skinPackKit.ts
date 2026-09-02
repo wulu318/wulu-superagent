@@ -8,6 +8,7 @@ import {
   SkinPackKitMetadata,
   SkinPackSkillId,
 } from '../../shared/skin/kit';
+import { getCachedClientRemoteConfig } from '../libs/clientRemoteConfig';
 
 const SKIN_CREATOR_SKILL_METADATA: KitSkillMetadata = {
   id: SkinPackSkillId.BuiltIn,
@@ -26,6 +27,11 @@ const SKIN_PACK_STARTER_PROMPT = {
   zh: '请为 WULU 创建一套以 {主色与辅助色} 为主色调、以 {主题或人物} 为视觉中心的 AI 皮肤；画面呈现 {场景与氛围}，并适合 {使用场景或用途}。请据此生成协调的背景、徽记和界面配色，并自动应用到 WULU。',
 };
 
+export function resolveSkinPackKitIconUrl(): string {
+  const remote = getCachedClientRemoteConfig();
+  return remote?.SKIN_KIT_ICON_URL?.trim() || SkinPackKitMetadata.IconUrl;
+}
+
 export function buildSkinPackMarketplaceKit(): Record<string, unknown> {
   return {
     id: SkinPackKitId.BuiltIn,
@@ -37,7 +43,7 @@ export function buildSkinPackMarketplaceKit(): Record<string, unknown> {
       en: 'Describe the look you want. AI creates a custom backdrop and emblem, coordinates the interface colors, and applies it to WULU.',
       zh: '用一句话定制 WULU 外观，AI 会生成专属背景与徽记、匹配界面配色并自动应用。',
     },
-    icon: SkinPackKitMetadata.IconUrl,
+    icon: resolveSkinPackKitIconUrl(),
     author: 'WULU',
     version: SkinPackKitMetadata.Version,
     workflowKind: SkinPackKitMetadata.WorkflowKind,
