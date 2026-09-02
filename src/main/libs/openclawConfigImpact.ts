@@ -71,6 +71,7 @@ const COWORK_SYNC_FIELDS = new Set([
   'embeddingVectorWeight',
   'embeddingRemoteBaseUrl',
   'embeddingRemoteApiKey',
+  'workspaceBoundaryCheckEnabled',
 ]);
 
 const COWORK_RESTART_FIELDS = new Set([

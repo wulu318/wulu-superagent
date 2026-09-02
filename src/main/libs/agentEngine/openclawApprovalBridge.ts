@@ -176,6 +176,14 @@ export const resolveApprovalDecision = (
 ): ApprovalDecision => {
   if (result.behavior !== 'allow') return 'deny';
   const allowed = pending.allowedDecisions;
+  // Explicit user intent: "allow for this session". Falls back to 'allow-once'
+  // when the gateway did not advertise 'allow-always' as acceptable.
+  if (result.allowAlways === true) {
+    if (!allowed || allowed.includes('allow-always')) {
+      return 'allow-always';
+    }
+    return 'allow-once';
+  }
   if (pending.allowAlways && (!allowed || allowed.includes('allow-always'))) {
     return 'allow-always';
   }

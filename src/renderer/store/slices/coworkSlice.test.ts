@@ -97,6 +97,7 @@ test('setConfig preserves loaded OpenClaw session policy', () => {
     memoryUserMemoriesMaxItems: 12,
     skipMissedJobs: false,
     openClawHeartbeatEnabled: false,
+    workspaceBoundaryCheckEnabled: true,
     embeddingEnabled: false,
     embeddingProvider: 'openai',
     embeddingModel: '',

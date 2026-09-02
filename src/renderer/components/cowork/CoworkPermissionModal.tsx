@@ -417,6 +417,26 @@ const CoworkPermissionModal: React.FC<CoworkPermissionModalProps> = ({
     });
   };
 
+  // Whether the gateway advertised 'allow-always' as an acceptable decision.
+  // Only then do we show the "allow for this session" button. It applies to
+  // plugin approvals (which carry allowedDecisions); exec approvals currently
+  // advertise neither allow-always nor allow-once, so the button stays hidden
+  // there and the existing two-button layout is preserved.
+  const canAllowAlways = useMemo(() => {
+    if (isQuestionTool || isConfirmMode) return false;
+    if (!toolInput || typeof toolInput !== 'object') return false;
+    const allowedDecisions = (toolInput as Record<string, unknown>).allowedDecisions;
+    return Array.isArray(allowedDecisions) && allowedDecisions.includes('allow-always');
+  }, [isQuestionTool, isConfirmMode, toolInput]);
+
+  const handleApproveAlways = () => {
+    onRespond({
+      behavior: 'allow',
+      allowAlways: true,
+      updatedInput: toolInput && typeof toolInput === 'object' ? toolInput : {},
+    });
+  };
+
   return (
     <div className={`fixed inset-0 z-50 items-center justify-center modal-backdrop ${hidden ? 'hidden' : 'flex'}`}>
       <div className="modal-content w-fit min-w-[28rem] max-w-[calc(100vw-2rem)] mx-4 bg-surface rounded-2xl shadow-modal overflow-hidden">
@@ -608,6 +628,15 @@ const CoworkPermissionModal: React.FC<CoworkPermissionModalProps> = ({
 
         {/* Footer */}
         <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-border">
+          {canAllowAlways && (
+            <button
+              onClick={handleApproveAlways}
+              className="px-4 py-2 text-sm font-medium rounded-lg border border-primary/40 text-primary hover:bg-primary/10 transition-colors"
+              title={i18nService.t('coworkApproveAlwaysHint')}
+            >
+              {i18nService.t('coworkApproveAlways')}
+            </button>
+          )}
           <button
             onClick={isConfirmMode && confirmModeButtons ? () => handleConfirmModeSelect(confirmModeButtons.secondary.label) : handleDeny}
             className="px-4 py-2 text-sm font-medium rounded-lg text-secondary hover:bg-surface-raised transition-colors"

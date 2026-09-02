@@ -1,0 +1,25 @@
+{
+  "id": "workspace-boundary",
+  "name": "WorkspaceBoundary",
+  "description": "Approves file tool calls that access paths outside the working directory.",
+  "contracts": {
+    "hooks": [
+      "before_tool_call",
+      "session_end"
+    ]
+  },
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "enabled": {
+        "type": "boolean",
+        "description": "Whether boundary checking is active"
+      },
+      "workingDirectory": {
+        "type": "string",
+        "description": "The working directory to enforce as the boundary"
+      }
+    }
+  }
+}

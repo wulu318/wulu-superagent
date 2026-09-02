@@ -53,18 +53,45 @@ test('buildManagedSessionKey emits canonical local session keys', () => {
   ).toBe('agent:secondary:WULU:abc-123');
 });
 
+test('parseManagedSessionKey is case-insensitive for the WULU marker (gateway lowercases keys)', () => {
+  // The OpenClaw gateway lowercases the whole sessionKey before plugins see it,
+  // so callbacks arrive as `agent:main:wulu:{sessionId}` even though the desktop
+  // app builds `agent:main:WULU:{sessionId}`. Both must resolve to the same session.
+  expect(parseManagedSessionKey('agent:main:wulu:abc-123')).toEqual({
+    agentId: 'main',
+    sessionId: 'abc-123',
+  });
+  expect(parseManagedSessionKey('agent:Secondary:wulu:abc-123')).toEqual({
+    agentId: 'Secondary',
+    sessionId: 'abc-123',
+  });
+  expect(parseManagedSessionKey('wulu:abc-123')).toEqual({
+    agentId: null,
+    sessionId: 'abc-123',
+  });
+  expect(isManagedSessionKey('agent:main:wulu:abc-123')).toBe(true);
+});
+
 test('parseChannelSessionKey ignores managed local session keys', () => {
   expect(parseChannelSessionKey('WULU:abc-123')).toBe(null);
   expect(parseChannelSessionKey('agent:main:WULU:abc-123')).toBe(null);
+  // Gateway-lowercased managed keys must not be misparsed as channel keys either.
+  expect(parseChannelSessionKey('agent:main:wulu:abc-123')).toBe(null);
+  expect(parseChannelSessionKey('wulu:abc-123')).toBe(null);
 });
 
 test('channel sync does not treat managed local session keys as channel sessions', () => {
   const sync = createSync();
 
   expect(isManagedSessionKey('agent:main:WULU:abc-123')).toBe(true);
+  // Gateway-lowercased variant of the same managed key.
+  expect(isManagedSessionKey('agent:main:wulu:abc-123')).toBe(true);
   expect(sync.isChannelSessionKey('agent:main:WULU:abc-123')).toBe(false);
+  expect(sync.isChannelSessionKey('agent:main:wulu:abc-123')).toBe(false);
   expect(sync.resolveOrCreateSession('agent:main:WULU:abc-123')).toBe(null);
+  expect(sync.resolveOrCreateSession('agent:main:wulu:abc-123')).toBe(null);
   expect(sync.resolveOrCreateMainAgentSession('agent:main:WULU:abc-123')).toBe(null);
+  expect(sync.resolveOrCreateMainAgentSession('agent:main:wulu:abc-123')).toBe(null);
 });
 
 test('channel sync still recognizes real channel session keys', () => {

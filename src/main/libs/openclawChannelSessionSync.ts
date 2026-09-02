@@ -37,17 +37,21 @@ export function parseManagedSessionKey(
   const raw = (sessionKey ?? '').trim();
   if (!raw) return null;
 
-  if (raw.startsWith(WULU_SESSION_PREFIX)) {
-    const sessionId = raw.slice(WULU_SESSION_PREFIX.length).trim();
+  // The gateway lowercases the whole sessionKey before plugins see it, so the
+  // WULU marker may arrive as `wulu` even though the desktop app builds it as
+  // `WULU`. Compare case-insensitively; sessionId casing is preserved as-is.
+  const lower = raw.toLowerCase();
+  if (lower.startsWith('wulu:')) {
+    const sessionId = raw.slice('wulu:'.length).trim();
     return sessionId ? { agentId: null, sessionId } : null;
   }
 
-  if (!raw.startsWith('agent:')) {
+  if (!lower.startsWith('agent:')) {
     return null;
   }
 
   const parts = raw.split(':');
-  if (parts.length < 4 || parts[0] !== 'agent' || parts[2] !== 'WULU') {
+  if (parts.length < 4 || parts[0].toLowerCase() !== 'agent' || parts[2].toLowerCase() !== 'wulu') {
     return null;
   }
 

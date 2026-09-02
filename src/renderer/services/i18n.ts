@@ -961,6 +961,9 @@ const translations: Record<LanguageType, Record<string, string>> = {
     openClawHeartbeatEnabled: '启用后台心跳',
     openClawHeartbeatEnabledDescription:
       '开启后，Agent 每小时在后台自动巡检一次你交办的持续关注事项，有进展即主动提醒；关闭后仅在你发起对话时响应，可降低空闲时的 token 消耗。',
+    workspaceBoundaryCheckEnabled: '工作目录边界保护',
+    workspaceBoundaryCheckEnabledDescription:
+      '开启后，AI Agent 尝试访问工作目录之外的文件时，将弹出确认弹窗请求你的许可。选择“本次会话不再询问”后，同一路径在本会话中不再重复确认。',
     openClawGatewayAddress: '网关地址',
     openClawStartupProgressLabel: '启动进度',
     openClawStatusBadgeReady: '已就绪',
@@ -1341,6 +1344,8 @@ const translations: Record<LanguageType, Record<string, string>> = {
     dangerReasonProcessKill: '终止进程',
     dangerReasonPermissionChange: '修改文件权限',
     coworkApprove: '允许',
+    coworkApproveAlways: '本次会话始终允许',
+    coworkApproveAlwaysHint: '在本会话内不再询问该操作',
     coworkDeny: '拒绝',
     coworkConfirmSelection: '提交当前选择',
     coworkDenyRequest: '直接拒绝请求',
@@ -4030,6 +4035,9 @@ const translations: Record<LanguageType, Record<string, string>> = {
     openClawHeartbeatEnabled: 'Enable background heartbeat',
     openClawHeartbeatEnabledDescription:
       'When on, the agent runs an hourly background sweep of the items you asked it to keep watching and reaches out the moment there is an update. When off, it responds only when you start a conversation, which lowers idle token usage.',
+    workspaceBoundaryCheckEnabled: 'Working directory boundary protection',
+    workspaceBoundaryCheckEnabledDescription:
+      'When enabled, a confirmation dialog appears whenever the AI Agent tries to access files outside the working directory. Choosing "Don\'t ask again this session" prevents repeated prompts for the same path within the current session.',
     openClawGatewayAddress: 'Gateway address',
     openClawStartupProgressLabel: 'Startup progress',
     openClawStatusBadgeReady: 'Ready',
@@ -4439,6 +4447,8 @@ const translations: Record<LanguageType, Record<string, string>> = {
     dangerReasonProcessKill: 'Process termination',
     dangerReasonPermissionChange: 'File permission change',
     coworkApprove: 'Approve',
+    coworkApproveAlways: 'Allow for this session',
+    coworkApproveAlwaysHint: 'Stop asking for this operation in this session',
     coworkDeny: 'Deny',
     coworkConfirmSelection: 'Submit selection',
     coworkDenyRequest: 'Deny request',

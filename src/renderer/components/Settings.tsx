@@ -1,4 +1,4 @@
-import { ArchiveBoxIcon, ArrowPathIcon, ArrowPathRoundedSquareIcon, ChatBubbleLeftIcon, CheckCircleIcon, CpuChipIcon, CubeIcon, EnvelopeIcon, ExclamationTriangleIcon, GlobeAltIcon, InformationCircleIcon, MagnifyingGlassIcon, SignalIcon, SunIcon, TrashIcon, WrenchScrewdriverIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { ArchiveBoxIcon, ArrowPathIcon, ArrowPathRoundedSquareIcon, ChatBubbleLeftIcon, CheckCircleIcon, CpuChipIcon, CubeIcon, EnvelopeIcon, ExclamationTriangleIcon, GlobeAltIcon, InformationCircleIcon, MagnifyingGlassIcon, ShieldCheckIcon, SignalIcon, SunIcon, TrashIcon, WrenchScrewdriverIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import React, { useCallback,useEffect, useMemo, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -1729,6 +1729,7 @@ const Settings: React.FC<SettingsProps> = ({
   const [tempCleanSelection, setTempCleanSelection] = useState<Record<string, boolean>>({});
   const [showTempCleanConfirm, setShowTempCleanConfirm] = useState<boolean>(false);
   const [openClawHeartbeatEnabled, setOpenClawHeartbeatEnabled] = useState<boolean>(coworkConfig.openClawHeartbeatEnabled ?? true);
+  const [workspaceBoundaryCheckEnabled, setWorkspaceBoundaryCheckEnabled] = useState<boolean>(coworkConfig.workspaceBoundaryCheckEnabled ?? true);
   const [embeddingEnabled, setEmbeddingEnabled] = useState<boolean>(coworkConfig.embeddingEnabled ?? false);
   const [embeddingProvider, setEmbeddingProvider] = useState<string>(coworkConfig.embeddingProvider ?? 'openai');
   const [embeddingModel, setEmbeddingModel] = useState<string>(coworkConfig.embeddingModel ?? '');
@@ -1793,6 +1794,7 @@ const Settings: React.FC<SettingsProps> = ({
     setCoworkMemoryLlmJudgeEnabled(coworkConfig.memoryLlmJudgeEnabled ?? false);
     setSkipMissedJobs(coworkConfig.skipMissedJobs ?? true);
     setOpenClawHeartbeatEnabled(coworkConfig.openClawHeartbeatEnabled ?? true);
+    setWorkspaceBoundaryCheckEnabled(coworkConfig.workspaceBoundaryCheckEnabled ?? true);
     setEmbeddingEnabled(coworkConfig.embeddingEnabled ?? false);
     setEmbeddingProvider(coworkConfig.embeddingProvider ?? 'openai');
     setEmbeddingModel(coworkConfig.embeddingModel ?? '');
@@ -1834,6 +1836,7 @@ const Settings: React.FC<SettingsProps> = ({
     coworkConfig.openClawSessionPolicy?.keepAlive,
     coworkConfig.skipMissedJobs,
     coworkConfig.openClawHeartbeatEnabled,
+    coworkConfig.workspaceBoundaryCheckEnabled,
     coworkConfig.embeddingEnabled,
     coworkConfig.embeddingProvider,
     coworkConfig.embeddingModel,
@@ -2870,6 +2873,7 @@ const Settings: React.FC<SettingsProps> = ({
     || coworkMemoryLlmJudgeEnabled !== coworkConfig.memoryLlmJudgeEnabled
     || skipMissedJobs !== (coworkConfig.skipMissedJobs ?? true)
     || openClawHeartbeatEnabled !== (coworkConfig.openClawHeartbeatEnabled ?? true)
+    || workspaceBoundaryCheckEnabled !== (coworkConfig.workspaceBoundaryCheckEnabled ?? true)
     || openClawSessionKeepAlive !== (coworkConfig.openClawSessionPolicy?.keepAlive || OpenClawSessionKeepAliveValues.ThirtyDays)
     || embeddingEnabled !== (coworkConfig.embeddingEnabled ?? false)
     || embeddingProvider !== (coworkConfig.embeddingProvider ?? 'openai')
@@ -3450,6 +3454,7 @@ const Settings: React.FC<SettingsProps> = ({
         : normalizedProviders;
       const previousSkipMissedJobs = coworkConfig.skipMissedJobs ?? true;
       const previousOpenClawHeartbeatEnabled = coworkConfig.openClawHeartbeatEnabled ?? true;
+      const previousWorkspaceBoundaryCheckEnabled = coworkConfig.workspaceBoundaryCheckEnabled ?? true;
       const previousAgentEngine = coworkConfig.agentEngine || 'openclaw';
       const previousOpenClawSessionKeepAlive = coworkConfig.openClawSessionPolicy?.keepAlive
         || OpenClawSessionKeepAliveValues.ThirtyDays;
@@ -3566,6 +3571,7 @@ const Settings: React.FC<SettingsProps> = ({
           memoryLlmJudgeEnabled: coworkMemoryLlmJudgeEnabled,
           skipMissedJobs,
           openClawHeartbeatEnabled,
+          workspaceBoundaryCheckEnabled,
           embeddingEnabled,
           embeddingProvider,
           embeddingModel,
@@ -3691,6 +3697,13 @@ const Settings: React.FC<SettingsProps> = ({
             'openClawHeartbeatEnabled',
             openClawHeartbeatEnabled,
             previousOpenClawHeartbeatEnabled,
+          );
+        }
+        if (previousWorkspaceBoundaryCheckEnabled !== workspaceBoundaryCheckEnabled) {
+          reportAgentEngineSettingChanged(
+            'workspaceBoundaryCheckEnabled',
+            workspaceBoundaryCheckEnabled,
+            previousWorkspaceBoundaryCheckEnabled,
           );
         }
         if (previousOpenClawSessionKeepAlive !== openClawSessionKeepAlive) {
@@ -5172,6 +5185,39 @@ const Settings: React.FC<SettingsProps> = ({
                         </div>
                         <p className="mt-1.5 text-[13px] leading-5 text-secondary">
                           {i18nService.t('openClawHeartbeatEnabledDescription')}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+
+                <section className="space-y-3">
+                  <div className="rounded-xl border border-border bg-surface p-4">
+                    <div className="flex items-start gap-3.5">
+                      <span
+                        className={`inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-colors ${
+                          workspaceBoundaryCheckEnabled
+                            ? 'bg-primary-muted text-primary'
+                            : 'bg-surface-raised text-secondary'
+                        }`}
+                      >
+                        <ShieldCheckIcon className="h-5 w-5" />
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center justify-between gap-3">
+                          <h4 className="min-w-0 text-sm font-medium leading-5 text-foreground">
+                            {i18nService.t('workspaceBoundaryCheckEnabled')}
+                          </h4>
+                          <SettingsSwitch
+                            checked={workspaceBoundaryCheckEnabled}
+                            label={i18nService.t('workspaceBoundaryCheckEnabled')}
+                            onClick={() => {
+                              setWorkspaceBoundaryCheckEnabled((prev) => !prev);
+                            }}
+                          />
+                        </div>
+                        <p className="mt-1.5 text-[13px] leading-5 text-secondary">
+                          {i18nService.t('workspaceBoundaryCheckEnabledDescription')}
                         </p>
                       </div>
                     </div>

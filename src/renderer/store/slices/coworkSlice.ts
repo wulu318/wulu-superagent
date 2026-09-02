@@ -171,6 +171,7 @@ const initialState: CoworkState = {
     wuluCloudEnabled: false,
     wuluCloudEmail: '',
     wuluCloudToken: '',
+    workspaceBoundaryCheckEnabled: true,
   },
   mediaModels: { image: [], video: [] },
   mediaSelection: {},

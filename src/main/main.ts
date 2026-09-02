@@ -8503,6 +8503,7 @@ if (!gotTheLock) {
     embeddingVectorWeight?: number;
     embeddingRemoteBaseUrl?: string;
     embeddingRemoteApiKey?: string;
+    workspaceBoundaryCheckEnabled?: boolean;
   }) => {
     try {
       const normalizedExecutionMode =

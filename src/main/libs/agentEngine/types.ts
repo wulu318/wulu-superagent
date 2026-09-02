@@ -19,6 +19,8 @@ export type PermissionResult =
       updatedInput?: Record<string, unknown>;
       updatedPermissions?: Record<string, unknown>[];
       toolUseID?: string;
+      /** When true, resolve with 'allow-always' so the gateway/plugin remembers the decision for this session. */
+      allowAlways?: boolean;
     }
   | {
       behavior: 'deny';

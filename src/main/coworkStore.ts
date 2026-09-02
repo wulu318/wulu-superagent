@@ -656,6 +656,7 @@ export interface CoworkConfig {
   wuluCloudEnabled: boolean;
   wuluCloudEmail: string;
   wuluCloudToken: string;
+  workspaceBoundaryCheckEnabled: boolean;
 }
 
 export type CoworkConfigUpdate = Partial<Pick<
@@ -700,6 +701,7 @@ CoworkConfig,
   | 'wuluCloudEnabled'
   | 'wuluCloudEmail'
   | 'wuluCloudToken'
+  | 'workspaceBoundaryCheckEnabled'
 >>;
 
 export type PluginSource = 'npm' | 'clawhub' | 'git' | 'local' | 'openclaw';
@@ -2248,6 +2250,7 @@ export class CoworkStore {
       'dreamingFrequency',
       'dreamingModel',
       'dreamingTimezone',
+      'workspaceBoundaryCheckEnabled',
     ] as const;
     const configRows = this.getAll<{ key: string; value: string }>(
       `SELECT key, value FROM cowork_config WHERE key IN (${configKeys.map(() => '?').join(', ')})`,
@@ -2305,6 +2308,7 @@ export class CoworkStore {
       wuluCloudEnabled: parseBooleanConfig(cfg.get('wuluCloudEnabled'), DEFAULT_WULU_CLOUD_ENABLED),
       wuluCloudEmail: cfg.get('wuluCloudEmail') || DEFAULT_WULU_CLOUD_EMAIL,
       wuluCloudToken: cfg.get('wuluCloudToken') || DEFAULT_WULU_CLOUD_TOKEN,
+      workspaceBoundaryCheckEnabled: parseBooleanConfig(cfg.get('workspaceBoundaryCheckEnabled'), true),
     };
   }
 
@@ -2431,6 +2435,9 @@ export class CoworkStore {
     }
     if (config.wuluCloudToken !== undefined) {
       this.upsertConfig('wuluCloudToken', String(config.wuluCloudToken), now);
+    }
+    if (config.workspaceBoundaryCheckEnabled !== undefined) {
+      this.upsertConfig('workspaceBoundaryCheckEnabled', config.workspaceBoundaryCheckEnabled ? '1' : '0', now);
     }
   }
 

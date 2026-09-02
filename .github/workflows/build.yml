@@ -31,7 +31,7 @@ jobs:
           - os: macos-latest
             npm_script: dist:mac
             artifact: wulu-mac-arm64
-          - os: macos-latest
+          - os: macos-13
             npm_script: dist:mac:x64
             artifact: wulu-mac-x64
           - os: ubuntu-latest
@@ -50,6 +50,18 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '24'
+
+      # Fail fast on tag/package.json version mismatch before burning 5 platform builds.
+      - name: Verify version consistency (tags only)
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          TAG_VERSION="${GITHUB_REF#refs/tags/v}"
+          PKG_VERSION=$(node -p "require('./package.json').version")
+          if [ "$TAG_VERSION" != "$PKG_VERSION" ]; then
+            echo "::error::Tag version $TAG_VERSION != package.json version $PKG_VERSION. Bump package.json before tagging."
+            exit 1
+          fi
+          echo "Version consistency OK: $TAG_VERSION"
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4

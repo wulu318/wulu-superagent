@@ -4837,6 +4837,110 @@ test('plugin approval resolved event clears pending plugin approval', () => {
   expect(request).not.toHaveBeenCalled();
 });
 
+test('plugin approval resolves with allow-always when the user opts into session-wide permission', async () => {
+  const { session, store } = createReconcileStore([
+    { id: 'msg-1', type: 'user', content: 'apply the workspace boundary', timestamp: 1, metadata: {} },
+  ]);
+  const adapter = new OpenClawRuntimeAdapter(store, {});
+  const sessionKey = `agent:main:WULU:${session.id}`;
+  const request = vi.fn().mockResolvedValue({});
+  const permissionListener = vi.fn();
+
+  adapter.gatewayClient = {
+    start: () => {},
+    stop: () => {},
+    request,
+  };
+  adapter.rememberSessionKey(session.id, sessionKey);
+  adapter.on('permissionRequest', permissionListener);
+
+  adapter.handleGatewayEvent({
+    event: 'plugin.approval.requested',
+    seq: 1,
+    payload: {
+      id: 'plugin:approval-3',
+      request: {
+        pluginId: 'workspace-boundary',
+        title: 'Working directory boundary',
+        description: 'Path is outside the working directory.',
+        severity: 'warning',
+        toolName: 'workspace_boundary',
+        toolCallId: 'call-wsb',
+        allowedDecisions: ['allow-once', 'allow-always', 'deny'],
+        sessionKey,
+        agentId: 'main',
+      },
+    },
+  });
+
+  expect(permissionListener).toHaveBeenCalledWith(session.id, expect.objectContaining({
+    requestId: 'plugin:approval-3',
+    toolInput: expect.objectContaining({
+      allowedDecisions: ['allow-once', 'allow-always', 'deny'],
+    }),
+  }));
+
+  // User clicks "allow for this session"
+  adapter.respondToPermission('plugin:approval-3', {
+    behavior: 'allow',
+    allowAlways: true,
+    updatedInput: {},
+  });
+  await Promise.resolve();
+  await Promise.resolve();
+
+  expect(request).toHaveBeenCalledWith('plugin.approval.resolve', {
+    id: 'plugin:approval-3',
+    decision: 'allow-always',
+  });
+});
+
+test('plugin approval with allowAlways=true but gateway not advertising allow-always falls back to allow-once', async () => {
+  const { session, store } = createReconcileStore([
+    { id: 'msg-1', type: 'user', content: 'apply the workspace boundary', timestamp: 1, metadata: {} },
+  ]);
+  const adapter = new OpenClawRuntimeAdapter(store, {});
+  const sessionKey = `agent:main:WULU:${session.id}`;
+  const request = vi.fn().mockResolvedValue({});
+
+  adapter.gatewayClient = {
+    start: () => {},
+    stop: () => {},
+    request,
+  };
+  adapter.rememberSessionKey(session.id, sessionKey);
+
+  adapter.handleGatewayEvent({
+    event: 'plugin.approval.requested',
+    seq: 1,
+    payload: {
+      id: 'plugin:approval-4',
+      request: {
+        pluginId: 'some-plugin',
+        title: 'Some action',
+        severity: 'warning',
+        toolName: 'some_tool',
+        allowedDecisions: ['allow-once', 'deny'],
+        sessionKey,
+        agentId: 'main',
+      },
+    },
+  });
+
+  adapter.respondToPermission('plugin:approval-4', {
+    behavior: 'allow',
+    allowAlways: true,
+    updatedInput: {},
+  });
+  await Promise.resolve();
+  await Promise.resolve();
+
+  expect(request).toHaveBeenCalledWith('plugin.approval.resolve', {
+    id: 'plugin:approval-4',
+    decision: 'allow-once',
+  });
+});
+
 test('chat final completes after the retry grace window', async () => {
   vi.useFakeTimers();
   try {

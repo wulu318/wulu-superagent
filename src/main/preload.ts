@@ -511,6 +511,7 @@ contextBridge.exposeInMainWorld('electron', {
       embeddingVectorWeight?: number;
       embeddingRemoteBaseUrl?: string;
       embeddingRemoteApiKey?: string;
+      workspaceBoundaryCheckEnabled?: boolean;
     }) => ipcRenderer.invoke('cowork:config:set', config),
 
     // Session temp storage (.cowork-temp) maintenance

@@ -220,6 +220,7 @@ export interface CoworkConfig {
   wuluCloudEnabled: boolean;
   wuluCloudEmail: string;
   wuluCloudToken: string;
+  workspaceBoundaryCheckEnabled: boolean;
 }
 
 /** Per-directory `.cowork-temp` preview entry shown in the clean confirmation dialog. */
@@ -276,6 +277,7 @@ export type CoworkConfigUpdate = Partial<Pick<
   | 'wuluCloudEnabled'
   | 'wuluCloudEmail'
   | 'wuluCloudToken'
+  | 'workspaceBoundaryCheckEnabled'
 >>;
 
 export interface CoworkApiConfig {
@@ -338,6 +340,8 @@ export type CoworkPermissionResult =
       updatedInput?: Record<string, unknown>;
       updatedPermissions?: Record<string, unknown>[];
       toolUseID?: string;
+      /** When true, resolve with 'allow-always' so the gateway/plugin remembers the decision for this session. */
+      allowAlways?: boolean;
     }
   | {
       behavior: 'deny';

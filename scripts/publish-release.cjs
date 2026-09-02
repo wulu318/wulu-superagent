@@ -185,6 +185,22 @@ async function main() {
     console.error('Usage: node scripts/publish-release.cjs <version> [--asar <path>] [--upload-only]');
     process.exit(1);
   }
+
+  // Version consistency guard: the tag version must match package.json.
+  // A mismatch ships an installer whose About/update-check version differs
+  // from the backend version record, breaking update detection.
+  try {
+    const pkg = JSON.parse(fs.readFileSync(path.resolve('package.json'), 'utf8'));
+    if (pkg.version !== version) {
+      console.error(`[publish] FATAL: tag version "${version}" != package.json version "${pkg.version}". Bump package.json before tagging.`);
+      process.exit(1);
+    }
+    log(`Version consistency OK: package.json ${pkg.version}`);
+  } catch (error) {
+    console.error(`[publish] FATAL: cannot read package.json — ${error.message}`);
+    process.exit(1);
+  }
+
   const asarFlagIdx = process.argv.indexOf('--asar');
   const asarPath = asarFlagIdx >= 0 ? process.argv[asarFlagIdx + 1] : null;
   const uploadOnly = process.argv.includes('--upload-only');

@@ -161,30 +161,94 @@ function precompileLocalExtensions(runtimeRoot, buildHint) {
   }
 }
 
+// Collect mtimes of all source files under a local extension's source dir.
+// node_modules (installed deps) are ignored — only tracked sources matter.
+function collectSourceFileMtimes(dir, results = []) {
+  let entries;
+  try {
+    entries = readdirSync(dir, { withFileTypes: true });
+  } catch {
+    return results;
+  }
+  for (const entry of entries) {
+    if (entry.name === 'node_modules' || entry.name === '.git') continue;
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      collectSourceFileMtimes(full, results);
+    } else if (entry.isFile()) {
+      try {
+        results.push(statSync(full).mtimeMs);
+      } catch {
+        // Ignore unreadable files — freshness is best-effort.
+      }
+    }
+  }
+  return results;
+}
+
+/**
+ * A bundled local extension is stale when any source file under
+ * openclaw-extensions/{id} is newer than the compiled index.js inside the
+ * runtime. Existence checks alone (hasCompiledLocalExtension) happily package
+ * outdated compiled extensions, shipping stale plugin code to users.
+ */
+function isLocalExtensionStale(runtimeRoot, extensionId) {
+  const sourceDir = path.join(__dirname, '..', 'openclaw-extensions', extensionId);
+  const compiledEntry = path.join(runtimeRoot, 'third-party-extensions', extensionId, 'index.js');
+  if (!existsSync(sourceDir) || !existsSync(compiledEntry)) {
+    return false; // Missing source/compiled cases are handled by the existence check.
+  }
+
+  let compiledAtMs;
+  try {
+    compiledAtMs = statSync(compiledEntry).mtimeMs;
+  } catch {
+    return false;
+  }
+
+  return collectSourceFileMtimes(sourceDir).some((mtimeMs) => mtimeMs > compiledAtMs);
+}
+
 function ensureBundledLocalExtensions(runtimeRoot, buildHint) {
-  const requiredLocalExtensions = ['mcp-bridge', 'ask-user-question', 'Wulu-media-generation'];
+  const requiredLocalExtensions = ['mcp-bridge', 'ask-user-question', 'Wulu-media-generation', 'workspace-boundary'];
   const missingCompiledExtensions = requiredLocalExtensions.filter(
     (extensionId) => !hasCompiledLocalExtension(runtimeRoot, extensionId),
   );
+  const staleExtensions = requiredLocalExtensions.filter(
+    (extensionId) => isLocalExtensionStale(runtimeRoot, extensionId),
+  );
+  const toRestore = [...new Set([...missingCompiledExtensions, ...staleExtensions])];
 
-  if (missingCompiledExtensions.length === 0) {
+  if (toRestore.length === 0) {
     return;
   }
 
-  console.log(
-    '[electron-builder-hooks] Restoring local OpenClaw extensions before packaging: '
-    + missingCompiledExtensions.join(', '),
-  );
+  if (missingCompiledExtensions.length > 0) {
+    console.log(
+      '[electron-builder-hooks] Local OpenClaw extensions missing compiled output: '
+      + missingCompiledExtensions.join(', '),
+    );
+  }
+  if (staleExtensions.length > 0) {
+    console.log(
+      '[electron-builder-hooks] Local OpenClaw extensions stale (source newer than compiled output): '
+      + staleExtensions.join(', '),
+    );
+  }
+
   syncLocalOpenClawExtensions(runtimeRoot);
   precompileLocalExtensions(runtimeRoot, buildHint);
 
   const stillMissing = requiredLocalExtensions.filter(
     (extensionId) => !hasCompiledLocalExtension(runtimeRoot, extensionId),
   );
-  if (stillMissing.length > 0) {
+  const stillStale = requiredLocalExtensions.filter(
+    (extensionId) => isLocalExtensionStale(runtimeRoot, extensionId),
+  );
+  if (stillMissing.length > 0 || stillStale.length > 0) {
     throw new Error(
-      '[electron-builder-hooks] Bundled OpenClaw runtime is missing compiled local extensions: '
-      + stillMissing.join(', ')
+      '[electron-builder-hooks] Bundled OpenClaw runtime has missing/stale local extensions: '
+      + [...new Set([...stillMissing, ...stillStale])].join(', ')
       + `. Run \`${buildHint}\` before packaging.`,
     );
   }

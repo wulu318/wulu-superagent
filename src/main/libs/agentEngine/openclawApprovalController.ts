@@ -57,8 +57,11 @@ export class OpenClawApprovalController {
 
     const sessionId = pending.sessionId;
     // Only schedule continuation for user-initiated exec approvals, not for
-    // plugin approvals or auto-approved commands.
-    const needsContinuation = pending.kind === 'exec' && !pending.allowAlways;
+    // plugin approvals or auto-approved commands, nor when the user opted to
+    // remember the decision for the session (allow-always).
+    const needsContinuation = pending.kind === 'exec'
+      && !pending.allowAlways
+      && !(result.behavior === 'allow' && result.allowAlways === true);
     const method = getApprovalResolveMethod(pending);
 
     void client.request(method, {

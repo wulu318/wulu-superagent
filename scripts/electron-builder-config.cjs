@@ -105,6 +105,28 @@ config.win = {
   sign: path.join(__dirname, 'win-sign.cjs'),
 };
 
+// macOS builds use ad-hoc signing by default: there is no Apple Developer
+// certificate in CI, and an ad-hoc signature keeps the app structurally
+// valid on Apple Silicon while avoiding a hard failure at package time.
+// Once real Developer ID certs are configured (CSC_LINK/CSC_KEY_PASSWORD
+// or Apple notarization credentials), this fallback is ignored and the
+// app is properly signed and notarized.
+if (!process.env.CSC_LINK && !process.env.APPLE_ID && !process.env.CSC_NAME) {
+  console.log('[electron-builder-config] No Apple signing identity found; using ad-hoc signature for macOS.');
+  config.mac = {
+    ...(config.mac || {}),
+    identity: null,
+  };
+  // electron-builder signs the .app inside the DMG by default; with
+  // ad-hoc signing the DMG must not carry a detached signature either.
+  config.dmg = {
+    ...(config.dmg || {}),
+    sign: false,
+  };
+} else {
+  console.log('[electron-builder-config] Apple signing identity detected; signing macOS build.');
+}
+
 delete config.extraResources;
 
 config.dmg = {

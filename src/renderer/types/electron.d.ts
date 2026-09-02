@@ -183,6 +183,7 @@ interface CoworkConfig {
   embeddingRemoteBaseUrl: string;
   embeddingRemoteApiKey: string;
   openClawSessionPolicy: OpenClawSessionPolicyConfig;
+  workspaceBoundaryCheckEnabled: boolean;
 }
 
 type CoworkConfigUpdate = Partial<
@@ -205,6 +206,7 @@ type CoworkConfigUpdate = Partial<
     | 'embeddingVectorWeight'
     | 'embeddingRemoteBaseUrl'
     | 'embeddingRemoteApiKey'
+    | 'workspaceBoundaryCheckEnabled'
   >
 >;
 

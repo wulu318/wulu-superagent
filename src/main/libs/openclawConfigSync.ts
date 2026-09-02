@@ -1865,6 +1865,7 @@ loopDetection: MANAGED_TOOL_LOOP_DETECTION,
     );
     const hasAskUserPlugin = isBundledPluginAvailable('ask-user-question');
     const hasMediaGenPlugin = isBundledPluginAvailable('Wulu-media-generation');
+    const hasBoundaryPlugin = isBundledPluginAvailable('workspace-boundary');
     // Runtime-bundled xai extension (dist/extensions/xai): provides the Grok
     // model compat hooks (e.g. only grok-4.3 accepts reasoningEffort) plus the
     // OAuth refresh hook for credentials in the auth-profiles store. Declare
@@ -2109,6 +2110,7 @@ loopDetection: MANAGED_TOOL_LOOP_DETECTION,
             : {}),
           ...(hasAskUserPlugin ? { 'ask-user-question': { enabled: true } } : {}),
           ...(hasMediaGenPlugin ? { 'Wulu-media-generation': { enabled: true } } : {}),
+          ...(hasBoundaryPlugin ? { 'workspace-boundary': { enabled: true } } : {}),
           // Some OpenClaw versions auto-inject qwen-portal-auth for
           // Qwen/DashScope URLs. Declare it only when the plugin actually
           // exists, otherwise it becomes a stale entry on every startup.
@@ -2213,6 +2215,19 @@ loopDetection: MANAGED_TOOL_LOOP_DETECTION,
           callbackUrl: mediaCallbackUrl,
           secret: '${WULU_MCP_BRIDGE_SECRET}',
           requestTimeoutMs: 150000,
+        },
+      };
+    }
+
+    // Sync workspace-boundary plugin config — passes working directory + enabled flag
+    if (hasBoundaryPlugin && managedConfig.plugins) {
+      const plugins = managedConfig.plugins as Record<string, unknown>;
+      const entries = plugins.entries as Record<string, Record<string, unknown>>;
+      entries['workspace-boundary'] = {
+        enabled: coworkConfig.workspaceBoundaryCheckEnabled !== false,
+        config: {
+          enabled: coworkConfig.workspaceBoundaryCheckEnabled !== false,
+          workingDirectory: taskWorkingDirectory,
         },
       };
     }
