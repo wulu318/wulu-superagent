@@ -55,6 +55,9 @@ jobs:
       - name: Build macOS
         run: npm run dist:mac
         env:
+          # Vite build minifies 4000+ modules and runs out of Node's default
+          # 2GB heap on arm64 runners; raise the old-space limit.
+          NODE_OPTIONS: --max-old-space-size=6144
           # 签名环境变量 (如果有证书)
           CSC_LINK: ${{ secrets.CSC_LINK }}
           CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
@@ -94,8 +97,11 @@ jobs:
       - name: Build Windows
         run: npm run dist:win
         env:
-          CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
-          CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
+          # An empty CSC_LINK makes electron-builder try to resolve it as a
+          # file path ("not a file" failure). Only set signing envs when the
+          # secrets are actually configured.
+          CSC_LINK: ${{ secrets.WIN_CSC_LINK != '' && secrets.WIN_CSC_LINK || null }}
+          CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD != '' && secrets.WIN_CSC_KEY_PASSWORD || null }}
       
       - uses: actions/upload-artifact@v4
         with:

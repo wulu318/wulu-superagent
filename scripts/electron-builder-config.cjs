@@ -148,6 +148,13 @@ config.linux = {
   artifactName: `WULU-\${version}-\${arch}.\${ext}`,
 };
 
+// Tag-triggered CI builds must not enter electron-builder's publish mode:
+// when a git tag is present electron-builder infers a GitHub publish target
+// and requires GH_TOKEN ("GitHub Personal Access Token is not set" hard
+// failure). Publishing is owned by the workflow's create-release /
+// auto-publish steps, so disable it here explicitly.
+config.publish = null;
+
 if (isWebInstallerEnabled()) {
   // Build the web installer alongside the full one: both targets share the
   // same intermediate .nsis.7z app package, so the extra cost is one more
