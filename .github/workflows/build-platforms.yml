@@ -97,11 +97,13 @@ jobs:
       - name: Build Windows
         run: npm run dist:win
         env:
-          # An empty CSC_LINK makes electron-builder try to resolve it as a
-          # file path ("not a file" failure). Only set signing envs when the
-          # secrets are actually configured.
-          CSC_LINK: ${{ secrets.WIN_CSC_LINK != '' && secrets.WIN_CSC_LINK || null }}
-          CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD != '' && secrets.WIN_CSC_KEY_PASSWORD || null }}
+          # Unset secrets expand to empty strings; empty CSC_* envs are
+          # stripped by scripts/electron-builder-config.cjs before
+          # electron-builder treats them as certificate paths.
+          # (A `!= '' && x || null` expression expands to the literal
+          # string "null", which is NOT empty — do not use it here.)
+          CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
       
       - uses: actions/upload-artifact@v4
         with:
