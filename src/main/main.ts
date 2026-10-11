@@ -303,7 +303,6 @@ import {
   resolveCoworkSessionIdByOpenClawSessionKey,
 } from './libs/openclawLocalSessionResolver';
 import {
-  addMemoryEntry,
   deleteMemoryEntry,
   ensureDefaultIdentity,
   getMainAgentWorkspacePath,
@@ -313,7 +312,6 @@ import {
   readMemoryFileRaw,
   resolveMemoryFilePath,
   searchMemoryEntries,
-  updateMemoryEntry,
   writeBootstrapFile,
   writeMemoryFileRaw,
 } from './libs/openclawMemoryFile';
@@ -1696,9 +1694,10 @@ const normalizeWindowsShellPath = (inputPath: string): string => {
 };
 
 // 配置应用
-// Linux/Windows 禁用 Chromium 沙箱：桌面应用渲染自有代码，风险可控；
-// Windows 下以管理员运行时沙箱无法降权会导致 GPU 进程启动失败 (error_code=18)
-if (isLinux || isWindows) {
+// Keep Chromium's sandbox enabled on Windows and normal Linux launches.
+// Chromium cannot enable its sandbox when Linux runs as root; scope the
+// unavoidable fallback to that case instead of disabling it for every user.
+if (isLinux && typeof process.getuid === 'function' && process.getuid() === 0) {
   app.commandLine.appendSwitch('no-sandbox');
 }
 if (isLinux) {
@@ -8042,8 +8041,36 @@ if (!gotTheLock) {
         }
 
         const query = input?.query?.trim() || '';
-        const entries = query ? searchMemoryEntries(filePath, query) : readMemoryEntries(filePath);
-        return { success: true, entries };
+        const sourceMemories = getCoworkStore().listUserMemories({ status: 'all', limit: 200 });
+        const allMemoryTexts = new Set(sourceMemories.map(memory => memory.text));
+        const migrationMemoryTexts = new Set(sourceMemories.filter(memory => memory.status === 'created').map(memory => memory.text));
+        const queryMatches = (text: string): boolean => !query || text.toLocaleLowerCase().includes(query.toLocaleLowerCase());
+        const legacyEntries = (query ? searchMemoryEntries(filePath, query) : readMemoryEntries(filePath))
+          .filter(entry => !allMemoryTexts.has(entry.text))
+          .filter(entry => queryMatches(entry.text))
+          .map(entry => ({
+            ...entry,
+            source: 'memory_file' as const,
+            status: 'created' as const,
+            confidence: null as number | null,
+            isExplicit: null as boolean | null,
+            lastUsedAt: null as string | null,
+          }));
+        const managedEntries = sourceMemories
+          .filter(memory => queryMatches(memory.text)
+            && (input?.status ? memory.status === input.status : (input?.includeDeleted || memory.status !== 'deleted')))
+          .map(memory => ({
+            ...memory,
+            source: 'user_memory' as const,
+            section: undefined as string | undefined,
+          }));
+        const entries = [
+          ...managedEntries,
+          ...legacyEntries.filter(entry => !migrationMemoryTexts.has(entry.text)),
+        ];
+        const offset = Math.max(0, input?.offset ?? 0);
+        const limit = Math.max(1, Math.min(200, input?.limit ?? 200));
+        return { success: true, entries: entries.slice(offset, offset + limit) };
       } catch (error) {
         return {
           success: false,
@@ -8063,11 +8090,8 @@ if (!gotTheLock) {
       },
     ) => {
       try {
-        const filePath = resolveMemoryFilePath(
-          getMainAgentWorkspacePath(getOpenClawEngineManager().getStateDir()),
-        );
-        const entry = addMemoryEntry(filePath, input.text);
-        return { success: true, entry };
+        const memory = getCoworkStore().createUserMemory({ text: input.text, confidence: input.confidence, isExplicit: input.isExplicit ?? true });
+        return { success: true, entry: { ...memory, source: 'user_memory', section: undefined } };
       } catch (error) {
         return {
           success: false,
@@ -8089,17 +8113,9 @@ if (!gotTheLock) {
       },
     ) => {
       try {
-        const filePath = resolveMemoryFilePath(
-          getMainAgentWorkspacePath(getOpenClawEngineManager().getStateDir()),
-        );
-        if (!input.text) {
-          return { success: false, error: 'Memory text is required' };
-        }
-        const entry = updateMemoryEntry(filePath, input.id, input.text);
-        if (!entry) {
-          return { success: false, error: 'Memory entry not found' };
-        }
-        return { success: true, entry };
+        const updated = getCoworkStore().updateUserMemory({ id: input.id, text: input.text, confidence: input.confidence, status: input.status, isExplicit: input.isExplicit });
+        if (!updated) return { success: false, error: 'Memory entry not found' };
+        return { success: true, entry: { ...updated, source: 'user_memory', section: undefined } };
       } catch (error) {
         return {
           success: false,
@@ -8117,10 +8133,7 @@ if (!gotTheLock) {
       },
     ) => {
       try {
-        const filePath = resolveMemoryFilePath(
-          getMainAgentWorkspacePath(getOpenClawEngineManager().getStateDir()),
-        );
-        const success = deleteMemoryEntry(filePath, input.id);
+        const success = getCoworkStore().deleteUserMemory(input.id);
         return success ? { success: true } : { success: false, error: 'Memory entry not found' };
       } catch (error) {
         return {
@@ -8160,22 +8173,22 @@ if (!gotTheLock) {
       };
     }
   });
-  ipcMain.handle('cowork:memory:getStats', async () => {
+  ipcMain.handle(CoworkIpcChannel.MemoryFileDeleteEntry, async (_event, id: string) => {
     try {
       const filePath = resolveMemoryFilePath(
         getMainAgentWorkspacePath(getOpenClawEngineManager().getStateDir()),
       );
-      const entries = readMemoryEntries(filePath);
+      const success = deleteMemoryEntry(filePath, id);
+      return success ? { success: true } : { success: false, error: 'Memory entry not found' };
+    } catch (error) {
+      return { success: false, error: error instanceof Error ? error.message : 'Failed to delete file memory entry' };
+    }
+  });
+  ipcMain.handle('cowork:memory:getStats', async () => {
+    try {
       return {
         success: true,
-        stats: {
-          total: entries.length,
-          created: entries.length,
-          stale: 0,
-          deleted: 0,
-          explicit: entries.length,
-          implicit: 0,
-        },
+        stats: getCoworkStore().getUserMemoryStats(),
       };
     } catch (error) {
       return {
@@ -8373,12 +8386,30 @@ if (!gotTheLock) {
   });
 
   // ── WULU Cloud IPC handlers ────────────────────────────────────────────
-  ipcMain.handle(CoworkIpcChannel.WuluCloudRegister, async (_event, input: { email: string; password: string; displayName?: string }) => {
+  ipcMain.handle(CoworkIpcChannel.WuluCloudRegister, async (_event, input: { email: string; password: string; verificationCode: string; displayName?: string }) => {
     try {
       const { wuluCloudRegister } = require('./libs/newApiClient') as typeof import('./libs/newApiClient');
       return await wuluCloudRegister(input);
     } catch (error) {
       return { success: false, error: error instanceof Error ? error.message : 'Registration failed' };
+    }
+  });
+
+  ipcMain.handle(CoworkIpcChannel.WuluCloudSendVerificationCode, async (_event, input: { email: string }) => {
+    try {
+      const { wuluCloudSendVerificationCode } = require('./libs/newApiClient') as typeof import('./libs/newApiClient');
+      return await wuluCloudSendVerificationCode(input);
+    } catch (error) {
+      return { success: false, error: error instanceof Error ? error.message : 'Failed' };
+    }
+  });
+
+  ipcMain.handle(CoworkIpcChannel.WuluCloudGetPlans, async () => {
+    try {
+      const { wuluCloudGetPlans } = require('./libs/newApiClient') as typeof import('./libs/newApiClient');
+      return await wuluCloudGetPlans();
+    } catch (error) {
+      return { success: false, plans: [], error: error instanceof Error ? error.message : 'Failed' };
     }
   });
 
@@ -8416,6 +8447,27 @@ if (!gotTheLock) {
     } catch (error) {
       return { success: false, error: error instanceof Error ? error.message : 'Failed' };
     }
+  });
+
+  ipcMain.handle(CoworkIpcChannel.WuluCloudUsage, async (_event, input: { token: string; period?: '7d' | '30d' | '90d' }) => {
+    const { wuluCloudGetUsage } = require('./libs/newApiClient') as typeof import('./libs/newApiClient');
+    return wuluCloudGetUsage(input.token, input.period);
+  });
+  ipcMain.handle(CoworkIpcChannel.WuluCloudMemoryList, async (_event, input: { token: string; limit?: number; offset?: number }) => {
+    const { wuluCloudListMemory } = require('./libs/newApiClient') as typeof import('./libs/newApiClient');
+    return wuluCloudListMemory(input.token, input.limit, input.offset);
+  });
+  ipcMain.handle(CoworkIpcChannel.WuluCloudMemoryCreate, async (_event, input: { token: string; content: string; layer?: string; tags?: string[] }) => {
+    const { wuluCloudCreateMemory } = require('./libs/newApiClient') as typeof import('./libs/newApiClient');
+    return wuluCloudCreateMemory(input.token, input.content, input.layer, input.tags);
+  });
+  ipcMain.handle(CoworkIpcChannel.WuluCloudMemoryUpdate, async (_event, input: { token: string; id: string; content: string; layer?: string; tags?: string[] }) => {
+    const { wuluCloudUpdateMemory } = require('./libs/newApiClient') as typeof import('./libs/newApiClient');
+    return wuluCloudUpdateMemory(input.token, input.id, input.content, input.layer, input.tags);
+  });
+  ipcMain.handle(CoworkIpcChannel.WuluCloudMemoryDelete, async (_event, input: { token: string; id: string }) => {
+    const { wuluCloudDeleteMemory } = require('./libs/newApiClient') as typeof import('./libs/newApiClient');
+    return wuluCloudDeleteMemory(input.token, input.id);
   });
 
   // ── Environment Awareness IPC handler ─────────────────────────────────────

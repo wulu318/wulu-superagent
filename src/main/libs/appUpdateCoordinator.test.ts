@@ -185,6 +185,33 @@ describe('AppUpdateCoordinator', () => {
     expect(mocks.downloadUpdate).not.toHaveBeenCalled();
   });
 
+  test('downloads a direct Linux AppImage update into a ready-to-install state', async () => {
+    const store = createStoreStub();
+    const filePath = path.join(updatesDir, 'WULU-update-auto-2.0.0.AppImage');
+    fs.mkdirSync(updatesDir, { recursive: true });
+    fs.writeFileSync(filePath, 'new AppImage package');
+    const downloadUrl = 'https://updates.example.com/WULU-2.0.0-x64.AppImage';
+    const coordinator = new AppUpdateCoordinator(store);
+    mocks.fetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        code: 0,
+        data: { value: { version: '2.0.0', linuxX64: { url: downloadUrl } } },
+      }),
+    });
+    mocks.downloadUpdate.mockImplementation(async () => {
+      await fs.promises.writeFile(filePath, 'new AppImage package');
+      return filePath;
+    });
+
+    const result = await coordinator.checkNow();
+
+    expect(mocks.downloadUpdate).toHaveBeenCalledWith(downloadUrl, AppUpdateSource.Auto, expect.any(Function));
+    expect(result.state.status).toBe(AppUpdateStatus.Ready);
+    expect(result.state.readyFilePath).toBe(filePath);
+    expect(result.state.info?.url).toBe(downloadUrl);
+  });
+
   test('restores installIncomplete after an install attempt that never completed', async () => {
     const store = createStoreStub();
     seedReadyFile(store, updatesDir, AppUpdateSource.Auto);

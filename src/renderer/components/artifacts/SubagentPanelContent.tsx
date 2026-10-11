@@ -11,6 +11,7 @@ import ConversationTurnsView from '../cowork/ConversationTurnsView';
 
 interface SubagentPanelContentProps {
   subagents: SubagentSessionSummary[];
+  counts?: { running: number; done: number; error: number };
   loading?: boolean;
   selectedSubagent?: SubagentSessionSummary | null;
   onBackToList?: () => void;
@@ -241,6 +242,7 @@ const SubagentSection: React.FC<{
 
 const SubagentPanelContent: React.FC<SubagentPanelContentProps> = ({
   subagents,
+  counts,
   loading = false,
   selectedSubagent,
   onBackToList,
@@ -285,6 +287,13 @@ const SubagentPanelContent: React.FC<SubagentPanelContentProps> = ({
         <h2 className="text-sm font-medium text-foreground">
           {i18nService.t('subagentPanelTitle')}
         </h2>
+        {counts && (
+          <div className="ml-auto flex items-center gap-1.5" aria-label={i18nService.t('subagentPanelCounts')}>
+            <span className="rounded-full bg-blue-500/10 px-2 py-0.5 text-[10px] font-medium text-blue-600 dark:text-blue-400">{i18nService.t('subagentPanelRunning')}: {counts.running}</span>
+            <span className="rounded-full bg-green-500/10 px-2 py-0.5 text-[10px] font-medium text-green-600 dark:text-green-400">{i18nService.t('subagentPanelCompleted')}: {counts.done}</span>
+            {counts.error > 0 && <span className="rounded-full bg-red-500/10 px-2 py-0.5 text-[10px] font-medium text-red-600 dark:text-red-400">{i18nService.t('subagentPanelFailed')}: {counts.error}</span>}
+          </div>
+        )}
       </div>
       <div className="min-h-0 flex-1 overflow-y-auto">
         <SubagentSection

@@ -7,6 +7,7 @@ import {
   getPortalPricingUrl,
   getPortalProfileUrl,
   getPortalRechargeUrl,
+  normalizeServerApiBaseUrl,
   PortalPricingKeyfrom,
 } from './endpoints';
 
@@ -18,6 +19,7 @@ const mockTestMode = (testMode: boolean) => {
 
 afterEach(() => {
   vi.restoreAllMocks();
+  vi.unstubAllEnvs();
 });
 
 test('portal account urls use production base when test mode is disabled', () => {
@@ -47,4 +49,9 @@ test('portal pricing url can include html share keyfrom', () => {
   expect(getPortalPricingUrl(PortalPricingKeyfrom.HtmlShare)).toBe(
     'https://ai.005656.xyz/portal#/pricing?keyfrom=html_share',
   );
+});
+
+test('cloud endpoints use the configured API base URL', () => {
+  expect(normalizeServerApiBaseUrl('http://127.0.0.1:3001/')).toBe('http://127.0.0.1:3001');
+  expect(normalizeServerApiBaseUrl()).toBe('https://ai.005656.xyz');
 });

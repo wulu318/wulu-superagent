@@ -10,6 +10,8 @@ export interface Skill {
   prompt: string;         // SKILL.md body for management; do not inline into Cowork prompts
   skillPath: string;      // Absolute path to SKILL.md
   version?: string;       // Skill version from SKILL.md frontmatter
+  source?: 'bundled' | 'plugin' | 'local' | 'openclaw';
+  securityRisk?: 'low' | 'medium' | 'high';
 }
 
 export type LocalizedText = { en: string; zh: string };

@@ -235,6 +235,11 @@ interface CoworkUserMemoryEntry {
   id: string;
   text: string;
   section?: string;
+  lastUsedAt?: number | null;
+  source?: 'user_memory' | 'memory_file';
+  status?: 'created' | 'stale' | 'deleted';
+  confidence?: number | null;
+  isExplicit?: boolean | null;
 }
 
 interface CoworkMemoryStats {
@@ -304,6 +309,8 @@ interface Skill {
   updatedAt: number;
   prompt: string;
   skillPath: string;
+  source?: 'bundled' | 'plugin' | 'local' | 'openclaw';
+  securityRisk?: 'low' | 'medium' | 'high';
 }
 
 type EmailConnectivityCheckCode = 'imap_connection' | 'smtp_connection';
@@ -1032,15 +1039,22 @@ interface IElectronAPI {
     ) => () => void;
     listMemoryEntries: (input: {
       query?: string;
+      status?: 'created' | 'stale' | 'deleted' | 'all';
+      includeDeleted?: boolean;
       limit?: number;
       offset?: number;
     }) => Promise<{ success: boolean; entries?: CoworkUserMemoryEntry[]; error?: string }>;
     createMemoryEntry: (input: {
       text: string;
+      confidence?: number;
+      isExplicit?: boolean;
     }) => Promise<{ success: boolean; entry?: CoworkUserMemoryEntry; error?: string }>;
     updateMemoryEntry: (input: {
       id: string;
       text: string;
+      confidence?: number;
+      status?: 'created' | 'stale' | 'deleted';
+      isExplicit?: boolean;
     }) => Promise<{ success: boolean; entry?: CoworkUserMemoryEntry; error?: string }>;
     deleteMemoryEntry: (input: { id: string }) => Promise<{ success: boolean; error?: string }>;
     getMemoryStats: () => Promise<{ success: boolean; stats?: CoworkMemoryStats; error?: string }>;
@@ -1048,6 +1062,7 @@ interface IElectronAPI {
     writeMemoryFileRaw: (input: {
       content: string;
     }) => Promise<{ success: boolean; error?: string }>;
+    deleteMemoryFileEntry: (id: string) => Promise<{ success: boolean; error?: string }>;
     readBootstrapFile: (
       filename: string,
       options?: { agentId?: string },
@@ -1153,6 +1168,7 @@ interface IElectronAPI {
     wuluCloudRegister: (input: {
       email: string;
       password: string;
+      verificationCode: string;
       displayName?: string;
     }) => Promise<{
       success: boolean;
@@ -1163,6 +1179,27 @@ interface IElectronAPI {
         displayName: string;
         role: string;
       };
+      error?: string;
+    }>;
+    wuluCloudSendVerificationCode: (input: { email: string }) => Promise<{
+      success: boolean;
+      code?: string;
+      expiresIn?: number;
+      error?: string;
+    }>;
+    wuluCloudGetPlans: () => Promise<{
+      success: boolean;
+      plans?: Array<{
+        id: string;
+        name: string;
+        description: string;
+        priceMonthly: number;
+        priceYearly: number;
+        quotaMonthly: number;
+        features: Record<string, unknown>;
+        modelAccess: string[];
+        maxContextTokens: number;
+      }>;
       error?: string;
     }>;
     wuluCloudLogin: (input: {
@@ -1211,6 +1248,11 @@ interface IElectronAPI {
       token?: string;
       error?: string;
     }>;
+    wuluCloudGetUsage: (input: { token: string; period?: '7d' | '30d' | '90d' }) => Promise<{ success: boolean; data?: { period: string; daily: Array<Record<string, unknown>>; models: Array<Record<string, unknown>> }; error?: string }>;
+    wuluCloudListMemory: (input: { token: string; limit?: number; offset?: number }) => Promise<{ success: boolean; data?: Array<Record<string, unknown>>; error?: string }>;
+    wuluCloudCreateMemory: (input: { token: string; content: string; layer?: string; tags?: string[] }) => Promise<{ success: boolean; data?: Record<string, unknown>; error?: string }>;
+    wuluCloudUpdateMemory: (input: { token: string; id: string; content: string; layer?: string; tags?: string[] }) => Promise<{ success: boolean; data?: Record<string, unknown>; error?: string }>;
+    wuluCloudDeleteMemory: (input: { token: string; id: string }) => Promise<{ success: boolean; data?: Record<string, unknown>; error?: string }>;
     // Environment Awareness
     envSnapshot: () => Promise<{
       success: boolean;

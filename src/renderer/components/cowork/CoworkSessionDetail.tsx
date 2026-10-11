@@ -1845,6 +1845,11 @@ const CoworkSessionDetail: React.FC<CoworkSessionDetailProps> = ({
   const activeArtifactPreviewTab = useSelector((state: RootState) =>
     sessionId ? selectActivePreviewTab(state, sessionId) : null
   );
+  const subagentCounts = useMemo(() => ({
+    running: subagents.filter(item => item.status === 'running').length,
+    done: subagents.filter(item => item.status === 'done').length,
+    error: subagents.filter(item => item.status === 'error').length,
+  }), [subagents]);
   const artifactTabsWithArtifacts = useMemo(() => {
     const artifactsById = new Map(sessionArtifacts.map(artifact => [artifact.id, artifact]));
     return artifactPreviewTabs
@@ -5415,6 +5420,7 @@ const CoworkSessionDetail: React.FC<CoworkSessionDetailProps> = ({
                 <SubagentPanelContent
                   subagents={subagents}
                   loading={subagentsLoading}
+                  counts={subagentCounts}
                   selectedSubagent={selectedSubagentForPanel}
                   onBackToList={() => setSelectedSubagent(null)}
                   onSelectSubagent={handleSelectSubagent}

@@ -5,44 +5,38 @@
 
 import { configService } from './config';
 
+export const normalizeServerApiBaseUrl = (configured?: string) => {
+  return (configured || 'https://ai.005656.xyz').replace(/\/+$/, '');
+};
+
+/** Set VITE_WULU_SERVER_API_URL when building for a non-production backend. */
+export const getServerApiBaseUrl = () => normalizeServerApiBaseUrl(
+  (import.meta as ImportMeta & { env?: Record<string, string | undefined> }).env?.VITE_WULU_SERVER_API_URL?.trim(),
+);
+
 export const isTestModeEnabled = () => {
   return configService.getConfig().app?.testMode === true;
 };
 
 // 自动更新
-export const getUpdateCheckUrl = () => isTestModeEnabled()
-  ? 'https://ai.005656.xyz/api/update/check'
-  : 'https://ai.005656.xyz/api/update/check';
+export const getUpdateCheckUrl = () => `${getServerApiBaseUrl()}/api/update/check`;
 
 // 手动检查更新
-export const getManualUpdateCheckUrl = () => isTestModeEnabled()
-  ? 'https://ai.005656.xyz/api/update/check-manual'
-  : 'https://ai.005656.xyz/api/update/check-manual';
+export const getManualUpdateCheckUrl = () => `${getServerApiBaseUrl()}/api/update/check-manual`;
 
-export const getFallbackDownloadUrl = () => isTestModeEnabled()
-  ? 'https://ai.005656.xyz/download-list'
-  : 'https://ai.005656.xyz/download-list';
+export const getFallbackDownloadUrl = () => `${getServerApiBaseUrl()}/download-list`;
 
 // Skill 商店
-export const getSkillStoreUrl = () => isTestModeEnabled()
-  ? 'https://ai.005656.xyz/api/skill-store'
-  : 'https://ai.005656.xyz/api/skill-store';
+export const getSkillStoreUrl = () => `${getServerApiBaseUrl()}/api/skill-store`;
 
 // Kit 商店
-export const getKitStoreUrl = () => isTestModeEnabled()
-  ? 'https://ai.005656.xyz/api/kit-store'
-  : 'https://ai.005656.xyz/api/kit-store';
+export const getKitStoreUrl = () => `${getServerApiBaseUrl()}/api/kit-store`;
 
 // 登录地址
-export const getLoginOvermindUrl = () => isTestModeEnabled()
-  ? 'https://ai.005656.xyz/api/auth/login-url'
-  : 'https://ai.005656.xyz/api/auth/login-url';
+export const getLoginOvermindUrl = () => `${getServerApiBaseUrl()}/api/auth/login-url`;
 
 // Portal 页面
-const PORTAL_BASE_TEST = 'https://ai.005656.xyz/portal#';
-const PORTAL_BASE_PROD = 'https://ai.005656.xyz/portal#';
-
-const getPortalBase = () => isTestModeEnabled() ? PORTAL_BASE_TEST : PORTAL_BASE_PROD;
+const getPortalBase = () => `${getServerApiBaseUrl()}/portal#`;
 
 export const PortalPricingKeyfrom = {
   HtmlShare: 'html_share',

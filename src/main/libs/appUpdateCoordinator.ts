@@ -642,11 +642,16 @@ export class AppUpdateCoordinator {
       return value?.windowsX64?.url?.trim() || getFallbackDownloadUrl();
     }
 
+    if (process.platform === 'linux') {
+      const download = process.arch === 'arm64' ? value?.linuxArm64 : value?.linuxX64;
+      return download?.url?.trim() || getFallbackDownloadUrl();
+    }
+
     return getFallbackDownloadUrl();
   }
 
   private canPredownload(url: string): boolean {
-    if (process.platform !== 'darwin' && process.platform !== 'win32') {
+    if (process.platform !== 'darwin' && process.platform !== 'win32' && process.platform !== 'linux') {
       return false;
     }
     return this.isDirectInstallerUrl(url);
@@ -662,6 +667,9 @@ export class AppUpdateCoordinator {
     }
     if (process.platform === 'win32') {
       return normalizedPath.endsWith('.exe');
+    }
+    if (process.platform === 'linux') {
+      return normalizedPath.endsWith('.appimage');
     }
     return false;
   }

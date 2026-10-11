@@ -1298,6 +1298,11 @@ const SkillsManager: React.FC<SkillsManagerProps> = ({ readOnly, onCreateByChat 
                 </p>
 
                 <div className="mt-auto flex items-center gap-2 text-[11px] text-secondary">
+                  {skill.source && (
+                    <span className="px-1.5 py-0.5 rounded bg-surface-raised font-medium">
+                      {i18nService.t(`skillSource_${skill.source}`)}
+                    </span>
+                  )}
                   {skill.source?.from && (
                     <>
                       <span className="px-1.5 py-0.5 rounded bg-surface-raised font-medium">

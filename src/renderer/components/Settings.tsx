@@ -51,6 +51,7 @@ import AdvancedMemorySettingsSection from './cowork/AdvancedMemorySettingsSectio
 import DreamingSettingsSection from './cowork/DreamingSettingsSection';
 import EmbeddingSettingsSection from './cowork/EmbeddingSettingsSection';
 import EnvAwarenessSettingsSection from './cowork/EnvAwarenessSettingsSection';
+import MediaServiceStatusSection from './cowork/MediaServiceStatusSection';
 import NewApiSettingsSection from './cowork/NewApiSettingsSection';
 import WuluCloudSettingsSection from './cowork/WuluCloudSettingsSection';
 import ErrorMessage from './ErrorMessage';
@@ -3203,14 +3204,16 @@ const Settings: React.FC<SettingsProps> = ({
     try {
       const operation = coworkMemoryEditingId ? 'updated' : 'created';
       if (coworkMemoryEditingId) {
-        await coworkService.updateMemoryEntry({
+        const updated = await coworkService.updateMemoryEntry({
           id: coworkMemoryEditingId,
           text,
         });
+        if (!updated) throw new Error(i18nService.t('coworkMemoryCrudSaveFailed'));
       } else {
-        await coworkService.createMemoryEntry({
+        const created = await coworkService.createMemoryEntry({
           text,
         });
+        if (!created) throw new Error(i18nService.t('coworkMemoryCrudSaveFailed'));
       }
       resetCoworkMemoryEditor();
       await loadCoworkMemoryData();
@@ -3228,15 +3231,39 @@ const Settings: React.FC<SettingsProps> = ({
   };
 
   const handleEditCoworkMemoryEntry = (entry: CoworkUserMemoryEntry) => {
+    if (entry.source === 'memory_file') {
+      void handleEnterCoworkMemoryRawMode();
+      return;
+    }
     setCoworkMemoryEditingId(entry.id);
     setCoworkMemoryDraftText(entry.text);
     setShowMemoryModal(true);
   };
 
+  const handleToggleCoworkMemoryEntry = async (entry: CoworkUserMemoryEntry) => {
+    if (!entry.id || entry.source !== 'user_memory') return;
+    setCoworkMemoryListLoading(true);
+    try {
+      const updated = await coworkService.updateMemoryEntry({
+        id: entry.id,
+        text: entry.text,
+        status: entry.status === 'created' ? 'stale' : 'created',
+      });
+      if (!updated) throw new Error(i18nService.t('coworkMemoryCrudSaveFailed'));
+      await loadCoworkMemoryData();
+    } catch (toggleError) {
+      setError(toggleError instanceof Error ? toggleError.message : i18nService.t('coworkMemoryCrudSaveFailed'));
+    } finally {
+      setCoworkMemoryListLoading(false);
+    }
+  };
+
   const handleDeleteCoworkMemoryEntry = async (entry: CoworkUserMemoryEntry) => {
     setCoworkMemoryListLoading(true);
     try {
-      await coworkService.deleteMemoryEntry({ id: entry.id });
+      if (entry.source !== 'memory_file' && !(await coworkService.deleteMemoryEntry({ id: entry.id }))) {
+        throw new Error(i18nService.t('coworkMemoryCrudDeleteFailed'));
+      }
       if (coworkMemoryEditingId === entry.id) {
         resetCoworkMemoryEditor();
       }
@@ -5459,7 +5486,7 @@ const Settings: React.FC<SettingsProps> = ({
                     <>
                       {coworkMemoryStats && (
                         <div className="text-xs text-secondary">
-                          {`${i18nService.t('coworkMemoryTotalLabel')}: ${coworkMemoryStats.total}`}
+                          {`${i18nService.t('coworkMemoryTotalLabel')}: ${coworkMemoryStats.total} · ${i18nService.t('coworkMemoryEnabledStatus')}: ${coworkMemoryStats.created} · ${i18nService.t('coworkMemoryDisabledStatus')}: ${coworkMemoryStats.stale}`}
                         </div>
                       )}
 
@@ -5498,6 +5525,16 @@ const Settings: React.FC<SettingsProps> = ({
                                     <div key={entry.id} className="group px-3 py-3 text-xs transition-colors hover:bg-surface-raised/60">
                                       <div className="flex items-start justify-between gap-3">
                                         <div className="flex-1 min-w-0">
+                                            <div className="mb-1 flex items-center gap-2 text-[10px] text-secondary">
+                                              <span className="rounded bg-surface-raised px-1.5 py-0.5">
+                                                {i18nService.t(entry.source === 'memory_file' ? 'coworkMemoryFileSource' : 'coworkMemoryUserSource')}
+                                              </span>
+                                              {entry.source === 'user_memory' && (
+                                                <span className={entry.status === 'created' ? 'text-green-600 dark:text-green-400' : 'text-muted'}>
+                                                  {i18nService.t(entry.status === 'created' ? 'coworkMemoryEnabledStatus' : 'coworkMemoryDisabledStatus')}
+                                                </span>
+                                              )}
+                                            </div>
                                           <div
                                             className={`text-foreground break-words whitespace-pre-wrap leading-relaxed ${
                                               isLongMemoryText && !isMemoryTextExpanded ? 'line-clamp-3' : ''
@@ -5505,6 +5542,11 @@ const Settings: React.FC<SettingsProps> = ({
                                           >
                                             {entry.text}
                                           </div>
+                                          {entry.source === 'user_memory' && entry.status === 'created' && entry.lastUsedAt && (
+                                            <div className="mt-1 text-[10px] text-muted">
+                                              {i18nService.t('coworkMemoryLastUsed')}: {new Date(entry.lastUsedAt).toLocaleString()}
+                                            </div>
+                                          )}
                                           {isLongMemoryText && (
                                             <button
                                               type="button"
@@ -5515,23 +5557,35 @@ const Settings: React.FC<SettingsProps> = ({
                                             </button>
                                           )}
                                         </div>
-                                        <div className="flex items-center gap-0.5 flex-shrink-0 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
+                                        <div className="flex items-center gap-0.5 flex-shrink-0">
                                           <button
                                             type="button"
                                             onClick={() => handleEditCoworkMemoryEntry(entry)}
-                                            title={i18nService.t('edit')}
-                                            aria-label={i18nService.t('edit')}
+                                            title={entry.source === 'memory_file' ? i18nService.t('coworkMemoryEditInFile') : i18nService.t('edit')}
+                                            aria-label={entry.source === 'memory_file' ? i18nService.t('coworkMemoryEditInFile') : i18nService.t('edit')}
                                             className="rounded-md p-1.5 text-secondary hover:text-foreground hover:bg-surface-raised transition-colors"
                                           >
                                             <EditIcon className="h-4 w-4" />
                                           </button>
+                                          {entry.source === 'user_memory' && (
+                                            <button
+                                              type="button"
+                                              onClick={() => { void handleToggleCoworkMemoryEntry(entry); }}
+                                              disabled={coworkMemoryListLoading}
+                                              title={i18nService.t(entry.status === 'created' ? 'coworkMemoryDisable' : 'coworkMemoryEnable')}
+                                              aria-label={i18nService.t(entry.status === 'created' ? 'coworkMemoryDisable' : 'coworkMemoryEnable')}
+                                              className="rounded-md p-1.5 text-secondary hover:text-primary hover:bg-surface-raised transition-colors"
+                                            >
+                                              {entry.status === 'created' ? '⏸' : '▶'}
+                                            </button>
+                                          )}
                                           <button
                                             type="button"
                                             onClick={() => { void handleDeleteCoworkMemoryEntry(entry); }}
+                                            disabled={coworkMemoryListLoading}
                                             title={i18nService.t('delete')}
                                             aria-label={i18nService.t('delete')}
                                             className="rounded-md p-1.5 text-secondary hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 disabled:opacity-60 transition-colors"
-                                            disabled={coworkMemoryListLoading}
                                           >
                                             <TrashIcon className="h-4 w-4" />
                                           </button>
@@ -5724,6 +5778,7 @@ const Settings: React.FC<SettingsProps> = ({
               handleEditModel={handleEditModel}
               handleDeleteModel={handleDeleteModel}
             />
+            <MediaServiceStatusSection />
             <NewApiSettingsSection
               newApiEnabled={newApiEnabled}
               newApiBaseUrl={newApiBaseUrl}

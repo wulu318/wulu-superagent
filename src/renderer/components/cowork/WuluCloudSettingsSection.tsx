@@ -23,6 +23,9 @@ const WuluCloudSettingsSection: React.FC<WuluCloudSettingsSectionProps> = ({
   const [email, setEmail] = useState(_wuluCloudEmail || '');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
+  const [verificationCode, setVerificationCode] = useState('');
+  const [verificationHint, setVerificationHint] = useState('');
+  const [sendingCode, setSendingCode] = useState(false);
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [cloudUser, setCloudUser] = useState<{
@@ -32,11 +35,18 @@ const WuluCloudSettingsSection: React.FC<WuluCloudSettingsSectionProps> = ({
   const [subscription, setSubscription] = useState<{
     active: boolean; planName?: string; quotaMonthly?: number; expiresAt?: number;
   } | null>(null);
+  const [plans, setPlans] = useState<Array<{ id: string; name: string; description: string; priceMonthly: number; quotaMonthly: number; modelAccess: string[] }> | null>(null);
+  const [usage, setUsage] = useState<{ daily: Array<Record<string, unknown>>; models: Array<Record<string, unknown>> } | null>(null);
+  const [cloudMemories, setCloudMemories] = useState<Array<Record<string, unknown>>>([]);
+  const [memoryDraft, setMemoryDraft] = useState('');
+  const [cloudDataError, setCloudDataError] = useState('');
 
   const isLoggedIn = wuluCloudToken.length > 0;
 
   // On mount, if we have a token, try to fetch profile
   React.useEffect(() => {
+    import('../../services/cowork').then(({ coworkService }) => coworkService.wuluCloudGetPlans())
+      .then((result) => { if (result.success) setPlans(result.plans || []); });
     if (wuluCloudToken) {
       loadProfile();
     }
@@ -56,9 +66,41 @@ const WuluCloudSettingsSection: React.FC<WuluCloudSettingsSectionProps> = ({
       if (subResult.success && subResult.subscription) {
         setSubscription(subResult.subscription);
       }
-    } catch {
-      // Token might be expired, ignore
+      const [usageResult, memoriesResult] = await Promise.all([
+        coworkService.wuluCloudGetUsage({ token: wuluCloudToken }),
+        coworkService.wuluCloudListMemory({ token: wuluCloudToken }),
+      ]);
+      if (usageResult.success && usageResult.data) setUsage(usageResult.data);
+      if (memoriesResult.success && memoriesResult.data) setCloudMemories(memoriesResult.data);
+      const dataError = usageResult.error || memoriesResult.error || '';
+      setCloudDataError(dataError);
+      if (!profileResult.success || !subResult.success) {
+        setErrorMsg(profileResult.error || subResult.error || i18nService.t('wuluCloudProfileLoadFailed'));
+      }
+    } catch (err) {
+      setErrorMsg(err instanceof Error ? err.message : i18nService.t('wuluCloudProfileLoadFailed'));
     }
+  }, [wuluCloudToken]);
+
+  const addCloudMemory = useCallback(async () => {
+    const content = memoryDraft.trim();
+    if (!content) return;
+    const { coworkService } = await import('../../services/cowork');
+    const result = await coworkService.wuluCloudCreateMemory({ token: wuluCloudToken, content });
+    if (result.success) {
+      setMemoryDraft('');
+      const refreshed = await coworkService.wuluCloudListMemory({ token: wuluCloudToken });
+      if (refreshed.success && refreshed.data) setCloudMemories(refreshed.data);
+    } else {
+      setCloudDataError(result.error || 'Failed to save cloud memory');
+    }
+  }, [memoryDraft, wuluCloudToken]);
+
+  const deleteCloudMemory = useCallback(async (id: string) => {
+    const { coworkService } = await import('../../services/cowork');
+    const result = await coworkService.wuluCloudDeleteMemory({ token: wuluCloudToken, id });
+    if (result.success) setCloudMemories(items => items.filter(item => item.id !== id));
+    else setCloudDataError(result.error || 'Failed to delete cloud memory');
   }, [wuluCloudToken]);
 
   const handleLogin = useCallback(async () => {
@@ -99,9 +141,14 @@ const WuluCloudSettingsSection: React.FC<WuluCloudSettingsSectionProps> = ({
       setErrorMsg(i18nService.t('wuluCloudMissingFields'));
       return;
     }
-    if (password.length < 6) {
+    if (password.length < 8 || !/[a-zA-Z]/.test(password) || !/[0-9]/.test(password)) {
       setStatus('error');
-      setErrorMsg(i18nService.t('wuluCloudPasswordTooShort'));
+      setErrorMsg('Password must be at least 8 characters and contain a letter and a number.');
+      return;
+    }
+    if (!/^\d{6}$/.test(verificationCode.trim())) {
+      setStatus('error');
+      setErrorMsg('Enter the 6-digit email verification code.');
       return;
     }
     setStatus('loading');
@@ -111,6 +158,7 @@ const WuluCloudSettingsSection: React.FC<WuluCloudSettingsSectionProps> = ({
       const result = await coworkService.wuluCloudRegister({
         email: email.trim(),
         password,
+        verificationCode: verificationCode.trim(),
         displayName: displayName.trim() || undefined,
       });
       if (result.success && result.token) {
@@ -127,7 +175,30 @@ const WuluCloudSettingsSection: React.FC<WuluCloudSettingsSectionProps> = ({
       setStatus('error');
       setErrorMsg(err instanceof Error ? err.message : String(err));
     }
-  }, [email, password, displayName, onWuluCloudEnabledChange, onWuluCloudEmailChange, onWuluCloudTokenChange]);
+  }, [email, password, displayName, verificationCode, onWuluCloudEnabledChange, onWuluCloudEmailChange, onWuluCloudTokenChange]);
+
+  const handleSendVerificationCode = useCallback(async () => {
+    if (!email.trim()) {
+      setStatus('error');
+      setErrorMsg(i18nService.t('wuluCloudMissingFields'));
+      return;
+    }
+    setSendingCode(true);
+    setErrorMsg(null);
+    setVerificationHint('');
+    try {
+      const { coworkService } = await import('../../services/cowork');
+      const result = await coworkService.wuluCloudSendVerificationCode({ email: email.trim() });
+      if (!result.success) throw new Error(result.error || 'Could not send verification code');
+      setVerificationHint(result.code
+        ? i18nService.t('wuluCloudDevCode').replace('{code}', result.code)
+        : i18nService.t('wuluCloudCodeSent').replace('{minutes}', String(Math.ceil((result.expiresIn || 600) / 60))));
+    } catch (err) {
+      setErrorMsg(err instanceof Error ? err.message : String(err));
+    } finally {
+      setSendingCode(false);
+    }
+  }, [email]);
 
   const handleLogout = useCallback(() => {
     onWuluCloudEnabledChange(false);
@@ -140,7 +211,7 @@ const WuluCloudSettingsSection: React.FC<WuluCloudSettingsSectionProps> = ({
 
   const formatTimestamp = (ts: number | undefined): string => {
     if (!ts) return '--';
-    return new Date(ts * 1000).toLocaleDateString();
+    return new Date(ts < 10_000_000_000 ? ts * 1000 : ts).toLocaleDateString();
   };
 
   const formatTokens = (n: number): string => {
@@ -193,6 +264,24 @@ const WuluCloudSettingsSection: React.FC<WuluCloudSettingsSectionProps> = ({
                   {i18nService.t('wuluCloudNoSubscription')}
                 </div>
               )}
+            </div>
+            <div className="rounded-lg border border-border p-3 space-y-2">
+              <div className="text-xs font-medium text-foreground">{i18nService.t('wuluCloudUsageAndMemory')}</div>
+              {cloudDataError && <div className="text-xs text-red-500">{cloudDataError}</div>}
+              {usage && <div className="text-xs text-secondary">{i18nService.t('wuluCloudRecentUsage')}: {usage.daily.reduce((sum, row) => sum + Number(row.total_tokens || 0), 0).toLocaleString()} tokens · {usage.models.length} models</div>}
+              <div className="flex gap-2">
+                <input value={memoryDraft} onChange={event => setMemoryDraft(event.target.value)} className="min-w-0 flex-1 rounded border border-border bg-background px-2 py-1 text-xs" placeholder={i18nService.t('wuluCloudMemoryPlaceholder')} />
+                <button type="button" onClick={addCloudMemory} className="rounded border border-border px-2 text-xs">{i18nService.t('wuluCloudSaveMemory')}</button>
+              </div>
+              <div className="max-h-32 space-y-1 overflow-auto">
+                {cloudMemories.map(item => (
+                  <div key={String(item.id)} className="flex items-start justify-between gap-2 text-xs text-secondary">
+                    <span className="line-clamp-2">{String(item.content || '')}</span>
+                    <button type="button" onClick={() => deleteCloudMemory(String(item.id))} className="shrink-0 text-red-500">{i18nService.t('wuluCloudDeleteMemory')}</button>
+                  </div>
+                ))}
+                {!cloudMemories.length && <div className="text-xs text-secondary">{i18nService.t('wuluCloudNoMemories')}</div>}
+              </div>
             </div>
             <div>
               <button
@@ -273,6 +362,28 @@ const WuluCloudSettingsSection: React.FC<WuluCloudSettingsSectionProps> = ({
               </div>
             )}
 
+            {mode === 'register' && (
+              <div>
+                <label className="block text-xs font-medium text-foreground mb-1">Email verification code / 邮箱验证码</label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    autoComplete="one-time-code"
+                    maxLength={6}
+                    value={verificationCode}
+                    onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, ''))}
+                    placeholder="6 digits"
+                    className="min-w-0 flex-1 rounded-lg border px-3 py-2 text-sm border-border bg-surface font-mono"
+                  />
+                  <button type="button" disabled={sendingCode} onClick={handleSendVerificationCode} className="rounded-lg border border-border px-3 py-2 text-xs text-foreground disabled:opacity-50">
+                    {sendingCode ? 'Sending…' : 'Send code'}
+                  </button>
+                </div>
+                {verificationHint && <div className="mt-1 text-xs text-green-600 dark:text-green-400">{verificationHint}</div>}
+              </div>
+            )}
+
             {/* Submit button */}
             <div className="pt-1">
               <button
@@ -308,6 +419,24 @@ const WuluCloudSettingsSection: React.FC<WuluCloudSettingsSectionProps> = ({
             )}
           </div>
         )}
+      </div>
+
+      <div className="space-y-2 rounded-xl border px-4 py-4 border-border">
+        <div className="text-sm font-medium text-foreground">Plans / 套餐</div>
+          {plans === null ? (
+          <div className="text-xs text-secondary">Loading plans…</div>
+        ) : plans.length === 0 ? (
+          <div className="text-xs text-secondary">Could not load plans from the backend.</div>
+        ) : plans.map((plan) => (
+          <div key={plan.id} className="rounded-lg border border-border px-3 py-2">
+            <div className="flex justify-between gap-3 text-xs">
+              <span className="font-medium text-foreground">{plan.name}</span>
+              <span className="text-secondary">{plan.priceMonthly === 0 ? 'Free' : `$${plan.priceMonthly}/month`}</span>
+            </div>
+            <div className="mt-1 text-xs text-secondary">{formatTokens(plan.quotaMonthly)} quota · {plan.modelAccess.join(', ') || 'All models'}</div>
+            {plan.priceMonthly > 0 && <div className="mt-1 text-xs text-amber-600">Paid checkout is not configured yet.</div>}
+          </div>
+        ))}
       </div>
 
       {/* Divider */}

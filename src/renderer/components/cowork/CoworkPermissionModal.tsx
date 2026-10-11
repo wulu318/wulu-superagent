@@ -419,9 +419,7 @@ const CoworkPermissionModal: React.FC<CoworkPermissionModalProps> = ({
 
   // Whether the gateway advertised 'allow-always' as an acceptable decision.
   // Only then do we show the "allow for this session" button. It applies to
-  // plugin approvals (which carry allowedDecisions); exec approvals currently
-  // advertise neither allow-always nor allow-once, so the button stays hidden
-  // there and the existing two-button layout is preserved.
+  // plugin and exec approvals advertise the decisions accepted by the gateway.
   const canAllowAlways = useMemo(() => {
     if (isQuestionTool || isConfirmMode) return false;
     if (!toolInput || typeof toolInput !== 'object') return false;

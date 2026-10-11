@@ -3,6 +3,7 @@ import https from 'https';
 
 import { McpIpcChannel } from '../../../shared/mcp/constants';
 import { normalizeMcpServerUrlInput } from '../../../shared/mcp/url';
+import { getServerApiBaseUrl } from '../../libs/endpoints';
 import { OpenClawConfigImpact } from '../../libs/openclawConfigImpact';
 import type { McpRuntime } from '../../mcp/mcpRuntime';
 import type { McpServerFormData } from '../../mcp/mcpStore';
@@ -344,7 +345,7 @@ export function registerMcpHandlers(deps: McpHandlerDeps): void {
   });
 
   ipcMain.handle(McpIpcChannel.FetchMarketplace, async () => {
-    const url = 'https://ai.005656.xyz/api/mcp-store';
+    const url = `${getServerApiBaseUrl()}/api/mcp-store`;
     try {
       const data = await fetchText(url);
       const json = JSON.parse(data);

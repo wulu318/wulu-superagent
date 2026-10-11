@@ -1,4 +1,4 @@
-import { getCommandDangerLevel, isDeleteCommand } from '../commandSafety';
+import { getCommandDangerLevel, isDangerousCommand } from '../commandSafety';
 import { parseChannelSessionKey } from '../openclawChannelSessionSync';
 import type { PermissionRequest, PermissionResult } from './types';
 
@@ -95,7 +95,10 @@ export const parseExecApprovalRequestedPayload = (payload: unknown): ParsedExecA
     request,
     sessionKey,
     command,
-    shouldAutoApprove: parseChannelSessionKey(sessionKey) !== null || !isDeleteCommand(command),
+    // Local desktop commands always need an explicit approval. Chat channel
+    // sessions may run routine commands, but risky commands still require a
+    // decision from the user through that channel's approval flow.
+    shouldAutoApprove: parseChannelSessionKey(sessionKey) !== null && !isDangerousCommand(command),
   };
 };
 
@@ -136,6 +139,7 @@ export const buildExecApprovalPermissionRequest = (
       command,
       dangerLevel,
       dangerReason,
+      allowedDecisions: ['allow-once', 'allow-always', 'deny'],
       cwd: request.cwd ?? null,
       host: request.host ?? null,
       security: request.security ?? null,

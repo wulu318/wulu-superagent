@@ -314,6 +314,11 @@ export interface CoworkUserMemoryEntry {
   id: string;
   text: string;
   section?: string;
+  lastUsedAt?: number | null;
+  source?: 'user_memory' | 'memory_file';
+  status?: 'created' | 'stale' | 'deleted';
+  confidence?: number | null;
+  isExplicit?: boolean | null;
 }
 
 export interface CoworkMemoryStats {

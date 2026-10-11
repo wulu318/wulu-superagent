@@ -112,6 +112,7 @@ import {
   formatCoworkContinuityCapsuleBridge,
   formatCoworkMiniContinuityCapsuleBridge,
 } from './coworkContinuityCapsule';
+import { buildRelevantUserMemoryBridge } from './coworkRelevantUserMemory';
 import { buildCoworkTopKEvidenceBridgeResult } from './coworkTopKEvidence';
 import { buildCoworkWorkspaceRehydrationBridge } from './coworkWorkspaceRehydration';
 import { extractCronDeliveredTarget } from './cronDeliveryTarget';
@@ -2472,6 +2473,32 @@ export class OpenClawRuntimeAdapter extends EventEmitter implements CoworkRuntim
       return bridge;
     } catch (error) {
       console.warn(`[CoworkTopKEvidence] failed to build evidence bridge for session ${sessionId}; continuing without it.`, error);
+      return '';
+    }
+  }
+
+  private buildRelevantUserMemoryBridge(prompt: string): string {
+    try {
+      const config = this.store.getConfig();
+      if (!config.memoryEnabled) return '';
+      const memories = this.store.listUserMemories({ status: 'created', limit: 200 });
+      const result = buildRelevantUserMemoryBridge({
+        prompt,
+        memories,
+        limit: Math.min(4, Math.max(0, config.memoryUserMemoriesMaxItems)),
+      });
+      if (!result.bridge) return '';
+      this.store.markUserMemoriesUsed(result.memoryIds);
+      console.debug(
+        '[CoworkUserMemory] injected relevant saved memories.',
+        `Candidates ${memories.length}.`,
+        `Matched ${result.matchedCount}.`,
+        `Injected ${result.injectedCount}.`,
+        `Bridge length ${result.bridge.length}.`,
+      );
+      return result.bridge;
+    } catch (error) {
+      console.warn('[CoworkUserMemory] failed to retrieve relevant memories; continuing without them.', error);
       return '';
     }
   }
@@ -5054,6 +5081,7 @@ export class OpenClawRuntimeAdapter extends EventEmitter implements CoworkRuntim
     const continuityCapsuleBridge = this.buildContinuityCapsuleBridge(sessionId);
     const workspaceRehydrationBridge = await this.buildWorkspaceRehydrationBridge(sessionId);
     const topKEvidenceBridge = this.buildTopKEvidenceBridge(sessionId, prompt);
+    const relevantUserMemoryBridge = this.buildRelevantUserMemoryBridge(prompt);
 
     if (this.bridgedSessions.has(sessionId)) {
       if (continuityCapsuleBridge) {
@@ -5064,6 +5092,9 @@ export class OpenClawRuntimeAdapter extends EventEmitter implements CoworkRuntim
       }
       if (topKEvidenceBridge) {
         sections.push(topKEvidenceBridge);
+      }
+      if (relevantUserMemoryBridge) {
+        sections.push(relevantUserMemoryBridge);
       }
       if (selectedTextSection) {
         sections.push(selectedTextSection);
@@ -5128,6 +5159,9 @@ export class OpenClawRuntimeAdapter extends EventEmitter implements CoworkRuntim
     }
     if (topKEvidenceBridge) {
       sections.push(topKEvidenceBridge);
+    }
+    if (relevantUserMemoryBridge) {
+      sections.push(relevantUserMemoryBridge);
     }
     if (selectedTextSection) {
       sections.push(selectedTextSection);

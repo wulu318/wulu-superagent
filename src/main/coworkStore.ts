@@ -2685,6 +2685,15 @@ export class CoworkStore {
     return rows.map(row => this.mapMemoryRow(row));
   }
 
+  markUserMemoriesUsed(ids: string[]): void {
+    const uniqueIds = [...new Set(ids.filter(id => typeof id === 'string' && id.length > 0))];
+    if (uniqueIds.length === 0) return;
+    const now = Date.now();
+    const placeholders = uniqueIds.map(() => '?').join(', ');
+    this.db.prepare(`UPDATE user_memories SET last_used_at = ? WHERE status = 'created' AND id IN (${placeholders})`)
+      .run(now, ...uniqueIds);
+  }
+
   createUserMemory(input: {
     text: string;
     confidence?: number;

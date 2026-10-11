@@ -19,6 +19,8 @@ const MKFS_COMMAND_RE = /\bmkfs\b/i;
 const GIT_PUSH_RE = /\bgit\s+push\b/i;
 const KILL_COMMAND_RE = /\b(kill|killall|pkill)\b/i;
 const CHMOD_COMMAND_RE = /\b(chmod|chown)\b/i;
+const PRIVILEGE_ESCALATION_RE = /\b(sudo|doas|pkexec|runas)\b/i;
+const DISK_ADMIN_COMMAND_RE = /\b(format|diskpart|mountvol)\b/i;
 
 export type DangerLevel = 'safe' | 'caution' | 'destructive';
 
@@ -38,11 +40,9 @@ export function isDeleteCommand(command: string): boolean {
  * explicit user confirmation before execution.
  */
 export function isDangerousCommand(command: string): boolean {
-  return isDeleteCommand(command)
-    || GIT_PUSH_RE.test(command)
-    || GIT_RESET_HARD_RE.test(command)
-    || KILL_COMMAND_RE.test(command)
-    || CHMOD_COMMAND_RE.test(command);
+  return getCommandDangerLevel(command).level !== 'safe'
+    || PRIVILEGE_ESCALATION_RE.test(command)
+    || DISK_ADMIN_COMMAND_RE.test(command);
 }
 
 /**

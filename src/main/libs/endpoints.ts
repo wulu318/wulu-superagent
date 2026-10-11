@@ -27,49 +27,26 @@ export const isTestModeEnabled = (): boolean => {
  * Used for auth exchange/refresh, models, proxy, etc.
  */
 export const getServerApiBaseUrl = (): string => {
-  return isTestModeEnabled()
-    ? 'https://ai.005656.xyz'
-    : 'https://ai.005656.xyz';
+  const configured = process.env.WULU_SERVER_API_URL?.trim().replace(/\/+$/, '');
+  if (configured) return configured;
+  return 'https://ai.005656.xyz';
 };
 
 export const getHtmlSharePublicBaseUrl = (): string => {
   return `${getServerApiBaseUrl()}${HtmlSharePublicRoute.Root}`;
 };
 
-export const getUpdateCheckUrl = (): string => (
-  isTestModeEnabled()
-    ? 'https://ai.005656.xyz/api/update/check'
-    : 'https://ai.005656.xyz/api/update/check'
-);
+export const getUpdateCheckUrl = (): string => `${getServerApiBaseUrl()}/api/update/check`;
 
-export const getManualUpdateCheckUrl = (): string => (
-  isTestModeEnabled()
-    ? 'https://ai.005656.xyz/api/update/check-manual'
-    : 'https://ai.005656.xyz/api/update/check-manual'
-);
+export const getManualUpdateCheckUrl = (): string => `${getServerApiBaseUrl()}/api/update/check-manual`;
 
-export const getFallbackDownloadUrl = (): string => (
-  isTestModeEnabled()
-    ? 'https://ai.005656.xyz/download-list'
-    : 'https://ai.005656.xyz/download-list'
-);
+export const getFallbackDownloadUrl = (): string => `${getServerApiBaseUrl()}/download-list`;
 
-export const getSkillStoreUrl = (): string => (
-  isTestModeEnabled()
-    ? 'https://ai.005656.xyz/api/skill-store'
-    : 'https://ai.005656.xyz/api/skill-store'
-);
+export const getSkillStoreUrl = (): string => `${getServerApiBaseUrl()}/api/skill-store`;
 
 // Portal 页面
-const PORTAL_BASE_TEST = 'https://ai.005656.xyz/portal#';
-const PORTAL_BASE_PROD = 'https://ai.005656.xyz/portal#';
-
-const getPortalBase = (): string => isTestModeEnabled() ? PORTAL_BASE_TEST : PORTAL_BASE_PROD;
+const getPortalBase = (): string => `${getServerApiBaseUrl()}/portal#`;
 
 export const getPortalTasksUrl = (): string => `${getPortalBase()}/profile/detail?tab=tasks`;
 
-export const getKitStoreUrl = (): string => (
-  isTestModeEnabled()
-    ? 'https://ai.005656.xyz/api/kit-store'
-    : 'https://ai.005656.xyz/api/kit-store'
-);
+export const getKitStoreUrl = (): string => `${getServerApiBaseUrl()}/api/kit-store`;

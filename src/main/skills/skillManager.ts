@@ -329,6 +329,7 @@ export type SkillRecord = {
   prompt: string;
   skillPath: string;
   version?: string;
+  source: 'bundled' | 'plugin' | 'local' | 'openclaw';
 };
 
 type SkillStateMap = Record<string, { enabled: boolean }>;
@@ -2530,7 +2531,11 @@ export class SkillManager {
       const prompt = content.trim();
       const defaultEnabled = defaults[id]?.enabled ?? true;
       const enabled = state[id]?.enabled ?? defaultEnabled;
-      return { id, name, description, enabled, isOfficial, isBuiltIn, updatedAt, prompt, skillPath: skillFile, version };
+      const root = path.dirname(dir);
+      const source = isBuiltIn
+        ? (this.pluginSkillIds.has(id) ? 'plugin' : 'bundled')
+        : root === this.getBundledSkillsRoot() ? 'bundled' : 'local';
+      return { id, name, description, enabled, isOfficial, isBuiltIn, updatedAt, prompt, skillPath: skillFile, version, source };
     } catch (error) {
       console.warn('[skills] Failed to parse skill:', dir, error);
       return null;

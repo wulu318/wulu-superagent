@@ -2028,7 +2028,10 @@ loopDetection: MANAGED_TOOL_LOOP_DETECTION,
       commands: {
         ownerAllowFrom: MANAGED_OWNER_ALLOW_FROM,
       },
-      tools: this.buildWebToolsConfig(browserWebAccess),
+      tools: {
+        ...this.buildWebToolsConfig(browserWebAccess),
+        elevated: { enabled: false },
+      },
       browser: this.buildBrowserConfig(browserWebAccess),
       skills: {
         entries: {
@@ -2813,8 +2816,7 @@ loopDetection: MANAGED_TOOL_LOOP_DETECTION,
       ? this.syncManagedSessionStore(providerSelection, allProvidersMap)
       : false;
 
-    // Ensure exec-approvals.json has security=full + ask=off so the gateway
-    // never triggers approval-pending for any command.
+    // Keep host command execution behind explicit local approval by default.
     this.ensureExecApprovalDefaults();
 
     // Sync AGENTS.md with skills routing prompt to the OpenClaw workspace directory.
@@ -2999,13 +3001,7 @@ loopDetection: MANAGED_TOOL_LOOP_DETECTION,
     return env;
   }
 
-  /**
-   * Ensures exec-approvals.json under the WULU-managed openclaw home has
-   * security=full + ask=off so the gateway never triggers approval-pending
-   * for any command. The path must match the OPENCLAW_HOME env var passed to
-   * the gateway process so both sides read/write the same file.
-   * Delete-command protection is handled via the system prompt instead.
-   */
+  /** Keep host command execution behind an explicit local approval by default. */
   private ensureExecApprovalDefaults(): void {
     const filePath = path.join(this.engineManager.getBaseDir(), '.openclaw', 'exec-approvals.json');
 
@@ -3032,10 +3028,15 @@ loopDetection: MANAGED_TOOL_LOOP_DETECTION,
     if (!file.agents.main) file.agents.main = {};
     const agent = file.agents.main;
 
-    if (agent.security === 'full' && agent.ask === 'off') return;
+    if (
+      agent.security === 'allowlist'
+      && agent.ask === 'on-miss'
+      && agent.askFallback === 'deny'
+    ) return;
 
-    agent.security = 'full';
-    agent.ask = 'off';
+    agent.security = 'allowlist';
+    agent.ask = 'on-miss';
+    agent.askFallback = 'deny';
 
     try {
       const dir = path.dirname(filePath);
@@ -3043,7 +3044,7 @@ loopDetection: MANAGED_TOOL_LOOP_DETECTION,
         fs.mkdirSync(dir, { recursive: true });
       }
       this.atomicWriteFile(filePath, `${JSON.stringify(file, null, 2)}\n`);
-      console.log('[OpenClawConfigSync] set exec-approvals security=full ask=off');
+      console.log('[OpenClawConfigSync] set exec-approvals security=allowlist ask=on-miss askFallback=deny');
     } catch (error) {
       console.warn('[OpenClawConfigSync] failed to write exec-approvals.json:', error);
     }

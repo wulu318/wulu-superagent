@@ -1,5 +1,6 @@
 import { EventEmitter } from 'events';
 import fs from 'fs';
+import os from 'os';
 import path from 'path';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
@@ -182,6 +183,45 @@ describe('Windows update install', () => {
     const [, args] = cpMocks.execFile.mock.calls[0] as [string, string[]];
     const script = args[args.length - 1];
     expect(script).not.toContain(WINDOWS_NO_DEFENDER_EXCLUSION_ARG);
+  });
+});
+
+describe('Linux AppImage update install', () => {
+  const originalPlatform = process.platform;
+  const originalAppImage = process.env.APPIMAGE;
+  let tempDir = '';
+
+  beforeEach(async () => {
+    mocks.quit.mockReset();
+    mocks.relaunch.mockReset();
+    mocks.showItemInFolder.mockReset();
+    Object.defineProperty(process, 'platform', { value: 'linux' });
+    tempDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'wulu-appimage-test-'));
+    const installedPath = path.join(tempDir, 'WULU.AppImage');
+    process.env.APPIMAGE = installedPath;
+    await fs.promises.writeFile(installedPath, 'old app');
+    await fs.promises.chmod(installedPath, 0o755);
+  });
+
+  afterEach(async () => {
+    Object.defineProperty(process, 'platform', { value: originalPlatform });
+    if (originalAppImage === undefined) delete process.env.APPIMAGE;
+    else process.env.APPIMAGE = originalAppImage;
+    await fs.promises.rm(tempDir, { recursive: true, force: true });
+    vi.restoreAllMocks();
+  });
+
+  test('atomically replaces the installed AppImage and relaunches it', async () => {
+    const updatePath = path.join(tempDir, 'WULU-update.AppImage');
+    await fs.promises.writeFile(updatePath, 'new app');
+
+    await installUpdate(updatePath);
+
+    expect(await fs.promises.readFile(process.env.APPIMAGE!, 'utf8')).toBe('new app');
+    expect((await fs.promises.stat(process.env.APPIMAGE!)).mode & 0o777).toBe(0o755);
+    expect(mocks.relaunch).toHaveBeenCalledWith({ execPath: process.env.APPIMAGE, args: process.argv.slice(1) });
+    expect(mocks.quit).toHaveBeenCalledOnce();
+    await expect(fs.promises.stat(updatePath)).rejects.toMatchObject({ code: 'ENOENT' });
   });
 });
 

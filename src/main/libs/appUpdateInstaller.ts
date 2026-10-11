@@ -328,7 +328,45 @@ export async function installUpdate(
   if (process.platform === 'win32') {
     return installWindowsNsis(filePath, options);
   }
+  if (process.platform === 'linux') {
+    return installLinuxAppImage(filePath);
+  }
   throw new Error('Unsupported platform');
+}
+
+async function installLinuxAppImage(appImagePath: string): Promise<void> {
+  if (!appImagePath.toLowerCase().endsWith('.appimage')) {
+    throw new Error('Automatic Linux updates currently support AppImage packages only');
+  }
+  const installedPath = process.env.APPIMAGE;
+  if (!installedPath) {
+    shell.showItemInFolder(appImagePath);
+    throw new Error('Could not locate the installed AppImage. The downloaded update was kept in the updates folder.');
+  }
+
+  const targetPath = path.resolve(installedPath);
+  const targetStat = await fs.promises.stat(targetPath).catch((): null => null);
+  if (!targetStat?.isFile()) {
+    shell.showItemInFolder(appImagePath);
+    throw new Error('The installed AppImage could not be found. The downloaded update was kept in the updates folder.');
+  }
+
+  const stagingPath = `${targetPath}.wulu-update-${process.pid}.tmp`;
+  try {
+    console.log(`[AppUpdate] Staging Linux AppImage replacement at ${stagingPath}`);
+    await fs.promises.copyFile(appImagePath, stagingPath, fs.constants.COPYFILE_EXCL);
+    await fs.promises.chmod(stagingPath, targetStat.mode & 0o777);
+    await fs.promises.rename(stagingPath, targetPath);
+  } catch (error) {
+    await fs.promises.unlink(stagingPath).catch(() => {});
+    shell.showItemInFolder(appImagePath);
+    throw new Error(`Could not replace the installed AppImage. The update remains at ${appImagePath}. ${error instanceof Error ? error.message : ''}`);
+  }
+
+  await fs.promises.unlink(appImagePath).catch(() => {});
+  console.log(`[AppUpdate] Linux AppImage updated at ${targetPath}; relaunching`);
+  app.relaunch({ execPath: targetPath, args: process.argv.slice(1) });
+  app.quit();
 }
 
 /** Prefix of explicit DMG mount point directories under userData/updates. */

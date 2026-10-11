@@ -1627,6 +1627,8 @@ class CoworkService {
 
   async listMemoryEntries(input: {
     query?: string;
+    status?: 'created' | 'stale' | 'deleted' | 'all';
+    includeDeleted?: boolean;
     limit?: number;
     offset?: number;
   }): Promise<CoworkUserMemoryEntry[]> {
@@ -1639,6 +1641,8 @@ class CoworkService {
 
   async createMemoryEntry(input: {
     text: string;
+    confidence?: number;
+    isExplicit?: boolean;
   }): Promise<CoworkUserMemoryEntry | null> {
     const api = window.electron?.cowork?.createMemoryEntry;
     if (!api) return null;
@@ -1650,6 +1654,9 @@ class CoworkService {
   async updateMemoryEntry(input: {
     id: string;
     text: string;
+    confidence?: number;
+    status?: 'created' | 'stale' | 'deleted';
+    isExplicit?: boolean;
   }): Promise<CoworkUserMemoryEntry | null> {
     const api = window.electron?.cowork?.updateMemoryEntry;
     if (!api) return null;
@@ -1659,10 +1666,23 @@ class CoworkService {
   }
 
   async deleteMemoryEntry(input: { id: string }): Promise<boolean> {
+    const entry = await this.findMemoryEntry(input.id);
+    if (entry?.source === 'memory_file') {
+      const remove = window.electron?.cowork?.deleteMemoryFileEntry;
+      if (!remove) return false;
+      return Boolean((await remove(input.id)).success);
+    }
     const api = window.electron?.cowork?.deleteMemoryEntry;
     if (!api) return false;
     const result = await api(input);
     return Boolean(result?.success);
+  }
+
+  private async findMemoryEntry(id: string): Promise<CoworkUserMemoryEntry | undefined> {
+    const api = window.electron?.cowork?.listMemoryEntries;
+    if (!api) return undefined;
+    const result = await api({ limit: 200 });
+    return result?.entries?.find(entry => entry.id === id);
   }
 
   async getMemoryStats(): Promise<CoworkMemoryStats | null> {
@@ -1904,6 +1924,7 @@ class CoworkService {
   async wuluCloudRegister(input: {
     email: string;
     password: string;
+    verificationCode: string;
     displayName?: string;
   }): Promise<{
     success: boolean;
@@ -1914,6 +1935,27 @@ class CoworkService {
     const api = window.electron?.cowork?.wuluCloudRegister;
     if (!api) return { success: false, error: 'WULU Cloud not available' };
     return api(input);
+  }
+
+  async wuluCloudSendVerificationCode(input: { email: string }): Promise<{
+    success: boolean;
+    code?: string;
+    expiresIn?: number;
+    error?: string;
+  }> {
+    const api = window.electron?.cowork?.wuluCloudSendVerificationCode;
+    if (!api) return { success: false, error: 'WULU Cloud not available' };
+    return api(input);
+  }
+
+  async wuluCloudGetPlans(): Promise<{
+    success: boolean;
+    plans?: Array<{ id: string; name: string; description: string; priceMonthly: number; priceYearly: number; quotaMonthly: number; features: Record<string, unknown>; modelAccess: string[]; maxContextTokens: number }>;
+    error?: string;
+  }> {
+    const api = window.electron?.cowork?.wuluCloudGetPlans;
+    if (!api) return { success: false, error: 'WULU Cloud not available' };
+    return api();
   }
 
   async wuluCloudLogin(input: {
@@ -1958,6 +2000,31 @@ class CoworkService {
     const api = window.electron?.cowork?.wuluCloudRefreshToken;
     if (!api) return { success: false, error: 'WULU Cloud not available' };
     return api(token);
+  }
+
+  async wuluCloudGetUsage(input: { token: string; period?: '7d' | '30d' | '90d' }) {
+    const api = window.electron?.cowork?.wuluCloudGetUsage;
+    return api ? api(input) : { success: false, data: undefined, error: 'WULU Cloud not available' };
+  }
+
+  async wuluCloudListMemory(input: { token: string; limit?: number; offset?: number }) {
+    const api = window.electron?.cowork?.wuluCloudListMemory;
+    return api ? api(input) : { success: false, data: undefined, error: 'WULU Cloud not available' };
+  }
+
+  async wuluCloudCreateMemory(input: { token: string; content: string; layer?: string; tags?: string[] }) {
+    const api = window.electron?.cowork?.wuluCloudCreateMemory;
+    return api ? api(input) : { success: false, data: undefined, error: 'WULU Cloud not available' };
+  }
+
+  async wuluCloudUpdateMemory(input: { token: string; id: string; content: string; layer?: string; tags?: string[] }) {
+    const api = window.electron?.cowork?.wuluCloudUpdateMemory;
+    return api ? api(input) : { success: false, data: undefined, error: 'WULU Cloud not available' };
+  }
+
+  async wuluCloudDeleteMemory(input: { token: string; id: string }) {
+    const api = window.electron?.cowork?.wuluCloudDeleteMemory;
+    return api ? api(input) : { success: false, data: undefined, error: 'WULU Cloud not available' };
   }
 
   // ─── Environment Awareness ──────────────────────────────────────

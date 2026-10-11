@@ -540,6 +540,7 @@ contextBridge.exposeInMainWorld('electron', {
     readMemoryFileRaw: () => ipcRenderer.invoke(CoworkIpcChannel.MemoryReadRaw),
     writeMemoryFileRaw: (input: { content: string }) =>
       ipcRenderer.invoke(CoworkIpcChannel.MemoryWriteRaw, input),
+    deleteMemoryFileEntry: (id: string) => ipcRenderer.invoke(CoworkIpcChannel.MemoryFileDeleteEntry, id),
     getDreamingStatus: () => ipcRenderer.invoke('cowork:dreaming:status'),
     getDreamDiary: () => ipcRenderer.invoke('cowork:dreaming:diary'),
     readBootstrapFile: (filename: string, options?: { agentId?: string }) =>
@@ -561,8 +562,11 @@ contextBridge.exposeInMainWorld('electron', {
     newApiFetchModels: (config: { baseUrl: string; apiKey: string }) =>
       ipcRenderer.invoke(CoworkIpcChannel.NewApiFetchModels, config),
     // WULU Cloud
-    wuluCloudRegister: (input: { email: string; password: string; displayName?: string }) =>
+    wuluCloudRegister: (input: { email: string; password: string; verificationCode: string; displayName?: string }) =>
       ipcRenderer.invoke(CoworkIpcChannel.WuluCloudRegister, input),
+    wuluCloudSendVerificationCode: (input: { email: string }) =>
+      ipcRenderer.invoke(CoworkIpcChannel.WuluCloudSendVerificationCode, input),
+    wuluCloudGetPlans: () => ipcRenderer.invoke(CoworkIpcChannel.WuluCloudGetPlans),
     wuluCloudLogin: (input: { email: string; password: string }) =>
       ipcRenderer.invoke(CoworkIpcChannel.WuluCloudLogin, input),
     wuluCloudGetProfile: (token: string) =>
@@ -571,6 +575,16 @@ contextBridge.exposeInMainWorld('electron', {
       ipcRenderer.invoke(CoworkIpcChannel.WuluCloudGetSubscription, token),
     wuluCloudRefreshToken: (token: string) =>
       ipcRenderer.invoke(CoworkIpcChannel.WuluCloudRefreshToken, token),
+    wuluCloudGetUsage: (input: { token: string; period?: '7d' | '30d' | '90d' }) =>
+      ipcRenderer.invoke(CoworkIpcChannel.WuluCloudUsage, input),
+    wuluCloudListMemory: (input: { token: string; limit?: number; offset?: number }) =>
+      ipcRenderer.invoke(CoworkIpcChannel.WuluCloudMemoryList, input),
+    wuluCloudCreateMemory: (input: { token: string; content: string; layer?: string; tags?: string[] }) =>
+      ipcRenderer.invoke(CoworkIpcChannel.WuluCloudMemoryCreate, input),
+    wuluCloudUpdateMemory: (input: { token: string; id: string; content: string; layer?: string; tags?: string[] }) =>
+      ipcRenderer.invoke(CoworkIpcChannel.WuluCloudMemoryUpdate, input),
+    wuluCloudDeleteMemory: (input: { token: string; id: string }) =>
+      ipcRenderer.invoke(CoworkIpcChannel.WuluCloudMemoryDelete, input),
     // Environment Awareness
     getEnvSnapshot: () => ipcRenderer.invoke(CoworkIpcChannel.EnvSnapshot),
     // Stream event listeners
