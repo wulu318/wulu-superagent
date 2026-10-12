@@ -1,4 +1,5 @@
 import { getCommandDangerLevel, isDangerousCommand } from '../commandSafety';
+import { getLocalSandboxStatus } from '../localSandbox';
 import { parseChannelSessionKey } from '../openclawChannelSessionSync';
 import type { PermissionRequest, PermissionResult } from './types';
 
@@ -90,6 +91,7 @@ export const parseExecApprovalRequestedPayload = (payload: unknown): ParsedExecA
   const request = typedPayload.request;
   const sessionKey = typeof request.sessionKey === 'string' ? request.sessionKey.trim() : '';
   const command = typeof request.command === 'string' ? request.command : '';
+  const localSandbox = getLocalSandboxStatus();
   return {
     requestId,
     request,
@@ -98,7 +100,9 @@ export const parseExecApprovalRequestedPayload = (payload: unknown): ParsedExecA
     // Local desktop commands always need an explicit approval. Chat channel
     // sessions may run routine commands, but risky commands still require a
     // decision from the user through that channel's approval flow.
-    shouldAutoApprove: parseChannelSessionKey(sessionKey) !== null && !isDangerousCommand(command),
+    shouldAutoApprove: parseChannelSessionKey(sessionKey) !== null
+      && localSandbox.available
+      && !isDangerousCommand(command),
   };
 };
 
