@@ -91,6 +91,11 @@ jobs:
           restore-keys: npm-${{ runner.os }}-
       
       - run: npm install
+      - name: Build Windows sandbox helper
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force resources/sandbox | Out-Null
+          cl /nologo /O2 /EHsc /DUNICODE /D_UNICODE resources/sandbox/windows/wulu-sandbox.cpp /Fe:resources/sandbox/wulu-sandbox.exe
       - run: npm run prepare:local-sandbox
       
       # Windows 需要 Python 运行时
