@@ -45,6 +45,11 @@
   ],
   "extraResources": [
     {
+      "from": "resources/sandbox",
+      "to": "sandbox",
+      "filter": ["**/*"]
+    },
+    {
       "from": ".keyfrom-build",
       "to": "keyfrom",
       "filter": [

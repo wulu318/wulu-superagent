@@ -45,6 +45,7 @@ jobs:
           restore-keys: npm-${{ runner.os }}-
       
       - run: npm install
+      - run: npm run prepare:local-sandbox
       
       # 设置 OpenClaw runtime (如果需要)
       - name: Setup OpenClaw Runtime
@@ -90,6 +91,7 @@ jobs:
           restore-keys: npm-${{ runner.os }}-
       
       - run: npm install
+      - run: npm run prepare:local-sandbox
       
       # Windows 需要 Python 运行时
       - name: Setup Python Runtime
@@ -135,6 +137,7 @@ jobs:
           sudo apt-get install -y libgtk-3-0 libnotify4 libnss3 libxss1 libxtst6 xdg-utils libatspi2.0-0 libuuid1 libsecret-1-0
       
       - run: npm install
+      - run: npm run prepare:local-sandbox
       
       - name: Build Linux
         run: npm run dist:linux

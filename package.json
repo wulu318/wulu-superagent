@@ -111,6 +111,7 @@
     "generate:tray-icons": "node scripts/generate-tray-icons.js",
     "setup:mingit": "node scripts/setup-mingit.js",
     "setup:python-runtime": "node scripts/setup-python-runtime.js",
+    "prepare:local-sandbox": "node scripts/prepare-local-sandbox.cjs",
     "openclaw:ensure": "node scripts/ensure-openclaw-version.cjs",
     "openclaw:patch": "node scripts/apply-openclaw-patches.cjs",
     "openclaw:plugins": "node scripts/ensure-openclaw-plugins.cjs",
