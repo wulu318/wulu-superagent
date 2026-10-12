@@ -17,8 +17,11 @@ export type LocalSandboxCommand = {
   env: NodeJS.ProcessEnv;
 };
 
-const findExecutable = (names: string[]): string | undefined => {
-  const searchPath = process.env.PATH?.split(path.delimiter) ?? [];
+const findExecutable = (names: string[], bundledDir?: string): string | undefined => {
+  const searchPath = [
+    ...(bundledDir ? [bundledDir] : []),
+    ...(process.env.PATH?.split(path.delimiter) ?? []),
+  ];
   for (const dir of searchPath) {
     for (const name of names) {
       const candidate = path.join(dir, name);
@@ -34,22 +37,30 @@ const findExecutable = (names: string[]): string | undefined => {
 
 export const getLocalSandboxStatus = (): LocalSandboxStatus => {
   if (process.platform === 'darwin') {
-    const executable = findExecutable(['sandbox-exec']);
+    const executable = findExecutable(['sandbox-exec'], '/usr/bin');
     return executable
       ? { platform: 'macos', available: true, executable }
       : { platform: 'macos', available: false, reason: 'sandbox-exec is unavailable' };
   }
   if (process.platform === 'linux') {
-    const executable = findExecutable(['bwrap', 'bubblewrap']);
+    const executable = findExecutable(
+      ['bwrap', 'bubblewrap'],
+      path.join(process.resourcesPath ?? '', 'sandbox'),
+    );
     return executable
       ? { platform: 'linux', available: true, executable }
       : { platform: 'linux', available: false, reason: 'bubblewrap is unavailable' };
   }
   if (process.platform === 'win32') {
+    const executable = findExecutable(
+      ['wulu-sandbox.exe'],
+      path.join(process.resourcesPath ?? '', 'sandbox'),
+    );
     return {
       platform: 'windows',
-      available: false,
-      reason: 'Windows restricted-token backend is not installed',
+      available: Boolean(executable),
+      executable,
+      reason: executable ? undefined : 'bundled Windows sandbox helper is unavailable',
     };
   }
   return { platform: 'unsupported', available: false, reason: 'platform is unsupported' };
@@ -72,6 +83,13 @@ export const buildLocalSandboxCommand = (
   if (status.platform === 'macos') {
     const profile = `(version 1) (deny network*) (allow process*) (allow file-read*) (allow file-write* (subpath "${root.replaceAll('"', '\\"')}"))`;
     return { argv: [status.executable, '-p', profile, '/bin/sh', '-c', command], cwd: root, env };
+  }
+  if (status.platform === 'windows') {
+    return {
+      argv: [status.executable, '--workspace', root, '--deny-network', '--', 'cmd.exe', '/d', '/s', '/c', command],
+      cwd: root,
+      env: { ...env, USERPROFILE: root, HTTP_PROXY: '', HTTPS_PROXY: '', ALL_PROXY: '' },
+    };
   }
   const dev = process.env.WULU_SANDBOX_DEV ?? '/dev';
   return {
