@@ -34,7 +34,7 @@ jobs:
     if: ${{ github.event_name == 'push' || inputs.build_macos }}
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-node@v4
         with:
           node-version: '24.x'
@@ -80,7 +80,7 @@ jobs:
     if: ${{ github.event_name == 'push' || inputs.build_windows }}
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-node@v4
         with:
           node-version: '24.x'
@@ -126,7 +126,7 @@ jobs:
     if: ${{ github.event_name == 'push' || inputs.build_linux }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-node@v4
         with:
           node-version: '24.x'
@@ -161,7 +161,7 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       
       - name: Download All Artifacts
         uses: actions/download-artifact@v4
