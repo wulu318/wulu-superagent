@@ -112,7 +112,7 @@ jobs:
 
       - name: Create Pull Request
         if: steps.check.outputs.changed == 'true'
-        uses: peter-evans/create-pull-request@v6
+        uses: peter-evans/create-pull-request@v8
         with:
           branch: upstream-sync-${{ github.run_number }}
           title: 'chore: sync upstream LobsterAI'
