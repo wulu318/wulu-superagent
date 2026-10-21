@@ -1,4 +1,7 @@
 import { t } from '../../i18n';
+import { CoworkPermissionMode } from '../../../shared/cowork/permissions';
+import { isDangerousCommand } from '../commandSafety';
+import { clearTaskPermissions, getTaskPermissionMode, hasTaskPermission, rememberTaskPermission } from './taskPermissions';
 import {
   buildExecApprovalPermissionRequest,
   buildPluginApprovalPermissionRequest,
@@ -48,6 +51,8 @@ export class OpenClawApprovalController {
     // resolve call below fails.
     this.options.emitPermissionResolved(pending.sessionId, requestId);
 
+    // Remember task grants locally. Persisting a gateway allowlist entry would
+    // leak authorization into later tasks and other sessions.
     const decision = resolveApprovalDecision(pending, result);
     const client = this.options.getGatewayClient();
     if (!client) {
@@ -56,6 +61,9 @@ export class OpenClawApprovalController {
     }
 
     const sessionId = pending.sessionId;
+    if (result.behavior === 'allow' && result.allowAlways === true) {
+      rememberTaskPermission(sessionId, pending.permissionCategory ?? pending.kind);
+    }
     // Only schedule continuation for user-initiated exec approvals, not for
     // plugin approvals or auto-approved commands, nor when the user opted to
     // remember the decision for the session (allow-always).
@@ -112,14 +120,19 @@ export class OpenClawApprovalController {
       return;
     }
 
-    if (shouldAutoApprove) {
+    const mode = getTaskPermissionMode(sessionId);
+    if (mode === CoworkPermissionMode.All || hasTaskPermission(sessionId, 'exec')
+      || (mode === CoworkPermissionMode.Routine && !isDangerousCommand(command))
+      || shouldAutoApprove) {
       this.pendingApprovals.set(requestId, {
         requestId,
         sessionId,
         kind: 'exec',
+        allowedDecisions: ['allow-once', 'deny'],
         allowAlways: true,
       });
       this.respondToPermission(requestId, { behavior: 'allow', updatedInput: {} });
+      return;
     }
 
     this.pendingApprovals.set(requestId, {
@@ -163,12 +176,20 @@ export class OpenClawApprovalController {
       return;
     }
 
+    const permissionCategory = `plugin:${request.pluginId ?? ''}:${request.toolName ?? ''}`;
     this.pendingApprovals.set(requestId, {
       requestId,
       sessionId,
       kind: 'plugin',
       allowedDecisions,
+      permissionCategory,
     });
+
+    if (getTaskPermissionMode(sessionId) === CoworkPermissionMode.All
+      || hasTaskPermission(sessionId, permissionCategory)) {
+      this.respondToPermission(requestId, { behavior: 'allow', updatedInput: {} });
+      return;
+    }
 
     this.options.emitPermissionRequest(
       sessionId,
@@ -187,6 +208,7 @@ export class OpenClawApprovalController {
   }
 
   clearBySession(sessionId: string): void {
+    clearTaskPermissions(sessionId);
     for (const [requestId, pending] of this.pendingApprovals.entries()) {
       if (pending.sessionId === sessionId) {
         this.pendingApprovals.delete(requestId);

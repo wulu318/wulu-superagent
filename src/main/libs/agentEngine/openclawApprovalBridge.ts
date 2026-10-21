@@ -6,6 +6,7 @@ import type { PermissionRequest, PermissionResult } from './types';
 export type ApprovalDecision = 'allow-once' | 'allow-always' | 'deny';
 
 export type PendingApprovalEntry = {
+  permissionCategory?: string;
   requestId: string;
   sessionId: string;
   kind: 'exec' | 'plugin';

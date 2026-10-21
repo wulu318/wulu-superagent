@@ -1,4 +1,6 @@
 import crypto from 'crypto';
+import type { CoworkPermissionMode } from '../shared/cowork/permissions';
+import { beginTaskPermissions } from './libs/agentEngine/taskPermissions';
 import {
   app,
   BrowserWindow,
@@ -6794,6 +6796,7 @@ if (!gotTheLock) {
     async (
       _event,
       options: {
+        permissionMode?: CoworkPermissionMode;
         prompt: string;
         cwd?: string;
         systemPrompt?: string;
@@ -6942,6 +6945,7 @@ if (!gotTheLock) {
         coworkStoreInstance.updateSession(session.id, { status: 'running' });
 
         const runtime = getCoworkEngineRouter();
+        beginTaskPermissions(session.id, options.permissionMode);
         console.log(
           '[CoworkFirstResponseTiming] start IPC dispatched to runtime.',
           `Session ${session.id}.`,
@@ -7007,6 +7011,7 @@ if (!gotTheLock) {
     async (
       _event,
       options: {
+        permissionMode?: CoworkPermissionMode;
         sessionId: string;
         prompt: string;
         systemPrompt?: string;
@@ -7110,6 +7115,7 @@ if (!gotTheLock) {
           `Session ${options.sessionId}.`,
           `Elapsed ${Date.now() - ipcStartedAtMs}ms.`,
         );
+        beginTaskPermissions(options.sessionId, options.permissionMode);
         runtime
           .continueSession(options.sessionId, options.prompt, {
             systemPrompt: continuationSystemPrompt,

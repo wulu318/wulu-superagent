@@ -853,7 +853,10 @@ class CoworkService {
 
     store.dispatch(setStreaming(true));
 
-    const result = await cowork.startSession(options);
+    const result = await cowork.startSession({
+      permissionMode: options.permissionMode,
+      ...options,
+    });
     if (result.success && result.session) {
       store.dispatch(addSession(result.session));
       if (result.session.status !== 'running') {
@@ -899,6 +902,7 @@ class CoworkService {
     store.dispatch(updateSessionStatus({ sessionId: options.sessionId, status: 'running' }));
 
     const result = await cowork.continueSession({
+      permissionMode: options.permissionMode,
       sessionId: options.sessionId,
       prompt: options.prompt,
       systemPrompt: options.systemPrompt,

@@ -25,6 +25,7 @@ import {
   CoworkGoalStatus,
   formatCoworkGoalUsage,
 } from '../../../shared/cowork/goal';
+import { CoworkPermissionMode, type CoworkPermissionMode as CoworkPermissionModeType } from '../../../shared/cowork/permissions';
 import {
   formatCoworkImageAttachmentLimit,
 } from '../../../shared/cowork/imageAttachments';
@@ -401,6 +402,7 @@ interface CoworkPromptInputProps {
     selectedTextSnippets?: CoworkSelectedTextSnippet[],
     browserAnnotations?: CoworkBrowserAnnotationMessageBatch[],
     collaborationMode?: CoworkCollaborationMode,
+    permissionMode?: CoworkPermissionModeType,
   ) => boolean | void | Promise<boolean | void>;
   onStop?: () => void | Promise<void>;
   isStreaming?: boolean;
@@ -463,6 +465,7 @@ const CoworkPromptInput = React.forwardRef<CoworkPromptInputRef, CoworkPromptInp
       canSteer = false,
       remoteManaged = false,
     } = props;
+    const [permissionMode, setPermissionMode] = useState<CoworkPermissionModeType>(CoworkPermissionMode.Routine);
     const dispatch = useDispatch();
     const draftKey = sessionId || '__home__';
     const draftPrompt = useSelector((state: RootState) => selectDraftPrompts(state)[draftKey] || '');
@@ -1681,6 +1684,7 @@ const CoworkPromptInput = React.forwardRef<CoworkPromptInputRef, CoworkPromptInp
       promptPayload.selectedTextSnippets,
       preparedBrowserAnnotations,
       effectiveCollaborationMode,
+      permissionMode,
     );
     if (result === false) {
       reportPromptControl('submit_blocked', {
@@ -1738,7 +1742,7 @@ const CoworkPromptInput = React.forwardRef<CoworkPromptInputRef, CoworkPromptInp
     resetGoalInput(false);
     draftStartedAnalyticsRef.current = false;
     inputSourceOverrideRef.current = null;
-  }, [value, steerInputActive, steerValue, isVoiceRecording, stopVoiceRecordingAndRecognize, goalInputActive, goalInputMode, resetGoalInput, isStreaming, canSteer, remoteManaged, disabled, isPatchingModel, onSubmit, onGoalCommand, activeSkillIds, skills, activeKitIds, marketplaceKits, installedKits, attachments, browserAnnotationBatches, showFolderSelector, workingDirectory, dispatch, draftKey, selectedTextSnippets, pendingSteers.length, resolveSubmitModelAccessPrompt, isPlanMode, planConfirmation, reportPromptControl, getPromptCapabilityAnalyticsParams, getPromptContextAnalyticsParams, getPromptInputSource, goal, sessionId, preparePromptPayload, modelSupportsImage, queuedMediaSelection]);
+  }, [value, steerInputActive, steerValue, isVoiceRecording, stopVoiceRecordingAndRecognize, goalInputActive, goalInputMode, resetGoalInput, isStreaming, canSteer, remoteManaged, disabled, isPatchingModel, onSubmit, onGoalCommand, activeSkillIds, skills, activeKitIds, marketplaceKits, installedKits, attachments, browserAnnotationBatches, showFolderSelector, workingDirectory, dispatch, draftKey, selectedTextSnippets, pendingSteers.length, resolveSubmitModelAccessPrompt, isPlanMode, planConfirmation, reportPromptControl, getPromptCapabilityAnalyticsParams, getPromptContextAnalyticsParams, getPromptInputSource, goal, sessionId, preparePromptPayload, modelSupportsImage, queuedMediaSelection, permissionMode]);
 
   const handleSelectSkill = useCallback((skill: Skill) => {
     const willSelect = !activeSkillIds.includes(skill.id);
@@ -3414,6 +3418,25 @@ const CoworkPromptInput = React.forwardRef<CoworkPromptInputRef, CoworkPromptInp
     && normalizedGoalEditDraft !== goal.objective.trim()
     && !goalEditSaving
   );
+  const permissionModeControl = (
+    <div className="flex items-center gap-2 px-3 pb-1 pt-1 text-xs text-muted">
+      <label htmlFor={`${draftKey}-permission-mode`} className="shrink-0">
+        {i18nService.t('coworkPermissionModeLabel')}
+      </label>
+      <select
+        id={`${draftKey}-permission-mode`}
+        value={permissionMode}
+        onChange={(event) => setPermissionMode(event.target.value as CoworkPermissionModeType)}
+        disabled={disabled || remoteManaged}
+        className="min-w-0 rounded-md border border-border bg-background px-2 py-1 text-xs text-secondary outline-none transition-colors focus:border-primary disabled:cursor-not-allowed disabled:opacity-60"
+        aria-label={i18nService.t('coworkPermissionModeLabel')}
+      >
+        <option value={CoworkPermissionMode.Ask}>{i18nService.t('coworkPermissionModeAsk')}</option>
+        <option value={CoworkPermissionMode.Routine}>{i18nService.t('coworkPermissionModeRoutine')}</option>
+        <option value={CoworkPermissionMode.All}>{i18nService.t('coworkPermissionModeAll')}</option>
+      </select>
+    </div>
+  );
 
   return (
     <div data-skin-prompt-input="true" className="relative">
@@ -3808,6 +3831,7 @@ const CoworkPromptInput = React.forwardRef<CoworkPromptInputRef, CoworkPromptInp
           </>
         )}
       </div>
+      {permissionModeControl}
       {readOnlyContextRow}
       {modelAccessPrompt && (
         <ModelAccessPromptModal

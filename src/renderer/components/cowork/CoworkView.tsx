@@ -259,6 +259,7 @@ const CoworkView: React.FC<CoworkViewProps> = ({
     selectedTextSnippets?: CoworkSelectedTextSnippet[],
     browserAnnotations?: CoworkBrowserAnnotationMessageBatch[],
     collaborationMode: CoworkCollaborationModeType = CoworkCollaborationMode.Default,
+    permissionMode?: import('../../../shared/cowork/permissions').CoworkPermissionMode,
   ): Promise<boolean | void> => {
     console.log('[CoworkView] handleStartSession: imageAttachments diagnosis', {
       hasImageAttachments: !!imageAttachments,
@@ -404,6 +405,7 @@ const CoworkView: React.FC<CoworkViewProps> = ({
         `creating session with model ${sessionModelOverride || 'default'}; agent model is ${currentAgent?.model || 'empty'}; server model is ${currentAgentSelectedModel?.isServerModel === true}`,
       );
       const { session: startedSession, error: startError } = await coworkService.startSession({
+        permissionMode,
         prompt,
         title: fallbackTitle,
         cwd: currentAgentWorkingDirectory || undefined,
@@ -492,6 +494,7 @@ const CoworkView: React.FC<CoworkViewProps> = ({
     selectedTextSnippets?: CoworkSelectedTextSnippet[],
     browserAnnotations?: CoworkBrowserAnnotationMessageBatch[],
     collaborationMode: CoworkCollaborationModeType = CoworkCollaborationMode.Default,
+    permissionMode?: import('../../../shared/cowork/permissions').CoworkPermissionMode,
   ) => {
     if (!currentSession) return false;
     // Prevent duplicate submissions
@@ -533,6 +536,7 @@ const CoworkView: React.FC<CoworkViewProps> = ({
       const combinedSystemPrompt = buildCoworkContinuationSystemPrompt(skillPrompt, config.systemPrompt);
 
       const sent = await coworkService.continueSession({
+        permissionMode,
         sessionId: currentSession.id,
         prompt,
         systemPrompt: combinedSystemPrompt,

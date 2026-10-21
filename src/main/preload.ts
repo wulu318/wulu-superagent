@@ -376,6 +376,7 @@ contextBridge.exposeInMainWorld('electron', {
   cowork: {
     // Session management
     startSession: (options: {
+      permissionMode?: import('../shared/cowork/permissions').CoworkPermissionMode;
       prompt: string;
       cwd?: string;
       systemPrompt?: string;
@@ -393,6 +394,7 @@ contextBridge.exposeInMainWorld('electron', {
       mediaSelection?: { mode: string; modelId?: string; modelName?: string; imageModelId?: string; videoModelId?: string }; mediaReferences?: Array<{ token: string; mediaType: string; index: number; fileId: string; fileName: string; mimeType: string; localPath?: string; remoteUrl?: string; dataUrl?: string; role?: string }>;
     }) => ipcRenderer.invoke('cowork:session:start', options),
     continueSession: (options: {
+      permissionMode?: import('../shared/cowork/permissions').CoworkPermissionMode;
       sessionId: string;
       prompt: string;
       systemPrompt?: string;

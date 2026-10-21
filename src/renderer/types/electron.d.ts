@@ -800,6 +800,7 @@ interface IElectronAPI {
   };
   cowork: {
     startSession: (options: {
+      permissionMode?: import('../../shared/cowork/permissions').CoworkPermissionMode;
       prompt: string;
       cwd?: string;
       systemPrompt?: string;
@@ -823,6 +824,7 @@ interface IElectronAPI {
       engineStatus?: OpenClawEngineStatus;
     }>;
     continueSession: (options: {
+      permissionMode?: import('../../shared/cowork/permissions').CoworkPermissionMode;
       sessionId: string;
       prompt: string;
       systemPrompt?: string;

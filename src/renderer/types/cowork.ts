@@ -402,6 +402,7 @@ export interface SubagentSessionSummary {
 
 // Start session options
 export interface CoworkStartOptions {
+  permissionMode?: import('../../shared/cowork/permissions').CoworkPermissionMode;
   prompt: string;
   cwd?: string;
   systemPrompt?: string;
@@ -422,6 +423,7 @@ export interface CoworkStartOptions {
 
 // Continue session options
 export interface CoworkContinueOptions {
+  permissionMode?: import('../../shared/cowork/permissions').CoworkPermissionMode;
   sessionId: string;
   prompt: string;
   systemPrompt?: string;
