@@ -183,9 +183,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  # ─── 全自动发布：打 tag (v*) 时自动生成增量包 + 上传安装包 + 填版本 ───
+  # Synchronize verified stable assets after the GitHub release is complete.
   auto-publish:
-    needs: [build]
+    needs: [release]
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
     steps:
@@ -197,38 +197,9 @@ jobs:
         with:
           node-version: '24'
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10
-
-      - name: Install publish deps
-        # archiver v8 (latest) switched to named exports and breaks
-        # `const archiver = require('archiver')`; pin to v5 to match
-        # publish-release.cjs and the local node_modules (5.3.2).
-        run: npm install --no-save archiver@5 extract-zip
-
-      - name: Download all artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: dist
-
       - name: Extract version from tag
         id: version
         run: echo "version=${GITHUB_REF#refs/tags/v}" >> "$GITHUB_OUTPUT"
-
-      - name: List artifacts
-        run: find dist -type f | head -50
-
-      - name: Stage installers into release/
-        run: |
-          mkdir -p release
-          find dist -type f \( -name '*.exe' -o -name '*.dmg' -o -name '*.AppImage' -o -name '*.deb' -o -name '*.rpm' \) -exec cp {} release/ \;
-          # Locate app.asar (windows unpacked or mac bundle)
-          ASAR_FILE=$(find dist -name 'app.asar' -not -path '*app.asar.unpacked*' | head -1)
-          echo "asar: ${ASAR_FILE:-not-found}"
-          if [ -n "$ASAR_FILE" ]; then cp "$ASAR_FILE" release/app.asar; fi
-          ls -la release/
 
       - name: Run auto publish
         env:
@@ -236,7 +207,6 @@ jobs:
           WULU_ADMIN_EMAIL: ai@ai.005656.xyz
           WULU_ADMIN_PASS: ${{ secrets.WULU_ADMIN_PASS }}
           WULU_RELEASE_TITLE: WULU SuperAgent v${{ steps.version.outputs.version }}
-          WULU_PATCH_BASE_VERSION: ${{ secrets.WULU_PATCH_BASE_VERSION }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          node scripts/publish-release.cjs ${{ steps.version.outputs.version }} --asar release/app.asar
+          node scripts/publish-release.cjs ${{ steps.version.outputs.version }} --github-only

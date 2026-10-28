@@ -23,7 +23,6 @@ const crypto = require('crypto');
 const fs = require('fs');
 const https = require('https');
 const path = require('path');
-const archiver = require('archiver');
 
 const BACKEND_URL = process.env.WULU_BACKEND_URL || 'https://ai.005656.xyz';
 const ADMIN_EMAIL = process.env.WULU_ADMIN_EMAIL || 'ai@ai.005656.xyz';
@@ -33,6 +32,48 @@ const GITHUB_TOKEN = process.env.GH_TOKEN || '';
 const GITHUB_REPO = 'wulu318/wulu-superagent';
 
 function log(msg) { console.log(`[Publish] ${msg}`); }
+
+function compareVersions(a, b) {
+  const left = String(a).split('.').map(Number);
+  const right = String(b).split('.').map(Number);
+  for (let i = 0; i < Math.max(left.length, right.length); i++) {
+    const difference = (left[i] || 0) - (right[i] || 0);
+    if (difference) return Math.sign(difference);
+  }
+  return 0;
+}
+
+// Register immutable GitHub assets without uploading large installers through
+// the website reverse proxy (which may reject them with HTTP 502/413).
+async function githubReleasePayload(version) {
+  const response = await httpsRequest(`https://api.github.com/repos/${GITHUB_REPO}/releases/tags/v${version}`, {
+    headers: { 'User-Agent': 'WULU-Publish', ...(GITHUB_TOKEN ? { Authorization: `Bearer ${GITHUB_TOKEN}` } : {}) },
+  });
+  if (response.status !== 200) throw new Error(`Release lookup failed (${response.status})`);
+  const release = JSON.parse(response.text);
+  return releaseAssetsPayload(release);
+}
+
+function releaseAssetsPayload(release) {
+  if (release.draft || release.prerelease) throw new Error('Only published stable releases can be synchronized');
+  const selectors = {
+    windows_x64: name => /Setup-x64-.*\.exe$/.test(name),
+    mac_arm: name => /darwin-arm64-.*\.dmg$/.test(name),
+    linux_x64: name => /x86_64\.AppImage$/.test(name),
+    linux_arm64: name => /arm64\.AppImage$/.test(name),
+  };
+  const payload = {};
+  for (const [platform, matches] of Object.entries(selectors)) {
+    const asset = release.assets.find(asset => matches(asset.name));
+    if (!asset || !/^sha256:[a-f0-9]{64}$/.test(asset.digest || '')) {
+      throw new Error(`Missing installer or SHA256 for ${platform}`);
+    }
+    payload[`${platform}_url`] = asset.browser_download_url;
+    payload[`${platform}_size`] = String(asset.size);
+    payload[`${platform}_sha256`] = asset.digest.slice(7);
+  }
+  return payload;
+}
 
 function httpsRequest(url, options = {}, body = null) {
   return new Promise((resolve, reject) => {
@@ -132,6 +173,7 @@ async function uploadFileToRuntime(token, localPath, remoteName) {
 
 /** Build an incremental patch zip containing the new app.asar (and manifest). */
 async function buildIncrementalPatch(asarPath, version, baseVersion) {
+  const archiver = require('archiver');
   const patchDir = path.dirname(asarPath);
   const patchFile = path.join(patchDir, `WULU-patch-${baseVersion}-to-${version}.zip`);
   await new Promise((resolve, reject) => {
@@ -216,6 +258,13 @@ async function main() {
     is_latest: true,
   };
 
+  if (process.argv.includes('--github-only')) {
+    Object.assign(payload, await githubReleasePayload(version));
+    await upsertVersion(token, version, payload);
+    log('Stable installers synchronized from GitHub (all four platforms)');
+    return;
+  }
+
   // 1. Gather installers from release/ directory (run after CI build)
   const releaseDir = path.resolve('release');
   let winExe = null;
@@ -295,7 +344,11 @@ async function main() {
   log('Publish complete!');
 }
 
-main().catch((err) => {
-  console.error('[Publish] Failed:', err.message);
-  process.exit(1);
-});
+if (require.main === module) {
+  main().catch((err) => {
+    console.error('[Publish] Failed:', err.message);
+    process.exit(1);
+  });
+}
+
+module.exports = { compareVersions, githubReleasePayload, releaseAssetsPayload };
