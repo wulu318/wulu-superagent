@@ -121,6 +121,22 @@ class AuthService {
   private lastRefreshTime = 0;
   private loginAttemptSequence = 0;
 
+  private async syncCloudAccount(user: UserProfile): Promise<void> {
+    try {
+      const token = await window.electron.auth.getAccessToken();
+      if (!token) return;
+      const { coworkService } = await import('./cowork');
+      const current = store.getState().cowork.config;
+      if (current.wuluCloudToken === token && current.wuluCloudEnabled) return;
+      const saved = await coworkService.updateConfig({
+        wuluCloudToken: token, wuluCloudEmail: user.email || '', wuluCloudEnabled: true,
+      });
+      if (!saved) writeAuthRendererLog('warn', 'failed to synchronize cloud account settings');
+    } catch (error) {
+      writeAuthRendererLog('warn', 'cloud account settings synchronization failed', error);
+    }
+  }
+
   /**
    * Initialize: try to restore login state from persisted token.
    */
@@ -230,6 +246,7 @@ class AuthService {
       if (result.success) {
         writeAuthRendererLog('info', 'login callback exchange succeeded');
         store.dispatch(setLoggedIn({ user: result.user, quota: result.quota }));
+        await this.syncCloudAccount(result.user);
         await this.loadServerModels();
         void this.fetchProfileSummary();
         this.refreshQuota();
@@ -252,6 +269,7 @@ class AuthService {
       const result = await window.electron.auth.getUser();
       if (result.success && result.user) {
         store.dispatch(setLoggedIn({ user: result.user, quota: result.quota }));
+        await this.syncCloudAccount(result.user);
         await this.loadServerModels();
         void this.fetchProfileSummary();
         return { isLoggedIn: true, user: result.user, quota: result.quota ?? null };
@@ -279,6 +297,8 @@ class AuthService {
    */
   async logout() {
     await window.electron.auth.logout();
+    const { coworkService } = await import('./cowork');
+    await coworkService.updateConfig({ wuluCloudToken: '', wuluCloudEmail: '', wuluCloudEnabled: false });
     store.dispatch(setLoggedOut());
     store.dispatch(clearServerModels());
     await this.loadPublicPricingCatalogModels();

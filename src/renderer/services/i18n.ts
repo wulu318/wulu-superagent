@@ -6,6 +6,9 @@ export type LanguageType = 'zh' | 'en';
 // 语言文本映射
 const translations: Record<LanguageType, Record<string, string>> = {
   zh: {
+    communityPublish: '发布我的作品',
+    communityPublishHint: '上传技能、连接器或专家套件，审核通过后上架市场',
+    communityUnavailable: '社区发布暂时不可用，请稍后重试。',
     // 通用
     save: '保存',
     cancel: '取消',
@@ -3074,6 +3077,9 @@ const translations: Record<LanguageType, Record<string, string>> = {
     emailDeleting: '删除中...',
   },
   en: {
+    communityPublish: 'Publish my work',
+    communityPublishHint: 'Submit skills, connectors or expert kits for review and marketplace publication',
+    communityUnavailable: 'Community publishing is temporarily unavailable. Please try again later.',
     // Common
     save: 'Save',
     cancel: 'Cancel',

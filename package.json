@@ -1,12 +1,13 @@
 {
   "name": "WULU",
   "private": true,
+  "description": "WULU cross-platform AI workspace for tasks, skills, connectors and expert teams",
   "author": {
     "name": "WULU",
     "email": "contact@wulu-superagent.dev"
   },
   "license": "MIT",
-  "version": "2026.10.28",
+  "version": "2026.10.29",
   "openclaw": {
     "version": "v2026.6.1",
     "repo": "https://github.com/openclaw/openclaw.git",

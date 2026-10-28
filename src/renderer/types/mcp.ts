@@ -62,6 +62,7 @@ export interface McpServerFormData {
 
 // Built-in MCP registry entry (pure frontend definition)
 export interface McpRegistryEntry {
+  url?: string;
   id: string;                    // unique identifier, e.g. 'filesystem'
   name: string;                  // display name
   descriptionKey: string;        // i18n translation key for description
@@ -82,6 +83,7 @@ export interface McpRegistryEntry {
 
 // Remote marketplace server entry
 export interface McpMarketplaceServer {
+  url?: string;
   id: string;
   name: string;
   description_zh?: string;

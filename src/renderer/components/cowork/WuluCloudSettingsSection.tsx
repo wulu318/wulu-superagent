@@ -46,11 +46,8 @@ const WuluCloudSettingsSection: React.FC<WuluCloudSettingsSectionProps> = ({
   // On mount, if we have a token, try to fetch profile
   React.useEffect(() => {
     import('../../services/cowork').then(({ coworkService }) => coworkService.wuluCloudGetPlans())
-      .then((result) => { if (result.success) setPlans(result.plans || []); });
-    if (wuluCloudToken) {
-      loadProfile();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+      .then((result) => { if (result.success) setPlans(result.plans || []); else setCloudDataError(result.error || 'Failed to load plans'); })
+      .catch((error) => setCloudDataError(String(error)));
   }, []);
 
   const loadProfile = useCallback(async () => {
@@ -81,6 +78,11 @@ const WuluCloudSettingsSection: React.FC<WuluCloudSettingsSectionProps> = ({
       setErrorMsg(err instanceof Error ? err.message : i18nService.t('wuluCloudProfileLoadFailed'));
     }
   }, [wuluCloudToken]);
+
+  React.useEffect(() => {
+    if (wuluCloudToken) void loadProfile();
+    else { setCloudUser(null); setSubscription(null); setUsage(null); setCloudMemories([]); }
+  }, [wuluCloudToken, loadProfile]);
 
   const addCloudMemory = useCallback(async () => {
     const content = memoryDraft.trim();
@@ -115,6 +117,8 @@ const WuluCloudSettingsSection: React.FC<WuluCloudSettingsSectionProps> = ({
       const { coworkService } = await import('../../services/cowork');
       const result = await coworkService.wuluCloudLogin({ email: email.trim(), password });
       if (result.success && result.token) {
+        const saved = await coworkService.updateConfig({ wuluCloudEnabled: true, wuluCloudEmail: email.trim(), wuluCloudToken: result.token });
+        if (!saved) throw new Error(i18nService.t('coworkConfigSaveFailed'));
         setStatus('success');
         onWuluCloudEnabledChange(true);
         onWuluCloudEmailChange(email.trim());
@@ -162,6 +166,8 @@ const WuluCloudSettingsSection: React.FC<WuluCloudSettingsSectionProps> = ({
         displayName: displayName.trim() || undefined,
       });
       if (result.success && result.token) {
+        const saved = await coworkService.updateConfig({ wuluCloudEnabled: true, wuluCloudEmail: email.trim(), wuluCloudToken: result.token });
+        if (!saved) throw new Error(i18nService.t('coworkConfigSaveFailed'));
         setStatus('success');
         onWuluCloudEnabledChange(true);
         onWuluCloudEmailChange(email.trim());
@@ -200,7 +206,9 @@ const WuluCloudSettingsSection: React.FC<WuluCloudSettingsSectionProps> = ({
     }
   }, [email]);
 
-  const handleLogout = useCallback(() => {
+  const handleLogout = useCallback(async () => {
+    const { authService } = await import('../../services/auth');
+    await authService.logout();
     onWuluCloudEnabledChange(false);
     onWuluCloudTokenChange('');
     setCloudUser(null);

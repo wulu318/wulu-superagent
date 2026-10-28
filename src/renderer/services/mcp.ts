@@ -16,6 +16,7 @@ function convertMarketplaceToRegistry(
     category: s.category as McpCategory,
     categoryKey: '',
     transportType: s.transportType as McpRegistryEntry['transportType'],
+    url: s.url,
     command: s.command,
     defaultArgs: s.defaultArgs,
     requiredEnvKeys: s.requiredEnvKeys,

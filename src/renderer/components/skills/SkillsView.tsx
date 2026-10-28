@@ -1,6 +1,8 @@
 import React from 'react';
 
+import { CommunityKind } from '../../../shared/community/constants';
 import { i18nService } from '../../services/i18n';
+import CommunityPublishButton from '../CommunityPublishButton';
 import ComposeIcon from '../icons/ComposeIcon';
 import SidebarToggleIcon from '../icons/SidebarToggleIcon';
 import SkillsManager from './SkillsManager';
@@ -47,6 +49,7 @@ const SkillsView: React.FC<SkillsViewProps> = ({ isSidebarCollapsed, onToggleSid
             {i18nService.t('skills')}
           </h1>
         </div>
+        {!readOnly && <CommunityPublishButton kind={CommunityKind.Skill} />}
       </div>
 
       <div className="flex-1 overflow-y-auto min-h-0 [scrollbar-gutter:stable]">

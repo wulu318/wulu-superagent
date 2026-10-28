@@ -109,6 +109,7 @@ const McpServerFormModal: React.FC<McpServerFormModalProps> = ({
         || (registryEntry.descriptionKey ? i18nService.t(registryEntry.descriptionKey) : '');
       setDescription(registryDescription);
       setTransportType(registryEntry.transportType);
+      setUrl(registryEntry.url || '');
       setCommand(registryEntry.command);
       // defaultArgs + argPlaceholders
       const allArgs = [...registryEntry.defaultArgs];
@@ -129,7 +130,6 @@ const McpServerFormModal: React.FC<McpServerFormModalProps> = ({
         }
       }
       setEnvRows(envEntries);
-      setUrl('');
       setHeaderRows([]);
     } else {
       // Create mode

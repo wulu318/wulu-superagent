@@ -8,8 +8,23 @@ import {
 } from './auth';
 
 afterEach(() => {
+  vi.doUnmock('./cowork');
   vi.restoreAllMocks();
   vi.unstubAllGlobals();
+});
+
+test('browser login persists the same account in cloud settings', async () => {
+  const updateConfig = vi.fn().mockResolvedValue(true);
+  vi.doMock('./cowork', () => ({ coworkService: { updateConfig } }));
+  vi.spyOn(authService, 'loadServerModels').mockResolvedValue();
+  vi.spyOn(authService, 'fetchProfileSummary').mockResolvedValue();
+  vi.spyOn(authService, 'refreshQuota').mockResolvedValue();
+  vi.stubGlobal('window', { electron: { auth: {
+    exchange: vi.fn().mockResolvedValue({ success: true, user: { yid: 'community-author', nickname: 'Author', email: 'author@example.com', avatarUrl: null }, quota: null }),
+    getAccessToken: vi.fn().mockResolvedValue('local-test-session'),
+  } } });
+  expect(await authService.handleCallback('local-test-code')).toBe(true);
+  expect(updateConfig).toHaveBeenCalledWith({ wuluCloudToken: 'local-test-session', wuluCloudEmail: 'author@example.com', wuluCloudEnabled: true });
 });
 
 describe('pricing catalog model mapping', () => {

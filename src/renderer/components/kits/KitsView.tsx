@@ -1,6 +1,8 @@
 import React from 'react';
 
+import { CommunityKind } from '../../../shared/community/constants';
 import { i18nService } from '../../services/i18n';
+import CommunityPublishButton from '../CommunityPublishButton';
 import ComposeIcon from '../icons/ComposeIcon';
 import SidebarToggleIcon from '../icons/SidebarToggleIcon';
 import KitsManager from './KitsManager';
@@ -47,6 +49,7 @@ const KitsView: React.FC<KitsViewProps> = ({ isSidebarCollapsed, onToggleSidebar
             {i18nService.t('kits')}
           </h1>
         </div>
+        <CommunityPublishButton kind={CommunityKind.Expert} />
       </div>
 
       <div className="flex-1 overflow-y-auto min-h-0 [scrollbar-gutter:stable]">
