@@ -7,6 +7,7 @@ import {
   type AppUpdateCheckResult,
   type AppUpdateInfo,
   AppUpdateIpc,
+  AppUpdatePatch,
   type AppUpdateRuntimeState,
   AppUpdateSource,
   AppUpdateStatus,
@@ -30,6 +31,7 @@ type ChangeLogLang = {
 
 type PlatformDownload = {
   url?: string;
+  sha256?: string;
 };
 
 type UpdateApiResponse = {
@@ -48,6 +50,7 @@ type UpdateApiResponse = {
       linuxX64?: PlatformDownload;
       linuxArm64?: PlatformDownload;
       incremental?: {
+        platform?: string;
         baseVersion?: string;
         url?: string;
         size?: number;
@@ -60,6 +63,7 @@ type UpdateApiResponse = {
 export const INSTALLATION_UUID_KEY = 'installation_uuid';
 const APP_UPDATE_TEST_CURRENT_VERSION_ENV = 'WULU_UPDATE_CURRENT_VERSION';
 export const APP_UPDATE_READY_FILE_KEY_PREFIX = 'app_update_ready_file';
+export const APP_UPDATE_PATCH_ATTEMPT_KEY = 'app_update_patch_attempt';
 
 type StoredReadyFile = {
   version: string;
@@ -208,7 +212,7 @@ export class AppUpdateCoordinator {
         return { success: true, state: this.getState(), updateFound: this.getState().info !== null };
       }
 
-      if (matchingReadyFile) {
+      if (matchingReadyFile && (!info.sha256 || matchingReadyFile.fileHash.toLowerCase() === info.sha256.toLowerCase())) {
         console.log(
           `[AppUpdate] reusing ready file for version ${info.latestVersion}: ${matchingReadyFile.filePath}`,
         );
@@ -450,6 +454,8 @@ export class AppUpdateCoordinator {
       }
 
       const fileHash = await this.computeFileHash(filePath);
+      const expectedHash = info.incremental?.url ? info.incremental.sha256 : info.sha256;
+      if (!info.incremental?.url && expectedHash && fileHash.toLowerCase() !== expectedHash.toLowerCase()) throw new Error('Update SHA256 verification failed');
       console.log(
         `[AppUpdate] download completed, flowId=${flowId}, source=${source}, version=${info.latestVersion}, filePath=${filePath}, fileHash=${fileHash}`,
       );
@@ -459,7 +465,9 @@ export class AppUpdateCoordinator {
       if (info.incremental?.url?.trim()) {
         console.log('[AppUpdate] applying incremental patch after download');
         try {
-          await applyIncrementalPatch(filePath);
+          if (!expectedHash || fileHash.toLowerCase() !== expectedHash.toLowerCase()) throw new Error('Patch SHA256 verification failed');
+          this.store.set(APP_UPDATE_PATCH_ATTEMPT_KEY, info.latestVersion);
+          await applyIncrementalPatch(filePath, { from: this.resolveCurrentVersion(), to: info.latestVersion });
           this.clearStoredReadyFile(source);
           return this.setState({
             status: AppUpdateStatus.Idle,
@@ -491,6 +499,7 @@ export class AppUpdateCoordinator {
             });
           });
           const fullHash = await this.computeFileHash(fullPath);
+          if (info.sha256 && fullHash.toLowerCase() !== info.sha256.toLowerCase()) throw new Error('Installer SHA256 verification failed');
           this.setStoredReadyFile({ version: info.latestVersion, filePath: fullPath, fileHash: fullHash, info });
           await this.pruneCachedInstallerFiles(source, [fullPath]);
           this.autoOpenReadyModal = true;
@@ -607,13 +616,19 @@ export class AppUpdateCoordinator {
         en: toEntry(value?.changeLog?.en),
       },
       url: this.getPlatformDownloadUrl(value),
+      sha256: (process.platform === 'win32' ? value?.windowsX64 : process.platform === 'darwin'
+        ? process.arch === 'arm64' ? value?.macArm : value?.macIntel
+        : process.arch === 'arm64' ? value?.linuxArm64 : value?.linuxX64)?.sha256,
     };
 
     // Incremental patch: prefer it when the server offers one for this client's
     // current version, falling back to the full package otherwise.
     const incremental = value?.incremental;
-    if (incremental?.url?.trim()) {
+    if (process.platform === 'win32' && process.arch === 'x64' && incremental?.platform === AppUpdatePatch.Platform
+      && this.store.get(APP_UPDATE_PATCH_ATTEMPT_KEY) !== latestVersion
+      && incremental.baseVersion === currentVersion && /^[a-f0-9]{64}$/i.test(incremental.sha256 || '') && incremental.url?.trim()) {
       result.incremental = {
+        platform: incremental.platform,
         baseVersion: incremental.baseVersion?.trim() || '',
         url: incremental.url.trim(),
         size: typeof incremental.size === 'number' ? incremental.size : undefined,
@@ -698,6 +713,8 @@ export class AppUpdateCoordinator {
 
   private getUpdateQueryString(userId?: string | null, version?: string): string {
     const params = new URLSearchParams();
+    params.set('platform', process.platform);
+    params.set('arch', process.arch);
     const installationId = this.getOrCreateInstallationId();
     if (installationId) {
       params.append('uuid', installationId);

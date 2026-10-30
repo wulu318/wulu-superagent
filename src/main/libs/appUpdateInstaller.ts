@@ -1,4 +1,5 @@
 import { exec, execFile, spawn } from 'child_process';
+import crypto from 'crypto';
 import { app, session, shell } from 'electron';
 import fs from 'fs';
 import path from 'path';
@@ -7,6 +8,7 @@ import { pipeline } from 'stream/promises';
 
 import {
   APP_UPDATE_ELEVATION_DECLINED_ERROR,
+  AppUpdatePatch,
   type AppUpdateSource,
 } from '../../shared/appUpdate/constants';
 
@@ -240,8 +242,10 @@ export interface InstallUpdateOptions {
  */
 export async function applyIncrementalPatch(
   patchZipPath: string,
-  options?: { relaunch?: boolean },
+  options?: { relaunch?: boolean; from?: string; to?: string },
 ): Promise<{ applied: boolean; targetPath?: string }> {
+  // macOS signatures and Linux AppImage mounts require the full installer.
+  if (process.platform !== 'win32' || process.arch !== 'x64') throw new Error('This platform requires a full installer');
   const extractZipModule = await import('extract-zip');
   const extractZip = extractZipModule.default;
   const updateDir = path.join(app.getPath('userData'), 'updates');
@@ -256,8 +260,11 @@ export async function applyIncrementalPatch(
   const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8')) as {
     type?: string;
     target?: string;
+    from?: string; to?: string; platform?: string; resourceFingerprint?: string; sha256?: string;
   };
-  if (manifest.type !== 'asar') {
+  if (manifest.type !== AppUpdatePatch.Type || manifest.platform !== AppUpdatePatch.Platform
+    || manifest.target !== 'resources/app.asar' || manifest.from !== (options?.from || app.getVersion())
+    || !options?.to || manifest.to !== options.to) {
     throw new Error(`Unsupported patch type: ${manifest.type ?? 'unknown'}`);
   }
 
@@ -277,27 +284,36 @@ export async function applyIncrementalPatch(
     throw new Error(`Target app.asar not found: ${targetAsar}`);
   }
 
-  // Verify target matches the declared base version via package.json inside asar?
-  // (best effort; asar is opaque without @electron/asar here, so rely on the
-  // server-provided baseVersion check already done by the coordinator.)
-
-  // Backup current asar then replace
+  const compatibility = JSON.parse(fs.readFileSync(path.join(resourcesPath, AppUpdatePatch.CompatibilityFile), 'utf8')) as { resourceFingerprint?: string };
+  if (!manifest.resourceFingerprint || manifest.resourceFingerprint !== compatibility.resourceFingerprint) throw new Error('Patch resources do not match this installation');
+  const hash = crypto.createHash('sha256');
+  for await (const chunk of fs.createReadStream(sourceAsar)) hash.update(chunk);
+  if (!/^[a-f0-9]{64}$/.test(manifest.sha256 || '') || hash.digest('hex') !== manifest.sha256) throw new Error('Patch bundle SHA256 mismatch');
+  // Prepare both files before quitting. Missing permissions trigger the full
+  // installer path, which can request OS elevation without losing the app.
   const backupAsar = `${targetAsar}.bak`;
-  try {
-    await fs.promises.copyFile(targetAsar, backupAsar);
-  } catch {
-    // Best effort backup; continue even if backup fails.
+  const stagedAsar = `${targetAsar}.${crypto.randomUUID()}.new`;
+  await fs.promises.copyFile(targetAsar, backupAsar);
+  await fs.promises.copyFile(sourceAsar, stagedAsar);
+  const readyPath = path.join(extractDir, 'helper-ready');
+  const quote = (value: string) => `'${value.replace(/'/g, "''")}'`;
+  const script = `$ErrorActionPreference='Stop'; Set-Content -LiteralPath ${quote(readyPath)} -Value ready; `
+    + `$appProcess=Get-Process -Id ${process.pid} -ErrorAction SilentlyContinue; if($appProcess){$appProcess.WaitForExit()}; `
+    + `try { if((Get-FileHash -LiteralPath ${quote(stagedAsar)} -Algorithm SHA256).Hash -ne '${manifest.sha256}'){throw 'Hash mismatch'}; `
+    + `$moved=$false; for($i=0;$i -lt 50;$i++){try{Move-Item -LiteralPath ${quote(stagedAsar)} -Destination ${quote(targetAsar)} -Force; $moved=$true; break}catch{Start-Sleep -Milliseconds 200}}; if(-not $moved){throw 'Application files remain locked'}; Start-Process -FilePath ${quote(process.execPath)} } `
+    + `catch { Copy-Item -LiteralPath ${quote(backupAsar)} -Destination ${quote(targetAsar)} -Force; Start-Process -FilePath ${quote(process.execPath)} } `
+    + `finally { Remove-Item -LiteralPath ${quote(extractDir)} -Recurse -Force -ErrorAction SilentlyContinue }`;
+  const helper = spawn('powershell.exe', ['-NoProfile', '-NonInteractive', '-EncodedCommand', Buffer.from(script, 'utf16le').toString('base64')], { detached: true, stdio: 'ignore', windowsHide: true });
+  let launchError: Error | null = null;
+  helper.on('error', error => { launchError = error; });
+  helper.unref();
+  for (let attempt = 0; attempt < 50 && !fs.existsSync(readyPath) && !launchError; attempt++) await new Promise(resolve => setTimeout(resolve, 100));
+  if (launchError || !fs.existsSync(readyPath)) {
+    helper.kill();
+    await fs.promises.unlink(stagedAsar).catch(() => {});
+    throw launchError || new Error('Patch helper did not start');
   }
-  await fs.promises.copyFile(sourceAsar, targetAsar);
-  console.log(`[AppUpdate] Incremental patch applied: ${targetAsar}`);
-
-  // Clean up extract dir
-  try { fs.rmSync(extractDir, { recursive: true, force: true }); } catch { /* best effort */ }
-
-  if (options?.relaunch !== false) {
-    app.relaunch();
-    app.quit();
-  }
+  if (options?.relaunch !== false) app.quit();
   return { applied: true, targetPath: targetAsar };
 }
 

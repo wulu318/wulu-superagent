@@ -51,7 +51,30 @@ async function githubReleasePayload(version) {
   });
   if (response.status !== 200) throw new Error(`Release lookup failed (${response.status})`);
   const release = JSON.parse(response.text);
-  return releaseAssetsPayload(release);
+  const payload = releaseAssetsPayload(release);
+  payload.release_notes = process.env.WULU_RELEASE_NOTES || release.body || `WULU SuperAgent v${version}`;
+  const metadataAsset = release.assets.find(asset => asset.name === 'WULU-update-win32-x64.json');
+  if (metadataAsset) {
+    const directory = fs.mkdtempSync(path.join(require('os').tmpdir(), 'wulu-release-metadata-'));
+    try {
+      require('child_process').execFileSync('gh', ['release', 'download', `v${version}`, '--repo', GITHUB_REPO, '--pattern', metadataAsset.name, '--dir', directory], { stdio: ['ignore', 'ignore', 'pipe'] });
+      Object.assign(payload, releasePatchPayload(release, JSON.parse(fs.readFileSync(path.join(directory, metadataAsset.name), 'utf8')), version));
+    } finally { fs.rmSync(directory, { recursive: true, force: true }); }
+  }
+  return payload;
+}
+
+function releasePatchPayload(release, metadata, version) {
+  if (metadata.protocol !== 2 || metadata.platform !== 'win32-x64' || metadata.version !== version) throw new Error('Invalid update metadata');
+  const cleared = { incremental_base_version: '', incremental_url: '', incremental_size: '', incremental_sha256: '', incremental_platform: '' };
+  if (!metadata.patch) return cleared;
+  const patch = metadata.patch;
+  if (compareVersions(patch.baseVersion, version) >= 0) throw new Error('Invalid patch base');
+  const name = `WULU-patch-win32-x64-${patch.baseVersion}-to-${version}.zip`;
+  const asset = release.assets.find(asset => asset.name === name);
+  if (patch.name !== name || !/^[a-f0-9]{64}$/.test(patch.sha256 || '') || !asset || asset.digest !== `sha256:${patch.sha256}` || asset.size !== patch.size) throw new Error('Patch asset integrity mismatch');
+  return { incremental_base_version: patch.baseVersion, incremental_url: asset.browser_download_url,
+    incremental_size: String(asset.size), incremental_sha256: patch.sha256, incremental_platform: 'win32-x64' };
 }
 
 function releaseAssetsPayload(release) {
@@ -172,7 +195,7 @@ async function uploadFileToRuntime(token, localPath, remoteName) {
 }
 
 /** Build an incremental patch zip containing the new app.asar (and manifest). */
-async function buildIncrementalPatch(asarPath, version, baseVersion) {
+async function buildIncrementalPatch(asarPath, version, baseVersion, compatibility = {}) {
   const archiver = require('archiver');
   const patchDir = path.dirname(asarPath);
   const patchFile = path.join(patchDir, `WULU-patch-${baseVersion}-to-${version}.zip`);
@@ -189,6 +212,9 @@ async function buildIncrementalPatch(asarPath, version, baseVersion) {
       to: version,
       type: 'asar',
       target: 'resources/app.asar',
+      platform: compatibility.platform,
+      resourceFingerprint: compatibility.resourceFingerprint,
+      sha256: sha256(fs.readFileSync(asarPath)),
       createdAt: new Date().toISOString(),
     }, null, 2), { name: 'patch.json' });
     archive.file(asarPath, { name: 'app.asar' });
@@ -260,6 +286,10 @@ async function main() {
 
   if (process.argv.includes('--github-only')) {
     Object.assign(payload, await githubReleasePayload(version));
+    if (payload.incremental_url) {
+      const health = await httpsRequest(`${BACKEND_URL}/api/health`);
+      if (health.status !== 200 || JSON.parse(health.text).updateProtocol !== 2) throw new Error('Deploy update protocol 2 backend before activating incremental updates');
+    }
     await upsertVersion(token, version, payload);
     log('Stable installers synchronized from GitHub (all four platforms)');
     return;
@@ -351,4 +381,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { compareVersions, githubReleasePayload, releaseAssetsPayload };
+module.exports = { compareVersions, githubReleasePayload, releaseAssetsPayload, releasePatchPayload, buildIncrementalPatch };

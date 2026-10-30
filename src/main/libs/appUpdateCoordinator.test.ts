@@ -14,6 +14,7 @@ const mocks = vi.hoisted(() => ({
   downloadUpdate: vi.fn(),
   installUpdate: vi.fn(),
   cancelActiveDownload: vi.fn(),
+  applyIncrementalPatch: vi.fn(),
 }));
 
 vi.mock('electron', () => ({
@@ -35,6 +36,7 @@ vi.mock('./appUpdateInstaller', () => ({
   cancelActiveDownload: mocks.cancelActiveDownload,
   downloadUpdate: mocks.downloadUpdate,
   installUpdate: mocks.installUpdate,
+  applyIncrementalPatch: mocks.applyIncrementalPatch,
 }));
 
 vi.mock('./endpoints', () => ({
@@ -102,6 +104,7 @@ describe('AppUpdateCoordinator', () => {
     mocks.downloadUpdate.mockReset();
     mocks.installUpdate.mockReset();
     mocks.cancelActiveDownload.mockReset();
+    mocks.applyIncrementalPatch.mockReset();
 
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'WULU-update-test-'));
     updatesDir = path.join(tmpDir, 'updates');
@@ -269,6 +272,45 @@ describe('AppUpdateCoordinator', () => {
       expect.any(String),
       { noDefenderExclusion: true },
     );
+  });
+
+  test('rejects an installer whose downloaded bytes do not match the server hash', async () => {
+    const filePath = path.join(updatesDir, 'bad.AppImage');
+    fs.mkdirSync(updatesDir, { recursive: true });
+    mocks.fetch.mockResolvedValue({ ok: true, json: async () => ({ code: 0, data: { value: {
+      version: READY_VERSION, linuxX64: { url: 'https://updates.example.com/new.AppImage', sha256: 'a'.repeat(64) },
+    } } }) });
+    mocks.downloadUpdate.mockImplementation(async () => { fs.writeFileSync(filePath, 'corrupt'); return filePath; });
+    const result = await new AppUpdateCoordinator(createStoreStub()).checkNow();
+    expect(result.state.readyFilePath).toBeNull();
+    expect(result.state.errorMessage).toContain('SHA256');
+    expect(mocks.installUpdate).not.toHaveBeenCalled();
+  });
+
+  test('a damaged Windows patch falls back to the verified full installer', async () => {
+    const originalPlatform = process.platform;
+    Object.defineProperty(process, 'platform', { value: 'win32', configurable: true });
+    try {
+      fs.mkdirSync(updatesDir, { recursive: true });
+      const fullPath = path.join(updatesDir, 'new.exe'), patchPath = path.join(updatesDir, 'new.zip');
+      const full = 'verified installer';
+      const fullHash = crypto.createHash('sha256').update(full).digest('hex');
+      mocks.fetch.mockResolvedValue({ ok: true, json: async () => ({ code: 0, data: { value: {
+        version: READY_VERSION, windowsX64: { url: 'https://updates.example.com/new.exe', sha256: fullHash },
+        incremental: { platform: 'win32-x64', baseVersion: '1.0.0', url: 'https://updates.example.com/new.zip', sha256: 'a'.repeat(64) },
+      } } }) });
+      mocks.downloadUpdate.mockImplementation(async (url: string) => {
+        const filename = url.endsWith('.zip') ? patchPath : fullPath;
+        fs.writeFileSync(filename, url.endsWith('.zip') ? 'damaged patch' : full); return filename;
+      });
+      const result = await new AppUpdateCoordinator(createStoreStub()).checkNow();
+      expect(result.state.readyFilePath).toBe(fullPath);
+      expect(result.state.status).toBe(AppUpdateStatus.Ready);
+      expect(mocks.applyIncrementalPatch).not.toHaveBeenCalled();
+      expect(mocks.downloadUpdate).toHaveBeenCalledTimes(2);
+      const query = new URL(mocks.fetch.mock.calls[0][0]).searchParams;
+      expect(query.get('platform')).toBe('win32'); expect(query.get('arch')).toBe(process.arch);
+    } finally { Object.defineProperty(process, 'platform', { value: originalPlatform, configurable: true }); }
   });
 
   test('does not request the Defender opt-out without enterprise config', async () => {

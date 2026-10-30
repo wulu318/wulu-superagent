@@ -652,6 +652,11 @@ async function beforePack(context) {
 }
 
 async function afterPack(context) {
+  if (isWindowsTarget(context) && resolveTargetArch(context) === 'x64') {
+    await require('./build-update-patch.cjs').writeCompatibility(
+      path.join(context.appOutDir, 'resources'), context.packager.config.electronVersion
+    );
+  }
   if (isMacTarget(context)) {
     const appName = context.packager.appInfo.productFilename;
     const appPath = path.join(context.appOutDir, `${appName}.app`);

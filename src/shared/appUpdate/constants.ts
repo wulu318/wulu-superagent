@@ -34,6 +34,7 @@ export const AppUpdateIpc = {
  * boundary; the renderer maps it to a translated message.
  */
 export const APP_UPDATE_ELEVATION_DECLINED_ERROR = 'update-elevation-declined';
+export const AppUpdatePatch = { Platform: 'win32-x64', Type: 'asar', CompatibilityFile: 'wulu-update-compatibility.json' } as const;
 
 export interface ChangeLogEntry {
   title: string;
@@ -52,8 +53,10 @@ export interface AppUpdateInfo {
   date: string;
   changeLog: { zh: ChangeLogEntry; en: ChangeLogEntry };
   url: string;
+  sha256?: string;
   /** Incremental patch info when the client's current version matches the declared base version. */
   incremental?: {
+    platform?: string;
     baseVersion: string;
     url: string;
     size?: number;

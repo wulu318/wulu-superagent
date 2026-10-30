@@ -160,6 +160,16 @@ config.linux = {
   artifactName: `WULU-\${version}-\${arch}.\${ext}`,
 };
 
+// The matrix prepares one runtime per job. Explicit target arch lists otherwise
+// cause electron-builder to package both architectures with that same runtime.
+const linuxArch = process.argv.includes('--arm64') ? 'arm64' : process.argv.includes('--x64') ? 'x64' : null;
+if (linuxArch && Array.isArray(config.linux.target)) {
+  config.linux.target = config.linux.target.map(target => typeof target === 'string'
+    ? { target, arch: [linuxArch] } : { ...target, arch: [linuxArch] });
+}
+// Avoid rpmbuild's default parallel xz compression exhausting runner memory.
+config.rpm = { ...(config.rpm || {}), compression: 'xz', fpm: ['--verbose'] };
+
 // Tag-triggered CI builds must not enter electron-builder's publish mode:
 // when a git tag is present electron-builder infers a GitHub publish target
 // and requires GH_TOKEN ("GitHub Personal Access Token is not set" hard

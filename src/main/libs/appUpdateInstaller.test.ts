@@ -1,3 +1,5 @@
+import archiver from 'archiver';
+import crypto from 'crypto';
 import { EventEmitter } from 'events';
 import fs from 'fs';
 import os from 'os';
@@ -45,8 +47,9 @@ vi.mock('child_process', async (importOriginal) => {
   };
 });
 
-import { APP_UPDATE_ELEVATION_DECLINED_ERROR } from '../../shared/appUpdate/constants';
+import { APP_UPDATE_ELEVATION_DECLINED_ERROR, AppUpdatePatch } from '../../shared/appUpdate/constants';
 import {
+  applyIncrementalPatch,
   buildMacSwapInstallCommand,
   buildMacSwapPaths,
   buildWindowsInstallerLaunchScript,
@@ -59,6 +62,59 @@ import {
   WINDOWS_NO_DEFENDER_EXCLUSION_ARG,
   WINDOWS_UAC_DECLINED_EXIT_CODE,
 } from './appUpdateInstaller';
+
+describe('verified Windows incremental updates', () => {
+  const originalPlatform = process.platform;
+  const originalResources = (process as { resourcesPath?: string }).resourcesPath;
+  let directory: string;
+  beforeEach(() => {
+    vi.restoreAllMocks(); mocks.quit.mockReset(); cpMocks.spawn.mockReset();
+    directory = fs.mkdtempSync(path.join(os.tmpdir(), 'wulu-patch-test-'));
+    fs.mkdirSync(path.join(directory, 'resources'));
+    fs.writeFileSync(path.join(directory, 'resources', 'app.asar'), 'old application');
+    fs.writeFileSync(path.join(directory, 'resources', AppUpdatePatch.CompatibilityFile), JSON.stringify({ resourceFingerprint: 'runtime-one' }));
+    Object.defineProperty(process, 'platform', { value: 'win32', configurable: true });
+    Object.defineProperty(process, 'resourcesPath', { value: path.join(directory, 'resources'), configurable: true });
+    mocks.getPath.mockReturnValue(directory);
+  });
+  afterEach(() => {
+    Object.defineProperty(process, 'platform', { value: originalPlatform, configurable: true });
+    Object.defineProperty(process, 'resourcesPath', { value: originalResources, configurable: true });
+    fs.rmSync(directory, { recursive: true, force: true });
+  });
+  async function packagePatch(overrides = {}) {
+    const filename = path.join(directory, 'patch.zip');
+    const archive = archiver('zip'); const output = fs.createWriteStream(filename);
+    const completed = new Promise<void>((resolve, reject) => { output.on('close', resolve); output.on('error', reject); archive.on('error', reject); });
+    archive.pipe(output);
+    archive.append(JSON.stringify({ type: AppUpdatePatch.Type, platform: AppUpdatePatch.Platform, target: 'resources/app.asar', from: '1.0.0', to: '2.0.0', resourceFingerprint: 'runtime-one', sha256: crypto.createHash('sha256').update('new application').digest('hex'), ...overrides }), { name: 'patch.json' });
+    archive.append('new application', { name: 'app.asar' }); await archive.finalize(); await completed; return filename;
+  }
+  test('stages a verified bundle and waits for a ready helper before quitting', async () => {
+    cpMocks.spawn.mockImplementation(() => {
+      const updates = path.join(directory, 'updates');
+      const extracted = fs.readdirSync(updates).find(name => name.startsWith('patch-extract-'))!;
+      fs.writeFileSync(path.join(updates, extracted, 'helper-ready'), 'ready');
+      return Object.assign(new EventEmitter(), { unref: vi.fn(), kill: vi.fn() });
+    });
+    await applyIncrementalPatch(await packagePatch(), { from: '1.0.0', to: '2.0.0' });
+    expect(fs.readFileSync(path.join(directory, 'resources', 'app.asar'), 'utf8')).toBe('old application');
+    expect(fs.readFileSync(path.join(directory, 'resources', 'app.asar.bak'), 'utf8')).toBe('old application');
+    const args = cpMocks.spawn.mock.calls[0][1] as string[];
+    const script = Buffer.from(args[args.length - 1], 'base64').toString('utf16le');
+    expect(script).toContain('WaitForExit'); expect(script).toContain('Get-FileHash'); expect(script).toContain('Move-Item');
+    expect(mocks.quit).toHaveBeenCalledOnce();
+  });
+  test('rejects a mismatched base before staging or quitting', async () => {
+    await expect(applyIncrementalPatch(await packagePatch({ from: '0.9.0' }), { from: '1.0.0', to: '2.0.0' })).rejects.toThrow('Unsupported patch');
+    expect(cpMocks.spawn).not.toHaveBeenCalled(); expect(mocks.quit).not.toHaveBeenCalled();
+  });
+  test('rejects changed runtime resources and tampered bundle hashes', async () => {
+    await expect(applyIncrementalPatch(await packagePatch({ resourceFingerprint: 'other-runtime' }), { from: '1.0.0', to: '2.0.0' })).rejects.toThrow('resources');
+    await expect(applyIncrementalPatch(await packagePatch({ sha256: 'b'.repeat(64) }), { from: '1.0.0', to: '2.0.0' })).rejects.toThrow('SHA256');
+    expect(cpMocks.spawn).not.toHaveBeenCalled(); expect(mocks.quit).not.toHaveBeenCalled();
+  });
+});
 
 const INSTALLER_PATH = 'C:\\Users\\test\\AppData\\Roaming\\WULU\\updates\\WULU-update-manual-1.exe';
 
