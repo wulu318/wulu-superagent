@@ -223,7 +223,7 @@
     "@types/extract-zip": "^2.0.1",
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^24.0.0",
-    "@types/react": "^18.2.0",
+    "@types/react": "^19.3.0",
     "@types/react-dom": "^18.2.0",
     "@types/react-syntax-highlighter": "^15.5.13",
     "@types/sql.js": "^1.4.9",
