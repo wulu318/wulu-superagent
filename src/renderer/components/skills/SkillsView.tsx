@@ -49,7 +49,7 @@ const SkillsView: React.FC<SkillsViewProps> = ({ isSidebarCollapsed, onToggleSid
             {i18nService.t('skills')}
           </h1>
         </div>
-        {!readOnly && <CommunityPublishButton kind={CommunityKind.Skill} />}
+        {!readOnly && <CommunityPublishButton kind={CommunityKind.Skill} onCreate={onCreateSkillByChat} />}
       </div>
 
       <div className="flex-1 overflow-y-auto min-h-0 [scrollbar-gutter:stable]">

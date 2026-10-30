@@ -540,6 +540,11 @@ interface HtmlShareResult {
 }
 
 interface IElectronAPI {
+  community: {
+    request: (request: import('../../shared/community/constants').CommunityRequest) => Promise<import('../../shared/community/constants').CommunityResponse>;
+    uploadBundle: (skillIds: string[]) => Promise<import('../../shared/community/constants').CommunityUploadResult>;
+    sources: (kind: import('../../shared/community/constants').CommunityKind) => Promise<{ success: boolean; sources: import('../../shared/community/constants').CommunitySource[] }>;
+  };
   platform: string;
   arch: string;
   store: {

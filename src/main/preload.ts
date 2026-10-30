@@ -13,6 +13,7 @@ import {
 import { AuthIpcChannel } from '../shared/auth/constants';
 import { BrowserIpc, type BrowserRuntimeProfile } from '../shared/browserWebAccess/constants';
 import { ClipboardIpc } from '../shared/clipboard/constants';
+import { CommunityIpc, type CommunityKind, type CommunityRequest } from '../shared/community/constants';
 import type { CoworkBrowserAnnotationMessageBatch } from '../shared/cowork/browserAnnotations';
 import {
   CoworkIpcChannel,
@@ -211,6 +212,11 @@ contextBridge.exposeInMainWorld('electron', {
       ipcRenderer.on(`api:stream:${requestId}:abort`, handler);
       return () => ipcRenderer.removeListener(`api:stream:${requestId}:abort`, handler);
     },
+  },
+  community: {
+    request: (request: CommunityRequest) => ipcRenderer.invoke(CommunityIpc.Request, request),
+    uploadBundle: (skillIds: string[]) => ipcRenderer.invoke(CommunityIpc.Upload, skillIds),
+    sources: (kind: CommunityKind) => ipcRenderer.invoke(CommunityIpc.Sources, kind),
   },
   ipcRenderer: {
     send: (channel: string, ...args: any[]) => {

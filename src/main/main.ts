@@ -1,6 +1,4 @@
 import crypto from 'crypto';
-import type { CoworkPermissionMode } from '../shared/cowork/permissions';
-import { beginTaskPermissions } from './libs/agentEngine/taskPermissions';
 import {
   app,
   BrowserWindow,
@@ -70,6 +68,7 @@ import {
   formatCoworkImageAttachmentLimit,
   validateCoworkImageAttachmentSize,
 } from '../shared/cowork/imageAttachments';
+import type { CoworkPermissionMode } from '../shared/cowork/permissions';
 import { containsPlanModePrompt } from '../shared/cowork/planMode';
 import {
   type CoworkSelectedTextSnippet,
@@ -166,6 +165,7 @@ import type {
 } from './im/types';
 import { registerAgentHandlers } from './ipcHandlers/agents';
 import { registerAsrIpcHandlers } from './ipcHandlers/asr';
+import { registerCommunityHandlers } from './ipcHandlers/community';
 import { registerCoworkSubagentHandlers } from './ipcHandlers/coworkSubagent';
 import { registerKitHandlers } from './ipcHandlers/kits';
 import { registerMcpHandlers } from './ipcHandlers/mcp';
@@ -187,6 +187,7 @@ import {
   OpenClawRuntimeAdapter,
   type PermissionResult,
 } from './libs/agentEngine';
+import { beginTaskPermissions } from './libs/agentEngine/taskPermissions';
 import { AppUpdateCoordinator, INSTALLATION_UUID_KEY } from './libs/appUpdateCoordinator';
 import { AuthCallbackRouter } from './libs/authCallbackRouter';
 import {
@@ -6789,6 +6790,14 @@ if (!gotTheLock) {
   });
 
   registerMcpHandlers({ getMcpRuntime, syncOpenClawConfig });
+  registerCommunityHandlers({
+    getToken: () => {
+      const config = getCoworkStore().getConfig();
+      return getAuthTokens()?.accessToken || (config.wuluCloudEnabled ? config.wuluCloudToken : null);
+    },
+    getSkills: () => getSkillManager().listSkills(),
+    getConnectors: () => getMcpRuntime().getStore().listServers(),
+  });
 
   // Cowork IPC handlers
   ipcMain.handle(
