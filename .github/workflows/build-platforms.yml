@@ -121,7 +121,7 @@ jobs:
   # ========== Linux 构建 ==========
   build-linux:
     if: ${{ github.event_name == 'push' || inputs.build_linux }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -155,7 +155,7 @@ jobs:
   # ========== 创建 Release ==========
   create-release:
     needs: [build-macos, build-windows, build-linux]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
     steps:
       - uses: actions/checkout@v4

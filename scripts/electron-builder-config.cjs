@@ -167,8 +167,8 @@ if (linuxArch && Array.isArray(config.linux.target)) {
   config.linux.target = config.linux.target.map(target => typeof target === 'string'
     ? { target, arch: [linuxArch] } : { ...target, arch: [linuxArch] });
 }
-// Avoid rpmbuild's default parallel xz compression exhausting runner memory.
-config.rpm = { ...(config.rpm || {}), compression: 'xz', fpm: ['--verbose'] };
+// Keep rpmbuild diagnostics visible when packaging fails.
+config.rpm = { ...(config.rpm || {}), fpm: [...(config.rpm?.fpm || []), '--verbose'] };
 
 // Tag-triggered CI builds must not enter electron-builder's publish mode:
 // when a git tag is present electron-builder infers a GitHub publish target
