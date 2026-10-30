@@ -52,15 +52,30 @@ test('compatibility fingerprint includes native resources and excludes only the 
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'wulu-compatibility-'));
   t.after(() => fs.rmSync(directory, { recursive: true, force: true }));
   fs.writeFileSync(path.join(directory, 'app.asar'), 'old app');
-  fs.writeFileSync(path.join(directory, 'runtime.tar'), 'runtime 1');
+  fs.writeFileSync(path.join(directory, 'runtime.bin'), 'runtime 1');
   const old = await writeCompatibility(directory, '40.2.1');
   fs.writeFileSync(path.join(directory, 'app.asar'), 'new app');
   const current = await writeCompatibility(directory, '40.2.1');
   assert.deepEqual(current, old);
   assert.equal(compatibleBase({ ...current, version: '2026.10.30' }, { ...old, version: '2026.10.29' }), true);
-  fs.writeFileSync(path.join(directory, 'runtime.tar'), 'runtime 2');
+  fs.writeFileSync(path.join(directory, 'runtime.bin'), 'runtime 2');
   const changed = await writeCompatibility(directory, '40.2.1');
   assert.notEqual(changed.resourceFingerprint, old.resourceFingerprint);
   assert.equal(compatibleBase({ ...changed, version: '2026.10.30' }, { ...old, version: '2026.10.29' }), false);
   assert.equal(compatibleBase({ ...current, version: '2026.10.30' }, { version: '2026.10.13' }), false);
+});
+
+test('runtime tar timestamps do not prevent a compatible patch, but file changes do', async t => {
+  const fs = require('fs'), path = require('path'), os = require('os'), tar = require('tar');
+  const { digestTar } = require('./build-update-patch.cjs');
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'wulu-tar-fingerprint-'));
+  t.after(() => fs.rmSync(directory, { recursive: true, force: true }));
+  const file = path.join(directory, 'runtime.js'); fs.writeFileSync(file, 'same runtime');
+  const first = path.join(directory, 'first.tar'), second = path.join(directory, 'second.tar');
+  await tar.c({ file: first, cwd: directory, mtime: new Date('2026-01-01') }, ['runtime.js']);
+  await tar.c({ file: second, cwd: directory, mtime: new Date('2026-10-30') }, ['runtime.js']);
+  assert.equal(await digestTar(first), await digestTar(second));
+  fs.writeFileSync(file, 'changed runtime');
+  await tar.c({ file: second, cwd: directory }, ['runtime.js']);
+  assert.notEqual(await digestTar(first), await digestTar(second));
 });

@@ -19,6 +19,19 @@ async function digestFile(filename) {
   return hash.digest('hex');
 }
 
+async function digestTar(filename) {
+  const entries = [];
+  // Tar headers contain checkout/build timestamps. Compare the installed
+  // paths, modes, link targets and file contents rather than those timestamps.
+  await require('tar').t({ file: filename, onReadEntry(entry) {
+    const hash = crypto.createHash('sha256');
+    entry.on('data', chunk => hash.update(chunk));
+    entry.on('end', () => entries.push([entry.path, entry.type, entry.mode & 0o777, entry.linkpath || '', hash.digest('hex')]));
+  } });
+  entries.sort((left, right) => left[0] < right[0] ? -1 : left[0] > right[0] ? 1 : 0);
+  return crypto.createHash('sha256').update(JSON.stringify(entries)).digest('hex');
+}
+
 async function writeCompatibility(resources, electronVersion) {
   const hash = crypto.createHash('sha256').update(`electron:${electronVersion}\n`);
   async function walk(directory, relative = '') {
@@ -28,7 +41,7 @@ async function writeCompatibility(resources, electronVersion) {
       const stat = await fs.promises.lstat(filename);
       if (stat.isSymbolicLink()) throw new Error(`Unsupported linked update resource: ${key}`);
       if (stat.isDirectory()) await walk(filename, key);
-      else if (stat.isFile()) hash.update(`${key}\0${await digestFile(filename)}\n`);
+      else if (stat.isFile()) hash.update(`${key}\0${await (name.endsWith('.tar') ? digestTar(filename) : digestFile(filename))}\n`);
     }
   }
   await walk(resources);
@@ -75,4 +88,4 @@ async function main() {
 }
 
 if (require.main === module) main().catch(error => { console.error('[Patch]', error.message); process.exitCode = 1; });
-module.exports = { writeCompatibility, compatibleBase, digestFile, METADATA, COMPATIBILITY, PLATFORM };
+module.exports = { writeCompatibility, compatibleBase, digestFile, digestTar, METADATA, COMPATIBILITY, PLATFORM };
