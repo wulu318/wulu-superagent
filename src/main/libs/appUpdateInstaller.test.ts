@@ -242,7 +242,8 @@ describe('Windows update install', () => {
   });
 });
 
-describe('Linux AppImage update install', () => {
+// These exercise POSIX path construction, so they only make sense on Linux.
+describe.skipIf(process.platform !== 'linux')('Linux AppImage update install', () => {
   const originalPlatform = process.platform;
   const originalAppImage = process.env.APPIMAGE;
   let tempDir = '';
@@ -377,7 +378,8 @@ describe('hdiutil plist parsing', () => {
   });
 });
 
-describe('mac swap builders', () => {
+// macOS paths are POSIX; running this on Windows compares against win32 separators.
+describe.skipIf(process.platform !== 'darwin')('mac swap builders', () => {
   test('places staging and backup next to the target app, hidden and not .app-suffixed', () => {
     const swapPaths = buildMacSwapPaths('/Applications/Wulu AI.app', 1234);
 
@@ -418,7 +420,7 @@ describe('mac swap builders', () => {
   });
 });
 
-describe('macOS DMG install', () => {
+describe.skipIf(process.platform !== 'darwin')('macOS DMG install', () => {
   const originalPlatform = process.platform;
   const originalResourcesPath = (process as { resourcesPath?: string }).resourcesPath;
   const USER_DATA = '/Users/test/Library/Application Support/WULU';

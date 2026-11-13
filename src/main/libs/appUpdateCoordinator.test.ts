@@ -189,6 +189,9 @@ describe('AppUpdateCoordinator', () => {
   });
 
   test('downloads a direct Linux AppImage update into a ready-to-install state', async () => {
+    const originalPlatform = process.platform;
+    Object.defineProperty(process, 'platform', { value: 'linux', configurable: true });
+    try {
     const store = createStoreStub();
     const filePath = path.join(updatesDir, 'WULU-update-auto-2.0.0.AppImage');
     fs.mkdirSync(updatesDir, { recursive: true });
@@ -213,6 +216,7 @@ describe('AppUpdateCoordinator', () => {
     expect(result.state.status).toBe(AppUpdateStatus.Ready);
     expect(result.state.readyFilePath).toBe(filePath);
     expect(result.state.info?.url).toBe(downloadUrl);
+    } finally { Object.defineProperty(process, 'platform', { value: originalPlatform, configurable: true }); }
   });
 
   test('restores installIncomplete after an install attempt that never completed', async () => {
@@ -275,6 +279,9 @@ describe('AppUpdateCoordinator', () => {
   });
 
   test('rejects an installer whose downloaded bytes do not match the server hash', async () => {
+    const originalPlatform = process.platform;
+    Object.defineProperty(process, 'platform', { value: 'linux', configurable: true });
+    try {
     const filePath = path.join(updatesDir, 'bad.AppImage');
     fs.mkdirSync(updatesDir, { recursive: true });
     mocks.fetch.mockResolvedValue({ ok: true, json: async () => ({ code: 0, data: { value: {
@@ -285,6 +292,7 @@ describe('AppUpdateCoordinator', () => {
     expect(result.state.readyFilePath).toBeNull();
     expect(result.state.errorMessage).toContain('SHA256');
     expect(mocks.installUpdate).not.toHaveBeenCalled();
+    } finally { Object.defineProperty(process, 'platform', { value: originalPlatform, configurable: true }); }
   });
 
   test('a damaged Windows patch falls back to the verified full installer', async () => {
