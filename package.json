@@ -132,6 +132,7 @@
     "fix:mac-icon": "bash scripts/fix-mac-icon-display.sh"
   },
   "dependencies": {
+    "@codemirror/commands": "^6.5.0",
     "@codemirror/lang-cpp": "^6.0.3",
     "@codemirror/lang-css": "^6.3.1",
     "@codemirror/lang-go": "^6.0.1",
