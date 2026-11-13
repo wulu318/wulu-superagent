@@ -33,7 +33,7 @@ export function ensureMemoryStore(workspaceDir: string): MemoryMigrationResult {
     return { migrated: false, imported: 0, stats: rebuild(workspaceDir) };
   }
 
-  const imported = importViewEdits(workspaceDir, { kind: 'import' });
+  const imported = importViewEdits(workspaceDir, { source: { kind: 'import' } });
   const hasViewMarker = fs.readFileSync(view, 'utf8').includes(VIEW_MARKER);
 
   if (eventsBefore.length === 0 || imported > 0 || !hasViewMarker) {
