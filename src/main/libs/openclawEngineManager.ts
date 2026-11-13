@@ -27,6 +27,8 @@ import { getCodexHomeDir } from './openaiCodexAuth';
 import { migrateLegacyCronStorageWithDoctor } from './openclawCronLegacyMigration';
 import { cleanupStaleThirdPartyPluginsFromBundledDir, listLocalOpenClawExtensionIds,syncLocalOpenClawExtensionsIntoRuntime } from './openclawLocalExtensions';
 import { migrateAllFtsOnlyMemoryIndexes } from './openclawMemoryIndexMigration';
+import { getMainAgentWorkspacePath } from './openclawMemoryFile';
+import { ensureMemoryStore } from './memory/memoryMigration';
 import { ensureOpenClawWorkerShims } from './openclawWorkerShims';
 import { appendPythonRuntimeToEnv } from './pythonRuntime';
 
@@ -653,6 +655,18 @@ export class OpenClawEngineManager extends EventEmitter {
       electronNodeRuntimePath,
       env,
     });
+
+    // Bring MEMORY.md under the memory event log before the agent starts writing.
+    // Migration is idempotent, and a failure here must never block the gateway.
+    try {
+      const workspaceDir = getMainAgentWorkspacePath(this.stateDir);
+      const result = ensureMemoryStore(workspaceDir);
+      if (result.imported > 0 || result.migrated) {
+        console.log(`[Memory] event store ready: imported=${result.imported} active=${result.stats.active}`);
+      }
+    } catch (error) {
+      console.warn('[Memory] event store migration skipped:', error instanceof Error ? error.message : error);
+    }
 
     const forkArgs = ['gateway', '--bind', 'loopback', '--port', String(port), '--token', token, '--verbose'];
     const gatewayExecArgv = buildOpenClawGatewayExecArgv(process.env.NODE_OPTIONS);
